@@ -1,4 +1,22 @@
 -- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS boss_hometown;
+DROP TABLE IF EXISTS enemy_hometown;
+DROP TABLE IF EXISTS enemy;
+DROP TABLE IF EXISTS enemy_type;
+DROP TABLE IF EXISTS chara_class_hometown;
+DROP TABLE IF EXISTS place;
+DROP TABLE IF EXISTS region;
+DROP TABLE IF EXISTS waza_derivation;
+DROP TABLE IF EXISTS waza_of_weapon;
+DROP TABLE IF EXISTS spark_type_and_waza;
+DROP TABLE IF EXISTS waza;
+DROP TABLE IF EXISTS weapon;
+DROP TABLE IF EXISTS weapon_type;
+DROP TABLE IF EXISTS chara;
+DROP TABLE IF EXISTS spark_type;
+DROP TABLE IF EXISTS chara_class;
+
+-- -----------------------------------------------------------------------------
 CREATE TABLE chara_class (
     chara_class_id      integer NOT NULL,
     chara_class_name    text    NOT NULL,
