@@ -1384,7 +1384,7 @@ CREATE TABLE public.enemy_hometown (
     enemy_type_id integer NOT NULL,
     place_id      integer NOT NULL,
     note          text    NOT NULL DEFAULT '',
-    PRIMARY KEY (enemy_type_id, place_id)
+    PRIMARY KEY (enemy_type_id, place_id),
     FOREIGN KEY (enemy_type_id)
         REFERENCES public.enemy_type(enemy_type_id) MATCH SIMPLE
         ON UPDATE CASCADE
@@ -1405,7 +1405,7 @@ CREATE TABLE public.boss_hometown (
     enemy_id integer NOT NULL,
     place_id integer NOT NULL,
     note     text    NOT NULL DEFAULT '',
-    PRIMARY KEY (enemy_id, place_id)
+    PRIMARY KEY (enemy_id, place_id),
     FOREIGN KEY (enemy_id)
         REFERENCES public.enemy(enemy_id) MATCH SIMPLE
         ON UPDATE CASCADE
