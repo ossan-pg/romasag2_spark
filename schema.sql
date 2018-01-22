@@ -1397,6 +1397,9 @@ CREATE TABLE public.enemy_hometown (
 WITH (OIDS = FALSE);
 ALTER TABLE public.enemy_hometown OWNER to postgres;
 
+INSERT INTO public.enemy_hometown (enemy_type_id, place_id) VALUES
+(),
+();
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.boss_hometown (
     enemy_id integer NOT NULL,
@@ -1461,19 +1464,21 @@ ALTER TABLE public.place OWNER to postgres;
 INSERT INTO public.place(place_id, place_name, region_id) VALUES
 (  0, 'アバロン',         0),
 (  1, '封印の地',         0),
-(  2, 'ウオッチマンの巣', 0),
-(  3, 'ゴブリンの穴',     0),
-(  4, 'ソーモン',         0),
-(  5, 'アバロン地下',     0),
+(  2, '封印の地(深部)',   0),
+(  3, 'ウオッチマンの巣', 0),
+(  4, 'ゴブリンの穴',     0),
+(  5, 'ソーモン',         0),
+(  6, 'アバロン地下',     0),
 ( 10, '運河要塞',       1),
 ( 11, 'ミラマー',       1),
 ( 12, 'ニーベル',       1),
 ( 13, '龍の穴',         1),
 ( 14, 'モンスターの巣', 1),
-( 20, 'ティファール', 2),
-( 21, '宝石鉱山',     2),
-( 22, 'ルドン高原',   2),
-( 23, 'ハリア半島',   2),
+( 20, 'ティファール',   2),
+( 21, '宝石鉱山',       2),
+( 22, '宝石鉱山(深部)', 2),
+( 23, 'ルドン高原',     2),
+( 24, 'ハリア半島',     2),
 ( 30, 'サイゴ族の村',   3),
 ( 31, 'ムーの越冬地',   3),
 ( 32, '東のダンジョン', 3),
