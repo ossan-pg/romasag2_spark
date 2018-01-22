@@ -1,14 +1,12 @@
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.chara_class (
+CREATE TABLE chara_class (
     chara_class_id      integer NOT NULL,
     chara_class_name    text    NOT NULL,
     affiliate_condition text    NOT NULL,
     PRIMARY KEY (chara_class_id)
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.chara_class OWNER to postgres;
+);
 
-INSERT INTO public.chara_class(chara_class_id, chara_class_name, affiliate_condition) VALUES
+INSERT INTO chara_class(chara_class_id, chara_class_name, affiliate_condition) VALUES
 ( 0, '帝国重装歩兵',         '初期状態で加入済み。'),
 ( 1, '帝国軽装歩兵(男)',     '初期状態で加入済み。'),
 ( 2, '帝国軽装歩兵(女)',     '初期状態で加入済み。'),
@@ -44,15 +42,13 @@ INSERT INTO public.chara_class(chara_class_id, chara_class_name, affiliate_condi
 (40, '特殊',             '【加入条件省略】');
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.spark_type (
+CREATE TABLE spark_type (
     spark_type_id   integer NOT NULL,
     spark_type_name text    NOT NULL,
     PRIMARY KEY (spark_type_id)
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.spark_type OWNER to postgres;
+);
 
-INSERT INTO public.spark_type(spark_type_id, spark_type_name) VALUES
+INSERT INTO spark_type(spark_type_id, spark_type_name) VALUES
 ( 0, '剣1'),
 ( 1, '剣2'),
 ( 2, '大剣1'),
@@ -70,7 +66,7 @@ INSERT INTO public.spark_type(spark_type_id, spark_type_name) VALUES
 (14, 'なし');
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.chara (
+CREATE TABLE chara (
     chara_id        integer NOT NULL,
     chara_name      text    NOT NULL,
     attr_lp         integer NOT NULL,
@@ -96,18 +92,16 @@ CREATE TABLE public.chara (
     spark_type_id integer NOT NULL,
     PRIMARY KEY (chara_id),
     FOREIGN KEY (chara_class_id)
-        REFERENCES public.chara_class (chara_class_id) MATCH SIMPLE
+        REFERENCES chara_class (chara_class_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION,
     FOREIGN KEY (spark_type_id)
-        REFERENCES public.spark_type (spark_type_id) MATCH SIMPLE
+        REFERENCES spark_type (spark_type_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.chara OWNER to postgres;
+);
 
-INSERT INTO public.chara(
+INSERT INTO chara(
   chara_id, chara_name,
   attr_lp, attr_str, attr_dex, attr_mag, attr_int, attr_spd, attr_sta,
   offset_slash, offset_stab, offset_bash, offset_shoot, offset_martial,
@@ -376,15 +370,13 @@ INSERT INTO public.chara(
 (304, 'コッペリア',        99, 20, 20, 15, 15, 20, 20, 15, 15, 15, 15, 15,  0,  0,  0,  0,  0,  0, 40, 0, 14);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.weapon_type (
+CREATE TABLE weapon_type (
     weapon_type_id   integer NOT NULL,
     weapon_type_name text    NOT NULL,
     PRIMARY KEY (weapon_type_id)
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.weapon_type OWNER to postgres;
+);
 
-INSERT INTO public.weapon_type(weapon_type_id, weapon_type_name) VALUES
+INSERT INTO weapon_type(weapon_type_id, weapon_type_name) VALUES
 (0, '剣'),
 (1, '大剣'),
 (2, '斧'),
@@ -395,7 +387,7 @@ INSERT INTO public.weapon_type(weapon_type_id, weapon_type_name) VALUES
 (7, '体術');
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.weapon (
+CREATE TABLE weapon (
     weapon_id      integer NOT NULL,
     weapon_name    text    NOT NULL,
     atk            integer NOT NULL,
@@ -405,14 +397,12 @@ CREATE TABLE public.weapon (
     weapon_type_id integer NOT NULL,
     PRIMARY KEY (weapon_id),
     FOREIGN KEY (weapon_type_id)
-        REFERENCES public.weapon_type (weapon_type_id) MATCH SIMPLE
+        REFERENCES weapon_type (weapon_type_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.weapon OWNER to postgres;
+);
 
-INSERT INTO public.weapon(
+INSERT INTO weapon(
     weapon_id, weapon_name,
     atk, atk_display, weight, price, weapon_type_id) VALUES
 ( 0, '長剣',              8,  8,  2,   800, 0),
@@ -493,7 +483,7 @@ INSERT INTO public.weapon(
 (87, '爪',               18, 18,  0,   500, 7);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.waza (
+CREATE TABLE waza (
     waza_id        integer NOT NULL,
     waza_name      text    NOT NULL,
     wp             integer NOT NULL,
@@ -502,14 +492,12 @@ CREATE TABLE public.waza (
     weapon_type_id integer NOT NULL,
     PRIMARY KEY (waza_id),
     FOREIGN KEY (weapon_type_id)
-        REFERENCES public.weapon_type (weapon_type_id) MATCH SIMPLE
+        REFERENCES weapon_type (weapon_type_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.waza OWNER to postgres;
+);
 
-INSERT INTO public.waza(
+INSERT INTO waza(
         waza_id, waza_name, wp, atk, num_of_atk, weapon_type_id) VALUES
 (  0, '(通常攻撃：剣)',   0, 3, 1, 0),
 (  1, '(通常攻撃：大剣)', 0, 3, 1, 1),
@@ -662,23 +650,21 @@ INSERT INTO public.waza(
 (197, '地獄爪殺法',          3,  5, 1, 7);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.spark_type_and_waza (
+CREATE TABLE spark_type_and_waza (
     spark_type_id integer NOT NULL,
     waza_id       integer NOT NULL,
     PRIMARY KEY (spark_type_id, waza_id),
     FOREIGN KEY (spark_type_id)
-        REFERENCES public.spark_type (spark_type_id) MATCH SIMPLE
+        REFERENCES spark_type (spark_type_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION,
     FOREIGN KEY (waza_id)
-        REFERENCES public.waza (waza_id) MATCH SIMPLE
+        REFERENCES waza (waza_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.spark_type_and_waza OWNER to postgres;
+);
 
-INSERT INTO public.spark_type_and_waza(spark_type_id, waza_id) VALUES
+INSERT INTO spark_type_and_waza(spark_type_id, waza_id) VALUES
 ( 0,  16), ( 0,  17), ( 0,  18), ( 0,  19), ( 0,  20), ( 0,  21), ( 0,  22), ( 0,  23),
 ( 0,  24), ( 0,  26), ( 0,  27), ( 0,  28), ( 0,  29), ( 0,  30), ( 0,  31), ( 0,  32),
 ( 0,  33), ( 0,  34), ( 0,  35), ( 0,  36), ( 0,  37), ( 0,  42), ( 0,  43), ( 0,  44),
@@ -829,22 +815,20 @@ INSERT INTO public.spark_type_and_waza(spark_type_id, waza_id) VALUES
 (14, 151), (14, 153);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.waza_of_weapon (
+CREATE TABLE waza_of_weapon (
     waza_id      integer NOT NULL,
     weapon_id    integer NOT NULL,
     spark_status integer NOT NULL,
     PRIMARY KEY (waza_id, weapon_id),
     FOREIGN KEY (waza_id)
-        REFERENCES public.waza(waza_id) MATCH SIMPLE
+        REFERENCES waza(waza_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION,
     FOREIGN KEY (weapon_id)
-        REFERENCES public.weapon(weapon_id) MATCH SIMPLE
+        REFERENCES weapon(weapon_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.waza_of_weapon OWNER to postgres;
+);
 
 INSERT INTO waza_of_weapon(waza_id, weapon_id, spark_status) VALUES
 ( 11,  1, 3),
@@ -903,24 +887,22 @@ INSERT INTO waza_of_weapon(waza_id, weapon_id, spark_status) VALUES
 (197, 87, 3);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.waza_derivation (
+CREATE TABLE waza_derivation (
     from_waza_id integer NOT NULL,
     to_waza_id   integer NOT NULL,
     spark_level  integer NOT NULL,
     PRIMARY KEY (from_waza_id, to_waza_id),
     FOREIGN KEY (from_waza_id)
-        REFERENCES public.waza(waza_id) MATCH SIMPLE
+        REFERENCES waza(waza_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION,
     FOREIGN KEY (to_waza_id)
-        REFERENCES public.waza(waza_id) MATCH SIMPLE
+        REFERENCES waza(waza_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.waza_derivation OWNER to postgres;
+);
 
-INSERT INTO public.waza_derivation(
+INSERT INTO waza_derivation(
         from_waza_id, to_waza_id, spark_level) VALUES
 (  0,  17,  8),
 (  0,  18, 19),
@@ -1102,16 +1084,14 @@ INSERT INTO public.waza_derivation(
 ( 10, 153,  3);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.region (
+CREATE TABLE region (
     region_id          integer NOT NULL,
     region_name        text    NOT NULL,
     conquest_condition text    NOT NULL,
     PRIMARY KEY (region_id)
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.region OWNER to postgres;
+);
 
-INSERT INTO public.region (region_id, region_name, conquest_condition) VALUES
+INSERT INTO region (region_id, region_name, conquest_condition) VALUES
 ( 0, '北バレンヌ',     '【初期状態で制圧済み】'),
 ( 1, '南バレンヌ',     '運河要塞のボスを倒す。'),
 ( 2, 'ルドン',         '宝石鉱山のボスを倒す。'),
@@ -1130,21 +1110,19 @@ INSERT INTO public.region (region_id, region_name, conquest_condition) VALUES
 (15, 'トーレンス',     '【制圧不可】');
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.place (
+CREATE TABLE place (
     place_id             integer NOT NULL,
     place_name           text    NOT NULL,
     -- appearance_condition text    NOT NULL,
     region_id            integer NOT NULL,
     PRIMARY KEY (place_id),
     FOREIGN KEY (region_id)
-        REFERENCES public.region (region_id) MATCH SIMPLE
+        REFERENCES region (region_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.place OWNER to postgres;
+);
 
-INSERT INTO public.place(place_id, place_name, region_id) VALUES
+INSERT INTO place(place_id, place_name, region_id) VALUES
 (  0, 'アバロン',         0),
 (  1, '封印の地',         0),
 (  2, '封印の地(深部)',   0),
@@ -1236,24 +1214,22 @@ INSERT INTO public.place(place_id, place_name, region_id) VALUES
 (150, '忘れられた町', 15);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.chara_class_hometown (
+CREATE TABLE chara_class_hometown (
     chara_class_id integer NOT NULL,
     place_id       integer NOT NULL,
     note           text    NOT NULL,
     PRIMARY KEY (chara_class_id, place_id),
     FOREIGN KEY (chara_class_id)
-        REFERENCES public.chara_class(chara_class_id) MATCH SIMPLE
+        REFERENCES chara_class(chara_class_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION,
     FOREIGN KEY (place_id)
-        REFERENCES public.place(place_id) MATCH SIMPLE
+        REFERENCES place(place_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.chara_class_hometown OWNER to postgres;
+);
 
-INSERT INTO public.chara_class_hometown (chara_class_id, place_id, note) VALUES
+INSERT INTO chara_class_hometown (chara_class_id, place_id, note) VALUES
 ( 0,   0, 'アバロン宮殿。'),
 ( 1,   0, 'アバロン宮殿。'),
 ( 2,   0, 'アバロン宮殿。'),
@@ -1290,15 +1266,13 @@ INSERT INTO public.chara_class_hometown (chara_class_id, place_id, note) VALUES
 (31, 145, 'イーリスの村。');
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.enemy_type (
+CREATE TABLE enemy_type (
     enemy_type_id   integer NOT NULL,
     enemy_type_name text    NOT NULL,
     PRIMARY KEY (enemy_type_id)
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.enemy_type OWNER to postgres;
+);
 
-INSERT INTO public.enemy_type (
+INSERT INTO enemy_type (
         enemy_type_id, enemy_type_name) VALUES
 ( 0, '骸骨'),
 ( 1, 'ゾンビ'),
@@ -1321,7 +1295,7 @@ INSERT INTO public.enemy_type (
 (18, 'ボス');
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.enemy (
+CREATE TABLE enemy (
     enemy_id          integer NOT NULL,
     enemy_name        text    NOT NULL,
     waza_level        integer NOT NULL,
@@ -1329,14 +1303,12 @@ CREATE TABLE public.enemy (
     enemy_type_number integer NOT NULL,
     PRIMARY KEY (enemy_id),
     FOREIGN KEY (enemy_type_id)
-        REFERENCES public.enemy_type(enemy_type_id) MATCH SIMPLE
+        REFERENCES enemy_type(enemy_type_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.enemy OWNER to postgres;
+);
 
-INSERT INTO public.enemy (
+INSERT INTO enemy (
         enemy_id, enemy_name, waza_level, enemy_type_id, enemy_type_number) VALUES
 (  0, 'ボーンヘッド',      4,  0,  1),
 (  1, '獄門鳥',            7,  0,  2),
@@ -1647,38 +1619,34 @@ INSERT INTO public.enemy (
 (619, '七英雄',           36, 18,  0);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.enemy_hometown (
+CREATE TABLE enemy_hometown (
     enemy_type_id integer NOT NULL,
     place_id      integer NOT NULL,
     note          text    NOT NULL DEFAULT '',
     PRIMARY KEY (enemy_type_id, place_id),
     FOREIGN KEY (enemy_type_id)
-        REFERENCES public.enemy_type(enemy_type_id) MATCH SIMPLE
+        REFERENCES enemy_type(enemy_type_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION,
     FOREIGN KEY (place_id)
-        REFERENCES public.place(place_id) MATCH SIMPLE
+        REFERENCES place(place_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.enemy_hometown OWNER to postgres;
+);
 
 -- -----------------------------------------------------------------------------
-CREATE TABLE public.boss_hometown (
+CREATE TABLE boss_hometown (
     enemy_id integer NOT NULL,
     place_id integer NOT NULL,
     note     text    NOT NULL DEFAULT '',
     PRIMARY KEY (enemy_id, place_id),
     FOREIGN KEY (enemy_id)
-        REFERENCES public.enemy(enemy_id) MATCH SIMPLE
+        REFERENCES enemy(enemy_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION,
     FOREIGN KEY (place_id)
-        REFERENCES public.place(place_id) MATCH SIMPLE
+        REFERENCES place(place_id) MATCH SIMPLE
         ON UPDATE CASCADE
         ON DELETE NO ACTION
-)
-WITH (OIDS = FALSE);
-ALTER TABLE public.boss_hometown OWNER to postgres;
+);
 
