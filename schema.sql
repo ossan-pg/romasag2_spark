@@ -1397,9 +1397,6 @@ CREATE TABLE public.enemy_hometown (
 WITH (OIDS = FALSE);
 ALTER TABLE public.enemy_hometown OWNER to postgres;
 
-INSERT INTO public.enemy_hometown (enemy_type_id, place_id) VALUES
-(),
-();
 -- -----------------------------------------------------------------------------
 CREATE TABLE public.boss_hometown (
     enemy_id integer NOT NULL,
