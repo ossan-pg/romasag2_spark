@@ -1317,11 +1317,11 @@ INSERT INTO enemy_type (
 
 -- -----------------------------------------------------------------------------
 CREATE TABLE enemy (
-    enemy_id          integer NOT NULL,
-    enemy_name        text    NOT NULL,
-    waza_level        integer NOT NULL,
-    enemy_type_id     integer NOT NULL,
-    enemy_rank        integer NOT NULL,
+    enemy_id      integer NOT NULL,
+    enemy_name    text    NOT NULL,
+    waza_level    integer NOT NULL,
+    enemy_type_id integer NOT NULL,
+    enemy_rank    integer NOT NULL,
     PRIMARY KEY (enemy_id),
     FOREIGN KEY (enemy_type_id)
         REFERENCES enemy_type(enemy_type_id) MATCH SIMPLE
