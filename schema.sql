@@ -106,7 +106,7 @@ CREATE TABLE chara (
     offset_light    integer NOT NULL,
     offset_dark     integer NOT NULL,
     chara_class_id  integer NOT NULL,
-    chara_number    integer NOT NULL,
+    chara_order     integer NOT NULL,
     spark_type_id integer NOT NULL,
     PRIMARY KEY (chara_id),
     FOREIGN KEY (chara_class_id)
@@ -124,7 +124,7 @@ INSERT INTO chara(
   attr_lp, attr_str, attr_dex, attr_mag, attr_int, attr_spd, attr_sta,
   offset_slash, offset_stab, offset_bash, offset_shoot, offset_martial,
   offset_fire, offset_water, offset_wind, offset_earth, offset_light, offset_dark,
-  chara_class_id, chara_number, spark_type_id) VALUES
+  chara_class_id, chara_order, spark_type_id) VALUES
 (  0, 'ベア',              14, 16, 12, 15, 12, 11, 23, +3, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, 0, 1, 12),
 (  1, 'バイソン',          15, 17, 12, 16, 13, 11, 21, +1, -7, +1, -7, +1, -7, -7, -7, -7, -7, -7, 0, 2, 12),
 (  2, 'ウォーラス',        13, 16, 14, 14, 10, 10, 23, +1, -7, +1, -7, -7, -7, -7, -7, -7, -7, -7, 0, 3, 12),
