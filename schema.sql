@@ -1321,7 +1321,7 @@ CREATE TABLE enemy (
     enemy_name        text    NOT NULL,
     waza_level        integer NOT NULL,
     enemy_type_id     integer NOT NULL,
-    enemy_type_number integer NOT NULL,
+    enemy_rank        integer NOT NULL,
     PRIMARY KEY (enemy_id),
     FOREIGN KEY (enemy_type_id)
         REFERENCES enemy_type(enemy_type_id) MATCH SIMPLE
@@ -1330,7 +1330,7 @@ CREATE TABLE enemy (
 );
 
 INSERT INTO enemy (
-        enemy_id, enemy_name, waza_level, enemy_type_id, enemy_type_number) VALUES
+        enemy_id, enemy_name, waza_level, enemy_type_id, enemy_rank) VALUES
 (  0, 'ボーンヘッド',      4,  0,  1),
 (  1, '獄門鳥',            7,  0,  2),
 (  2, 'ロトンビースト',    8,  0,  3),
