@@ -186,7 +186,7 @@ filterButton weaponType weaponName selected =
             Attrs.class "selected"
 
           else
-            Attrs.class "not-selected"
+            Attrs.class "unselected"
         ]
         [ text weaponName ]
 
