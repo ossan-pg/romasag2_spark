@@ -137,14 +137,18 @@ view { selectedWeaponTypes } =
         , div [ Attrs.class "wazas-outer" ]
             [ div [] [ text "閃き可能な技" ]
             , div [ Attrs.class "weapon-type-filter" ]
-                [ filterButton Sword "剣" selectedWeaponTypes.sword
-                , filterButton GreatSword "大剣" selectedWeaponTypes.greatSword
-                , filterButton Axe "斧" selectedWeaponTypes.axe
-                , filterButton Mace "棍棒" selectedWeaponTypes.mace
-                , filterButton Spear "槍" selectedWeaponTypes.spear
-                , filterButton ShortSword "小剣" selectedWeaponTypes.shortSword
-                , filterButton Bow "弓" selectedWeaponTypes.bow
-                , filterButton MartialSkill "体術" selectedWeaponTypes.martialSkill
+                [ div []
+                    [ filterButton Sword "剣" selectedWeaponTypes.sword
+                    , filterButton GreatSword "大剣" selectedWeaponTypes.greatSword
+                    , filterButton Axe "斧" selectedWeaponTypes.axe
+                    , filterButton Mace "棍棒" selectedWeaponTypes.mace
+                    ]
+                , div []
+                    [ filterButton Spear "槍" selectedWeaponTypes.spear
+                    , filterButton ShortSword "小剣" selectedWeaponTypes.shortSword
+                    , filterButton Bow "弓" selectedWeaponTypes.bow
+                    , filterButton MartialSkill "体術" selectedWeaponTypes.martialSkill
+                    ]
                 ]
             , select [ Attrs.class "wazas", Attrs.size 8 ] <|
                 List.repeat 16 <|
