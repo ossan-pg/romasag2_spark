@@ -111,7 +111,5 @@ verifyClassOfButton weaponType className selectedWeaponTypes =
         |> view
         |> Query.fromHtml
         |> Query.find [ classes [ "weapon-type-filter" ] ]
-        -- find [ text weaponType ] の後に has [ tag ... ] としたいが、text "剣" に対して "大剣" と "小剣" がマッチしてしまうため find と has の条件を入れ替えている。
-        -- このため、この関数では className が設定される要素は 1つのみという前提になっている。
-        |> Query.find [ tag "button" , classes [ className ] ]
+        |> Query.find [ tag "button", classes [ className ] ]
         |> Query.has [ text weaponType ]
