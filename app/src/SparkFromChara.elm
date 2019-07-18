@@ -1,4 +1,4 @@
-module SparkFromChara exposing (Model, SelectedWeaponTypes, main, view)
+module SparkFromChara exposing (Model, Msg(..), SelectedWeaponTypes, WeaponType(..), main, view)
 
 import Browser
 import Dict exposing (Dict)
