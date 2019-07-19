@@ -154,6 +154,12 @@ view { selectedWeaponTypes } =
                 List.repeat 1 <|
                     option [ Attrs.value "Todo" ] [ text "シャッタースタッフ(攻撃)" ]
             ]
+        , div [ Attrs.class "nums-of-shown-records-outer" ]
+            [ div [] [ text "表示件数" ]
+            , select [ Attrs.class "nums-of-shown-records", Attrs.size 4 ] <|
+                List.map (\n -> option [ Attrs.value n ] [ text n ]) <|
+                    List.map String.fromInt [ 5, 10, 20, 30, 40, 50 ]
+            ]
         , div [ Attrs.class "spark-rates-outer" ] <|
             List.concat <|
                 List.repeat 1 <|
