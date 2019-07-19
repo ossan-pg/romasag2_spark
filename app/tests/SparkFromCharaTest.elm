@@ -78,7 +78,7 @@ suite =
                     verifySelectedWeaponTypeToTrue MartialSkill .martialSkill
             ]
         , describe "view"
-            -- 剣
+            -- 剣ボタン
             [ test "剣の技が表示対象の場合、剣ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "剣" "selected" <|
@@ -91,7 +91,7 @@ suite =
                 \_ ->
                     verifyButtonClick Sword 0
 
-            -- 大剣
+            -- 大剣ボタン
             , test "大剣の技が表示対象の場合、大剣ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "大剣" "selected" <|
@@ -104,7 +104,7 @@ suite =
                 \_ ->
                     verifyButtonClick GreatSword 1
 
-            -- 斧
+            -- 斧ボタン
             , test "斧の技が表示対象の場合、斧ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "斧" "selected" <|
@@ -117,7 +117,7 @@ suite =
                 \_ ->
                     verifyButtonClick Axe 2
 
-            -- 棍棒
+            -- 棍棒ボタン
             , test "棍棒の技が表示対象の場合、棍棒ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "棍棒" "selected" <|
@@ -130,7 +130,7 @@ suite =
                 \_ ->
                     verifyButtonClick Mace 3
 
-            -- 槍
+            -- 槍ボタン
             , test "槍の技が表示対象の場合、槍ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "槍" "selected" <|
@@ -143,7 +143,7 @@ suite =
                 \_ ->
                     verifyButtonClick Spear 4
 
-            -- 小剣
+            -- 小剣ボタン
             , test "小剣の技が表示対象の場合、小剣ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "小剣" "selected" <|
@@ -156,7 +156,7 @@ suite =
                 \_ ->
                     verifyButtonClick ShortSword 5
 
-            -- 弓
+            -- 弓ボタン
             , test "弓の技が表示対象の場合、弓ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "弓" "selected" <|
@@ -169,7 +169,7 @@ suite =
                 \_ ->
                     verifyButtonClick Bow 6
 
-            -- 体術
+            -- 体術ボタン
             , test "体術の技が表示対象の場合、体術ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "体術" "selected" <|
@@ -185,6 +185,8 @@ suite =
         ]
 
 
+{- | 全ての武器種を未選択の SelectedWeaponTypes
+-}
 unselectedAllWeaponTypes : SelectedWeaponTypes
 unselectedAllWeaponTypes =
     { sword = False
@@ -198,6 +200,8 @@ unselectedAllWeaponTypes =
     }
 
 
+{- | 全ての武器種を選択中の SelectedWeaponTypes
+-}
 selectedAllWeaponTypes : SelectedWeaponTypes
 selectedAllWeaponTypes =
     { sword = True
@@ -211,6 +215,8 @@ selectedAllWeaponTypes =
     }
 
 
+{- | 指定された武器種を選択中に変更するか検証する
+-}
 verifySelectedWeaponTypeToTrue : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
 verifySelectedWeaponTypeToTrue weaponType toBool =
     Model unselectedAllWeaponTypes
@@ -221,6 +227,8 @@ verifySelectedWeaponTypeToTrue weaponType toBool =
         |> Expect.equal True
 
 
+{- | 指定された武器種を未選択に変更するか検証する
+-}
 verifySelectedWeaponTypeToFalse : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
 verifySelectedWeaponTypeToFalse weaponType toBool =
     Model selectedAllWeaponTypes
@@ -231,6 +239,8 @@ verifySelectedWeaponTypeToFalse weaponType toBool =
         |> Expect.equal False
 
 
+{- | フィルタボタンに設定するクラスを検証する
+-}
 verifyClassOfButton : String -> String -> SelectedWeaponTypes -> Expectation
 verifyClassOfButton weaponType className selectedWeaponTypes =
     Model selectedWeaponTypes
@@ -241,6 +251,8 @@ verifyClassOfButton weaponType className selectedWeaponTypes =
         |> Query.has [ text weaponType ]
 
 
+{- | フィルタボタンクリック時の動作を検証する
+-}
 verifyButtonClick : WeaponType -> Int -> Expectation
 verifyButtonClick weaponType index_ =
     Model unselectedAllWeaponTypes
