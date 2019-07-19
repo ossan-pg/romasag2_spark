@@ -12,7 +12,72 @@ import Test.Html.Selector exposing (classes, tag, text)
 suite : Test
 suite =
     describe "The SparkFromChara module"
-        [ describe "view"
+        [ describe "update"
+            -- 剣フィルタ
+            [ test "剣の技が表示対象かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse Sword .sword
+            , test "剣の技が表示対象外かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue Sword .sword
+
+            -- 大剣フィルタ
+            , test "大剣の技が表示対象かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse GreatSword .greatSword
+            , test "大剣の技が表示対象外かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue GreatSword .greatSword
+
+            -- 斧フィルタ
+            , test "斧の技が表示対象かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse Axe .axe
+            , test "斧の技が表示対象外かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue Axe .axe
+
+            -- 棍棒フィルタ
+            , test "棍棒の技が表示対象かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse Mace .mace
+            , test "棍棒の技が表示対象外かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue Mace .mace
+
+            --槍フィルタ
+            , test "槍の技が表示対象かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse Spear .spear
+            , test "槍の技が表示対象外かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue Spear .spear
+
+            -- 小剣フィルタ
+            , test "小剣の技が表示対象かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse ShortSword .shortSword
+            , test "小剣の技が表示対象外かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue ShortSword .shortSword
+
+            -- 弓フィルタ
+            , test "弓の技が表示対象かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse Bow .bow
+            , test "弓の技が表示対象外かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue Bow .bow
+
+            -- 体術フィルタ
+            , test "体術の技が表示対象かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示対象外にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToFalse MartialSkill .martialSkill
+            , test "体術の技が表示対象外かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示対象にする" <|
+                \_ ->
+                    verifySelectedWeaponTypeToTrue MartialSkill .martialSkill
+            ]
+        , describe "view"
             -- 剣
             [ test "剣の技が表示対象の場合、剣ボタンに selected クラスを設定する" <|
                 \_ ->
@@ -144,6 +209,26 @@ selectedAllWeaponTypes =
     , bow = True
     , martialSkill = True
     }
+
+
+verifySelectedWeaponTypeToTrue : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
+verifySelectedWeaponTypeToTrue weaponType toBool =
+    Model unselectedAllWeaponTypes
+        |> update (ChangeWeaponType weaponType)
+        |> Tuple.first
+        |> .selectedWeaponTypes
+        |> toBool
+        |> Expect.equal True
+
+
+verifySelectedWeaponTypeToFalse : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
+verifySelectedWeaponTypeToFalse weaponType toBool =
+    Model selectedAllWeaponTypes
+        |> update (ChangeWeaponType weaponType)
+        |> Tuple.first
+        |> .selectedWeaponTypes
+        |> toBool
+        |> Expect.equal False
 
 
 verifyClassOfButton : String -> String -> SelectedWeaponTypes -> Expectation
