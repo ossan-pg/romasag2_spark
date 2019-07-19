@@ -125,7 +125,7 @@ view { selectedWeaponTypes } =
         [ div [ Attrs.class "chara-classes-outer" ]
             [ div [] [ text "クラス" ]
             , select [ Attrs.class "chara-classes", Attrs.size 8 ] <|
-                List.repeat 16 <|
+                List.repeat 1 <|
                     option [ Attrs.value "Todo" ] [ text "インペリアルガード(男)" ]
             ]
         , div [ Attrs.class "charas-outer" ]
@@ -151,12 +151,12 @@ view { selectedWeaponTypes } =
                     ]
                 ]
             , select [ Attrs.class "wazas", Attrs.size 8 ] <|
-                List.repeat 16 <|
+                List.repeat 1 <|
                     option [ Attrs.value "Todo" ] [ text "シャッタースタッフ(攻撃)" ]
             ]
         , div [ Attrs.class "spark-rates-outer" ] <|
             List.concat <|
-                List.repeat 3 <|
+                List.repeat 1 <|
                     [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
                     , table [ Attrs.class "spark-rates" ] <|
                         tr []
