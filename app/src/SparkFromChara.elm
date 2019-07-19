@@ -166,14 +166,16 @@ view { selectedWeaponTypes } =
                     [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
                     , table [ Attrs.class "spark-rates" ] <|
                         tr []
-                            [ th [ Attrs.class "spark-rate" ] [ text "閃き率" ]
+                            [ th [ Attrs.class "number" ] [ text "#" ]
+                            , th [ Attrs.class "spark-rate" ] [ text "閃き率" ]
                             , th [ Attrs.class "enemy-name" ] [ text "モンスター" ]
                             , th [ Attrs.class "enemy-type" ] [ text "種族" ]
                             , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
                             ]
                             :: (List.repeat 16 <|
                                     tr []
-                                        [ td [ Attrs.class "spark-rate" ] [ text "20.0" ]
+                                        [ td [ Attrs.class "number" ] [ text "50" ]
+                                        , td [ Attrs.class "spark-rate" ] [ text "20.0" ]
                                         , td [ Attrs.class "enemy-name" ] [ text "ヴァンパイア(女)" ]
                                         , td [ Attrs.class "enemy-type" ] [ text "ゾンビ" ]
                                         , td [ Attrs.class "enemy-rank" ] [ text "15" ]
