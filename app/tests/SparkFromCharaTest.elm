@@ -87,7 +87,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "剣" "unselected" <|
                         { selectedAllWeaponTypes | sword = False }
-            , test "剣ボタンがクリックされると ChangeWeaponType Sword メッセージを送信される" <|
+            , test "剣ボタンがクリックされた場合、ChangeWeaponType Sword メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick Sword 0
 
@@ -100,7 +100,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "大剣" "unselected" <|
                         { selectedAllWeaponTypes | greatSword = False }
-            , test "大剣ボタンがクリックされると ChangeWeaponType GreatSword メッセージを送信される" <|
+            , test "大剣ボタンがクリックされた場合、ChangeWeaponType GreatSword メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick GreatSword 1
 
@@ -113,7 +113,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "斧" "unselected" <|
                         { selectedAllWeaponTypes | axe = False }
-            , test "斧ボタンがクリックされると ChangeWeaponType Axe メッセージを送信される" <|
+            , test "斧ボタンがクリックされた場合、ChangeWeaponType Axe メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick Axe 2
 
@@ -126,7 +126,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "棍棒" "unselected" <|
                         { selectedAllWeaponTypes | mace = False }
-            , test "棍棒ボタンがクリックされると ChangeWeaponType Mace メッセージを送信される" <|
+            , test "棍棒ボタンがクリックされた場合、ChangeWeaponType Mace メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick Mace 3
 
@@ -139,7 +139,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "槍" "unselected" <|
                         { selectedAllWeaponTypes | spear = False }
-            , test "槍ボタンがクリックされると ChangeWeaponType Spear メッセージを送信される" <|
+            , test "槍ボタンがクリックされた場合、ChangeWeaponType Spear メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick Spear 4
 
@@ -152,7 +152,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "小剣" "unselected" <|
                         { selectedAllWeaponTypes | shortSword = False }
-            , test "小剣ボタンがクリックされると ChangeWeaponType ShortSword メッセージを送信される" <|
+            , test "小剣ボタンがクリックされた場合、ChangeWeaponType ShortSword メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick ShortSword 5
 
@@ -165,7 +165,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "弓" "unselected" <|
                         { selectedAllWeaponTypes | bow = False }
-            , test "弓ボタンがクリックされると ChangeWeaponType Bow メッセージを送信される" <|
+            , test "弓ボタンがクリックされた場合、ChangeWeaponType Bow メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick Bow 6
 
@@ -178,7 +178,7 @@ suite =
                 \_ ->
                     verifyClassOfButton "体術" "unselected" <|
                         { selectedAllWeaponTypes | martialSkill = False }
-            , test "体術ボタンがクリックされると ChangeWeaponType MartialSkill メッセージを送信される" <|
+            , test "体術ボタンがクリックされた場合、ChangeWeaponType MartialSkill メッセージを送信する" <|
                 \_ ->
                     verifyButtonClick MartialSkill 7
             ]
