@@ -244,10 +244,8 @@ suite =
         ]
 
 
-
-{- | 全ての武器種を未選択の SelectedWeaponTypes -}
-
-
+{-| 全ての武器種を未選択の SelectedWeaponTypes
+-}
 unselectedAllWeaponTypes : SelectedWeaponTypes
 unselectedAllWeaponTypes =
     { sword = False
@@ -261,10 +259,8 @@ unselectedAllWeaponTypes =
     }
 
 
-
-{- | 全ての武器種を選択中の SelectedWeaponTypes -}
-
-
+{-| 全ての武器種を選択中の SelectedWeaponTypes
+-}
 selectedAllWeaponTypes : SelectedWeaponTypes
 selectedAllWeaponTypes =
     { sword = True
@@ -285,10 +281,8 @@ initialModel =
     }
 
 
-
-{- | 指定された武器種を選択中に変更するか検証する -}
-
-
+{-| 指定された武器種を選択中に変更するか検証する
+-}
 verifySelectedWeaponTypeToTrue : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
 verifySelectedWeaponTypeToTrue weaponType toBool =
     { initialModel | selectedWeaponTypes = unselectedAllWeaponTypes }
@@ -299,10 +293,8 @@ verifySelectedWeaponTypeToTrue weaponType toBool =
         |> Expect.equal True
 
 
-
-{- | 指定された武器種を未選択に変更するか検証する -}
-
-
+{-| 指定された武器種を未選択に変更するか検証する
+-}
 verifySelectedWeaponTypeToFalse : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
 verifySelectedWeaponTypeToFalse weaponType toBool =
     { initialModel | selectedWeaponTypes = selectedAllWeaponTypes }
@@ -313,10 +305,8 @@ verifySelectedWeaponTypeToFalse weaponType toBool =
         |> Expect.equal False
 
 
-
-{- | セレクトボックスの項目選択時に対応したメッセージが送信されるか検証する -}
-
-
+{-| セレクトボックスの項目選択時に対応したメッセージが送信されるか検証する
+-}
 verifySendMsgFromSelectBox : String -> Msg -> (Query.Single Msg -> Query.Single Msg) -> Expectation
 verifySendMsgFromSelectBox optionValue expectedMsg query =
     let
@@ -337,10 +327,8 @@ verifySendMsgFromSelectBox optionValue expectedMsg query =
         |> Event.expect expectedMsg
 
 
-
-{- | フィルタボタンに設定するクラスを検証する -}
-
-
+{-| フィルタボタンに設定するクラスを検証する
+-}
 verifyClassOfButton : String -> String -> SelectedWeaponTypes -> Expectation
 verifyClassOfButton weaponType className selectedWeaponTypes =
     { initialModel | selectedWeaponTypes = selectedWeaponTypes }
@@ -351,10 +339,8 @@ verifyClassOfButton weaponType className selectedWeaponTypes =
         |> Query.has [ text weaponType ]
 
 
-
-{- | フィルタボタンクリック時の動作を検証する -}
-
-
+{-| フィルタボタンクリック時の動作を検証する
+-}
 verifyButtonClick : WeaponType -> Int -> Expectation
 verifyButtonClick weaponType index_ =
     initialModel

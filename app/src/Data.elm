@@ -1,8 +1,8 @@
 module Data exposing (CharaClassType(..), CharaClass, charaClasses)
 
-{- |
+{-|
 
-   @docs CharaClassType, CharaClass, charaClasses
+@docs CharaClassType, CharaClass, charaClasses
 
 -}
 
