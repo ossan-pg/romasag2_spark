@@ -1,7 +1,11 @@
 module SparkFromCharaTest exposing (suite)
 
+import Data
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
+import Html as H
+import Html.Attributes as Attrs
+import Json.Encode as Encode
 import SparkFromChara exposing (..)
 import Test exposing (..)
 import Test.Html.Event as Event
@@ -78,8 +82,63 @@ suite =
                     verifySelectedWeaponTypeToTrue MartialSkill .martialSkill
             ]
         , describe "view"
+            -- クラス一覧
+            [ test "クラス一覧に対し、各クラスの名前を option の要素に、ID を option の value 属性に設定する" <|
+                \_ ->
+                    initialModel
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ tag "select", classes [ "chara-classes" ] ]
+                        |> Query.contains
+                            [ H.option [ Attrs.value "0" ] [ H.text "帝国重装歩兵" ]
+                            , H.option [ Attrs.value "1" ] [ H.text "帝国軽装歩兵(男)" ]
+                            , H.option [ Attrs.value "2" ] [ H.text "帝国軽装歩兵(女)" ]
+                            , H.option [ Attrs.value "3" ] [ H.text "帝国猟兵(男)" ]
+                            , H.option [ Attrs.value "4" ] [ H.text "帝国猟兵(女)" ]
+                            , H.option [ Attrs.value "5" ] [ H.text "宮廷魔術師(男)" ]
+                            , H.option [ Attrs.value "6" ] [ H.text "宮廷魔術師(女)" ]
+                            , H.option [ Attrs.value "7" ] [ H.text "フリーファイター(男)" ]
+                            , H.option [ Attrs.value "8" ] [ H.text "フリーファイター(女)" ]
+                            , H.option [ Attrs.value "9" ] [ H.text "フリーメイジ(男)" ]
+                            , H.option [ Attrs.value "10" ] [ H.text "フリーメイジ(女)" ]
+                            , H.option [ Attrs.value "11" ] [ H.text "インペリアルガード(男)" ]
+                            , H.option [ Attrs.value "12" ] [ H.text "インペリアルガード(女)" ]
+                            , H.option [ Attrs.value "13" ] [ H.text "軍師" ]
+                            , H.option [ Attrs.value "14" ] [ H.text "イーストガード" ]
+                            , H.option [ Attrs.value "15" ] [ H.text "デザートガード" ]
+                            , H.option [ Attrs.value "16" ] [ H.text "アマゾネス" ]
+                            , H.option [ Attrs.value "17" ] [ H.text "ハンター" ]
+                            , H.option [ Attrs.value "18" ] [ H.text "ノーマッド(男)" ]
+                            , H.option [ Attrs.value "19" ] [ H.text "ノーマッド(女)" ]
+                            , H.option [ Attrs.value "20" ] [ H.text "ホーリーオーダー(男)" ]
+                            , H.option [ Attrs.value "21" ] [ H.text "ホーリーオーダー(女)" ]
+                            , H.option [ Attrs.value "22" ] [ H.text "海女" ]
+                            , H.option [ Attrs.value "23" ] [ H.text "武装商船団" ]
+                            , H.option [ Attrs.value "24" ] [ H.text "サイゴ族" ]
+                            , H.option [ Attrs.value "25" ] [ H.text "格闘家" ]
+                            , H.option [ Attrs.value "26" ] [ H.text "シティシーフ(男)" ]
+                            , H.option [ Attrs.value "27" ] [ H.text "シティシーフ(女)" ]
+                            , H.option [ Attrs.value "28" ] [ H.text "サラマンダー" ]
+                            , H.option [ Attrs.value "29" ] [ H.text "モール" ]
+                            , H.option [ Attrs.value "30" ] [ H.text "ネレイド" ]
+                            , H.option [ Attrs.value "31" ] [ H.text "イーリス" ]
+                            , H.option [ Attrs.value "40" ] [ H.text "特殊" ]
+                            ]
+
+            -- クラス選択
+            , describe "クラスが選択された場合、そのクラスに対応するメッセージを送信する"
+                [ test "帝国重装歩兵を選択された場合、SelectCharaClass HeavyInfantry メッセージを送信する" <|
+                    \_ ->
+                        verifySendMsgFromSelectBox "0" (SelectCharaClass Data.HeavyInfantry) <|
+                            Query.find [ tag "select", classes [ "chara-classes" ] ]
+                , test "特殊を選択された場合、SelectCharaClass SpecialCharaClass メッセージを送信する" <|
+                    \_ ->
+                        verifySendMsgFromSelectBox "40" (SelectCharaClass Data.SpecialChara) <|
+                            Query.find [ tag "select", classes [ "chara-classes" ] ]
+                ]
+
             -- 剣ボタン
-            [ test "剣の技が表示対象の場合、剣ボタンに selected クラスを設定する" <|
+            , test "剣の技が表示対象の場合、剣ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "剣" "selected" <|
                         { unselectedAllWeaponTypes | sword = True }
@@ -221,7 +280,8 @@ selectedAllWeaponTypes =
 
 initialModel : Model
 initialModel =
-    { selectedWeaponTypes = unselectedAllWeaponTypes
+    { charaClasses = Data.charaClasses
+    , selectedWeaponTypes = unselectedAllWeaponTypes
     }
 
 
@@ -251,6 +311,30 @@ verifySelectedWeaponTypeToFalse weaponType toBool =
         |> .selectedWeaponTypes
         |> toBool
         |> Expect.equal False
+
+
+
+{- | セレクトボックスの項目選択時に対応したメッセージが送信されるか検証する -}
+
+
+verifySendMsgFromSelectBox : String -> Msg -> (Query.Single Msg -> Query.Single Msg) -> Expectation
+verifySendMsgFromSelectBox optionValue expectedMsg query =
+    let
+        eventObject : Encode.Value
+        eventObject =
+            Encode.object
+                [ ( "target"
+                  , Encode.object
+                        [ ( "value", Encode.string optionValue ) ]
+                  )
+                ]
+    in
+    initialModel
+        |> view
+        |> Query.fromHtml
+        |> query
+        |> Event.simulate (Event.custom "change" eventObject)
+        |> Event.expect expectedMsg
 
 
 

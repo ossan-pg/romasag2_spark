@@ -1,11 +1,12 @@
 module SparkFromChara exposing (Model, Msg(..), SelectedWeaponTypes, WeaponType(..), main, update, view)
 
 import Browser
-import Dict exposing (Dict)
+import Data
 import Html exposing (..)
 import Html.Attributes as Attrs
 import Html.Events as Events
-import Json.Decode as Decode
+import Html.Events.Extra as EventsEx
+import List.Extra as ListEx
 
 
 main : Program () Model Msg
@@ -23,7 +24,8 @@ main =
 
 
 type alias Model =
-    { selectedWeaponTypes : SelectedWeaponTypes
+    { charaClasses : List Data.CharaClass
+    , selectedWeaponTypes : SelectedWeaponTypes
     }
 
 
@@ -41,7 +43,9 @@ type alias SelectedWeaponTypes =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model initSelectedWeaponTypes
+    ( { charaClasses = Data.charaClasses
+      , selectedWeaponTypes = initSelectedWeaponTypes
+      }
     , Cmd.none
     )
 
@@ -65,6 +69,7 @@ initSelectedWeaponTypes =
 
 type Msg
     = ChangeWeaponType WeaponType
+    | SelectCharaClass Data.CharaClassType
 
 
 type WeaponType
@@ -85,6 +90,10 @@ update msg model =
             ( { model | selectedWeaponTypes = invertSelected weaponType model.selectedWeaponTypes }
             , Cmd.none
             )
+
+        SelectCharaClass charaClassType ->
+            -- TODO キャラクターのセレクトボックス用データを用意
+            ( model, Cmd.none )
 
 
 invertSelected : WeaponType -> SelectedWeaponTypes -> SelectedWeaponTypes
@@ -120,13 +129,16 @@ invertSelected weaponType selected =
 
 
 view : Model -> Html Msg
-view { selectedWeaponTypes } =
+view { charaClasses, selectedWeaponTypes } =
     div [ Attrs.class "main" ]
         [ div [ Attrs.class "chara-classes-outer" ]
             [ div [] [ text "クラス" ]
-            , select [ Attrs.class "chara-classes", Attrs.size 8 ] <|
-                List.repeat 1 <|
-                    option [ Attrs.value "Todo" ] [ text "インペリアルガード(男)" ]
+            , select [ Attrs.class "chara-classes", Attrs.size 8, EventsEx.onChange <| toSelectCharaClassAction charaClasses ] <|
+                List.map
+                    (\{ id, name } ->
+                        option [ Attrs.value <| String.fromInt id ] [ text name ]
+                    )
+                    charaClasses
             ]
         , div [ Attrs.class "charas-outer" ]
             [ div [] [ text "キャラクター" ]
@@ -185,9 +197,31 @@ view { selectedWeaponTypes } =
         ]
 
 
-onChange : (String -> msg) -> Attribute msg
-onChange handler =
-    Events.on "change" (Decode.map handler Events.targetValue)
+toSelectCharaClassAction : List Data.CharaClass -> (String -> Msg)
+toSelectCharaClassAction charaClasses =
+    \targetValue ->
+        let
+            -- 変換失敗の場合は 0 (帝国重装歩兵)
+            defaultId =
+                0
+
+            id_ =
+                case String.toInt targetValue of
+                    Just n ->
+                        n
+
+                    Nothing ->
+                        defaultId
+
+            -- 該当なしの場合は HeavyInfantry (帝国重装歩兵)
+            defaultCharaClass =
+                Data.HeavyInfantry
+        in
+        charaClasses
+            |> ListEx.find (.id >> (==) id_)
+            |> Maybe.map .charaClassType
+            |> Maybe.withDefault defaultCharaClass
+            |> SelectCharaClass
 
 
 filterButton : WeaponType -> String -> Bool -> Html Msg
