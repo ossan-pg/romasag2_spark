@@ -219,13 +219,19 @@ selectedAllWeaponTypes =
     }
 
 
+initialModel : Model
+initialModel =
+    { selectedWeaponTypes = unselectedAllWeaponTypes
+    }
+
+
 
 {- | 指定された武器種を選択中に変更するか検証する -}
 
 
 verifySelectedWeaponTypeToTrue : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
 verifySelectedWeaponTypeToTrue weaponType toBool =
-    Model unselectedAllWeaponTypes
+    { initialModel | selectedWeaponTypes = unselectedAllWeaponTypes }
         |> update (ChangeWeaponType weaponType)
         |> Tuple.first
         |> .selectedWeaponTypes
@@ -239,7 +245,7 @@ verifySelectedWeaponTypeToTrue weaponType toBool =
 
 verifySelectedWeaponTypeToFalse : WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
 verifySelectedWeaponTypeToFalse weaponType toBool =
-    Model selectedAllWeaponTypes
+    { initialModel | selectedWeaponTypes = selectedAllWeaponTypes }
         |> update (ChangeWeaponType weaponType)
         |> Tuple.first
         |> .selectedWeaponTypes
@@ -253,7 +259,7 @@ verifySelectedWeaponTypeToFalse weaponType toBool =
 
 verifyClassOfButton : String -> String -> SelectedWeaponTypes -> Expectation
 verifyClassOfButton weaponType className selectedWeaponTypes =
-    Model selectedWeaponTypes
+    { initialModel | selectedWeaponTypes = selectedWeaponTypes }
         |> view
         |> Query.fromHtml
         |> Query.find [ classes [ "weapon-type-filter" ] ]
@@ -267,7 +273,7 @@ verifyClassOfButton weaponType className selectedWeaponTypes =
 
 verifyButtonClick : WeaponType -> Int -> Expectation
 verifyButtonClick weaponType index_ =
-    Model unselectedAllWeaponTypes
+    initialModel
         |> view
         |> Query.fromHtml
         |> Query.find [ classes [ "weapon-type-filter" ] ]
