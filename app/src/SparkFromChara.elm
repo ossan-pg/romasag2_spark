@@ -202,6 +202,8 @@ toSelectCharaClassAction charaClasses =
     \targetValue ->
         let
             -- 変換失敗の場合は 0 (帝国重装歩兵)
+            -- targetValue は charaClassess の各 id を変換したものなので
+            -- この値が参照されることはないはず (変換に失敗しない)
             defaultId =
                 0
 
@@ -214,6 +216,8 @@ toSelectCharaClassAction charaClasses =
                         defaultId
 
             -- 該当なしの場合は HeavyInfantry (帝国重装歩兵)
+            -- charaClassess の各 id を基に targetValue を作成しているので
+            -- この値が参照されることはないはず (検索対象が必ず見つかる)
             defaultCharaClass =
                 Data.HeavyInfantry
         in
