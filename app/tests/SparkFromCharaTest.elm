@@ -36,66 +36,66 @@ suite =
                 ]
 
             -- 剣フィルタ
-            , test "剣の技が表示対象かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示対象外にする" <|
+            , test "剣の技が表示 ON かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse Sword .sword
-            , test "剣の技が表示対象外かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示対象にする" <|
+            , test "剣の技が表示 OFF かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue Sword .sword
 
             -- 大剣フィルタ
-            , test "大剣の技が表示対象かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示対象外にする" <|
+            , test "大剣の技が表示 ON かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse GreatSword .greatSword
-            , test "大剣の技が表示対象外かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示対象にする" <|
+            , test "大剣の技が表示 OFF かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue GreatSword .greatSword
 
             -- 斧フィルタ
-            , test "斧の技が表示対象かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示対象外にする" <|
+            , test "斧の技が表示 ON かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse Axe .axe
-            , test "斧の技が表示対象外かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示対象にする" <|
+            , test "斧の技が表示 OFF かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue Axe .axe
 
             -- 棍棒フィルタ
-            , test "棍棒の技が表示対象かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示対象外にする" <|
+            , test "棍棒の技が表示 ON かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse Mace .mace
-            , test "棍棒の技が表示対象外かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示対象にする" <|
+            , test "棍棒の技が表示 OFF かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue Mace .mace
 
             --槍フィルタ
-            , test "槍の技が表示対象かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示対象外にする" <|
+            , test "槍の技が表示 ON かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse Spear .spear
-            , test "槍の技が表示対象外かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示対象にする" <|
+            , test "槍の技が表示 OFF かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue Spear .spear
 
             -- 小剣フィルタ
-            , test "小剣の技が表示対象かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示対象外にする" <|
+            , test "小剣の技が表示 ON かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse ShortSword .shortSword
-            , test "小剣の技が表示対象外かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示対象にする" <|
+            , test "小剣の技が表示 OFF かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue ShortSword .shortSword
 
             -- 弓フィルタ
-            , test "弓の技が表示対象かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示対象外にする" <|
+            , test "弓の技が表示 ON かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse Bow .bow
-            , test "弓の技が表示対象外かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示対象にする" <|
+            , test "弓の技が表示 OFF かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue Bow .bow
 
             -- 体術フィルタ
-            , test "体術の技が表示対象かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示対象外にする" <|
+            , test "体術の技が表示 ON かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示 OFF にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse MartialSkill .martialSkill
-            , test "体術の技が表示対象外かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示対象にする" <|
+            , test "体術の技が表示 OFF かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示 ON にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToTrue MartialSkill .martialSkill
             ]
@@ -211,11 +211,11 @@ suite =
                 ]
 
             -- 剣ボタン
-            , test "剣の技が表示対象の場合、剣ボタンに selected クラスを設定する" <|
+            , test "剣の技が表示 ON の場合、剣ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "剣" "selected" <|
                         { unselectedAllWeaponTypes | sword = True }
-            , test "剣の技が表示対象外の場合、剣ボタンに unselected クラスを設定する" <|
+            , test "剣の技が表示 OFF の場合、剣ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "剣" "unselected" <|
                         { selectedAllWeaponTypes | sword = False }
@@ -224,11 +224,11 @@ suite =
                     verifyButtonClick Sword 0
 
             -- 大剣ボタン
-            , test "大剣の技が表示対象の場合、大剣ボタンに selected クラスを設定する" <|
+            , test "大剣の技が表示 ON の場合、大剣ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "大剣" "selected" <|
                         { unselectedAllWeaponTypes | greatSword = True }
-            , test "大剣の技が表示対象外の場合、大剣ボタンに unselected クラスを設定する" <|
+            , test "大剣の技が表示 OFF の場合、大剣ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "大剣" "unselected" <|
                         { selectedAllWeaponTypes | greatSword = False }
@@ -237,11 +237,11 @@ suite =
                     verifyButtonClick GreatSword 1
 
             -- 斧ボタン
-            , test "斧の技が表示対象の場合、斧ボタンに selected クラスを設定する" <|
+            , test "斧の技が表示 ON の場合、斧ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "斧" "selected" <|
                         { unselectedAllWeaponTypes | axe = True }
-            , test "斧の技が表示対象外の場合、斧ボタンに unselected クラスを設定する" <|
+            , test "斧の技が表示 OFF の場合、斧ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "斧" "unselected" <|
                         { selectedAllWeaponTypes | axe = False }
@@ -250,11 +250,11 @@ suite =
                     verifyButtonClick Axe 2
 
             -- 棍棒ボタン
-            , test "棍棒の技が表示対象の場合、棍棒ボタンに selected クラスを設定する" <|
+            , test "棍棒の技が表示 ON の場合、棍棒ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "棍棒" "selected" <|
                         { unselectedAllWeaponTypes | mace = True }
-            , test "棍棒の技が表示対象外の場合、棍棒ボタンに unselected クラスを設定する" <|
+            , test "棍棒の技が表示 OFF の場合、棍棒ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "棍棒" "unselected" <|
                         { selectedAllWeaponTypes | mace = False }
@@ -263,11 +263,11 @@ suite =
                     verifyButtonClick Mace 3
 
             -- 槍ボタン
-            , test "槍の技が表示対象の場合、槍ボタンに selected クラスを設定する" <|
+            , test "槍の技が表示 ON の場合、槍ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "槍" "selected" <|
                         { unselectedAllWeaponTypes | spear = True }
-            , test "槍の技が表示対象外の場合、槍ボタンに unselected クラスを設定する" <|
+            , test "槍の技が表示 OFF の場合、槍ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "槍" "unselected" <|
                         { selectedAllWeaponTypes | spear = False }
@@ -276,11 +276,11 @@ suite =
                     verifyButtonClick Spear 4
 
             -- 小剣ボタン
-            , test "小剣の技が表示対象の場合、小剣ボタンに selected クラスを設定する" <|
+            , test "小剣の技が表示 ON の場合、小剣ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "小剣" "selected" <|
                         { unselectedAllWeaponTypes | shortSword = True }
-            , test "小剣の技が表示対象外の場合、小剣ボタンに unselected クラスを設定する" <|
+            , test "小剣の技が表示 OFF の場合、小剣ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "小剣" "unselected" <|
                         { selectedAllWeaponTypes | shortSword = False }
@@ -289,11 +289,11 @@ suite =
                     verifyButtonClick ShortSword 5
 
             -- 弓ボタン
-            , test "弓の技が表示対象の場合、弓ボタンに selected クラスを設定する" <|
+            , test "弓の技が表示 ON の場合、弓ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "弓" "selected" <|
                         { unselectedAllWeaponTypes | bow = True }
-            , test "弓の技が表示対象外の場合、弓ボタンに unselected クラスを設定する" <|
+            , test "弓の技が表示 OFF の場合、弓ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "弓" "unselected" <|
                         { selectedAllWeaponTypes | bow = False }
@@ -302,11 +302,11 @@ suite =
                     verifyButtonClick Bow 6
 
             -- 体術ボタン
-            , test "体術の技が表示対象の場合、体術ボタンに selected クラスを設定する" <|
+            , test "体術の技が表示 ON の場合、体術ボタンに selected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "体術" "selected" <|
                         { unselectedAllWeaponTypes | martialSkill = True }
-            , test "体術の技が表示対象外の場合、体術ボタンに unselected クラスを設定する" <|
+            , test "体術の技が表示 OFF の場合、体術ボタンに unselected クラスを設定する" <|
                 \_ ->
                     verifyClassOfButton "体術" "unselected" <|
                         { selectedAllWeaponTypes | martialSkill = False }
