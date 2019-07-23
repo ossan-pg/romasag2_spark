@@ -129,11 +129,11 @@ suite =
             , describe "クラスが選択された場合、そのクラスに対応するメッセージを送信する"
                 [ test "帝国重装歩兵を選択された場合、SelectCharaClass HeavyInfantry メッセージを送信する" <|
                     \_ ->
-                        verifySendMsgFromSelectBox "0" (SelectCharaClass Data.HeavyInfantry) <|
+                        verifySendMsgFromSelectBox "0" (SelectCharaClass Data.HeavyInfantry) initialModel <|
                             Query.find [ tag "select", classes [ "chara-classes" ] ]
                 , test "特殊を選択された場合、SelectCharaClass SpecialCharaClass メッセージを送信する" <|
                     \_ ->
-                        verifySendMsgFromSelectBox "40" (SelectCharaClass Data.SpecialChara) <|
+                        verifySendMsgFromSelectBox "40" (SelectCharaClass Data.SpecialChara) initialModel <|
                             Query.find [ tag "select", classes [ "chara-classes" ] ]
                 ]
 
@@ -307,8 +307,8 @@ verifySelectedWeaponTypeToFalse weaponType toBool =
 
 {-| セレクトボックスの項目選択時に対応したメッセージが送信されるか検証する
 -}
-verifySendMsgFromSelectBox : String -> Msg -> (Query.Single Msg -> Query.Single Msg) -> Expectation
-verifySendMsgFromSelectBox optionValue expectedMsg query =
+verifySendMsgFromSelectBox : String -> Msg -> Model -> (Query.Single Msg -> Query.Single Msg) -> Expectation
+verifySendMsgFromSelectBox optionValue expectedMsg model query =
     let
         eventObject : Encode.Value
         eventObject =
@@ -319,7 +319,7 @@ verifySendMsgFromSelectBox optionValue expectedMsg query =
                   )
                 ]
     in
-    initialModel
+    model
         |> view
         |> Query.fromHtml
         |> query
