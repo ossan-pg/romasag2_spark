@@ -1,4 +1,4 @@
-module SparkFromChara exposing (Model, Msg(..), SelectedWeaponTypes, WeaponType(..), main, update, view)
+module SparkFromChara exposing (Chara, Model, Msg(..), SelectedWeaponTypes, WeaponType(..), main, update, view)
 
 import Browser
 import Data
@@ -25,6 +25,8 @@ main =
 
 type alias Model =
     { charaClasses : List Data.CharaClass
+    , allCharas : List Data.Chara
+    , charas : List Chara -- 表示用の別の Chara 型 を使用する
     , selectedWeaponTypes : SelectedWeaponTypes
     }
 
@@ -41,9 +43,20 @@ type alias SelectedWeaponTypes =
     }
 
 
+type alias Chara =
+    { id : Int
+    , name : String
+    , sparkType : Data.SparkType
+    }
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { charaClasses = Data.charaClasses
+      , allCharas = Data.charas
+
+      -- 初期状態では帝国重装歩兵を選択した状態にする
+      , charas = filterMapCharas Data.HeavyInfantry Data.charas
       , selectedWeaponTypes = initSelectedWeaponTypes
       }
     , Cmd.none
@@ -70,6 +83,7 @@ initSelectedWeaponTypes =
 type Msg
     = ChangeWeaponType WeaponType
     | SelectCharaClass Data.CharaClassType
+    | SelectChara Data.SparkType
 
 
 type WeaponType
@@ -92,7 +106,14 @@ update msg model =
             )
 
         SelectCharaClass charaClassType ->
-            -- TODO キャラクターのセレクトボックス用データを用意
+            let
+                newCharas =
+                    filterMapCharas charaClassType model.allCharas
+            in
+            ( { model | charas = newCharas }, Cmd.none )
+
+        SelectChara sparkType ->
+            -- TODO 閃きタイプを基に閃ける技一覧を作成
             ( model, Cmd.none )
 
 
@@ -124,12 +145,21 @@ invertSelected weaponType selected =
             { selected | martialSkill = not selected.martialSkill }
 
 
+{-| Data.Chara のリストから閃きタイプが一致するキャラクターを抽出し、Chara のリストを作成する
+-}
+filterMapCharas : Data.CharaClassType -> List Data.Chara -> List Chara
+filterMapCharas charaClassType srcCharas =
+    srcCharas
+        |> List.filter (.charaClassType >> (==) charaClassType)
+        |> List.map (\{ id, name, sparkType } -> Chara id name sparkType)
+
+
 
 -- VIEW
 
 
 view : Model -> Html Msg
-view { charaClasses, selectedWeaponTypes } =
+view { charaClasses, charas, selectedWeaponTypes } =
     div [ Attrs.class "main" ]
         [ div [ Attrs.class "chara-classes-outer" ]
             [ div [] [ text "クラス" ]
@@ -142,9 +172,12 @@ view { charaClasses, selectedWeaponTypes } =
             ]
         , div [ Attrs.class "charas-outer" ]
             [ div [] [ text "キャラクター" ]
-            , select [ Attrs.class "charas", Attrs.size 8 ] <|
-                List.repeat 8 <|
-                    option [ Attrs.value "Todo" ] [ text "ワレンシュタイン" ]
+            , select [ Attrs.class "charas", Attrs.size 8, EventsEx.onChange <| toSelectCharaAction charas ] <|
+                List.map
+                    (\{ id, name } ->
+                        option [ Attrs.value <| String.fromInt id ] [ text name ]
+                    )
+                    charas
             ]
         , div [ Attrs.class "wazas-outer" ]
             [ div [] [ text "閃き可能な技" ]
@@ -226,6 +259,39 @@ toSelectCharaClassAction charaClasses =
             |> Maybe.map .charaClassType
             |> Maybe.withDefault defaultCharaClass
             |> SelectCharaClass
+
+
+{-| キャラクター一覧用の change イベントハンドラを作成する
+-}
+toSelectCharaAction : List Chara -> (String -> Msg)
+toSelectCharaAction charas =
+    \targetValue ->
+        let
+            -- 変換失敗の場合は 0 (帝国重装歩兵)
+            -- targetValue は charas の各 id を変換したものなので
+            -- この値が参照されることはないはず (変換に失敗しない)
+            defaultId =
+                0
+
+            id_ =
+                case String.toInt targetValue of
+                    Just n ->
+                        n
+
+                    Nothing ->
+                        defaultId
+
+            -- 該当なしの場合は General
+            -- 同じ charas の各 id を基に targetValue を作成しているので
+            -- この値が参照されることはないはず (検索対象が必ず見つかる)
+            defaultSparkType =
+                Data.General
+        in
+        charas
+            |> ListEx.find (.id >> (==) id_)
+            |> Maybe.map .sparkType
+            |> Maybe.withDefault defaultSparkType
+            |> SelectChara
 
 
 filterButton : WeaponType -> String -> Bool -> Html Msg

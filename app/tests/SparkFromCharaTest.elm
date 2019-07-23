@@ -17,8 +17,26 @@ suite : Test
 suite =
     describe "The SparkFromChara module"
         [ describe "update"
+            -- キャラクターを設定
+            [ describe "指定されたクラスに対応するキャラクターを Model に設定する"
+                [ test "SelectCharaClass HeavyInfantry が指定された場合、帝国重装歩兵のキャラクターを Model に設定する" <|
+                    \_ ->
+                        initialModel
+                            |> update (SelectCharaClass Data.HeavyInfantry)
+                            |> Tuple.first
+                            |> .charas
+                            |> Expect.equal heavyInfantries
+                , test "SelectCharaClass SpecialChara が指定された場合、特殊キャラクターを Model に設定する" <|
+                    \_ ->
+                        initialModel
+                            |> update (SelectCharaClass Data.SpecialChara)
+                            |> Tuple.first
+                            |> .charas
+                            |> Expect.equal specialCharas
+                ]
+
             -- 剣フィルタ
-            [ test "剣の技が表示対象かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示対象外にする" <|
+            , test "剣の技が表示対象かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示対象外にする" <|
                 \_ ->
                     verifySelectedWeaponTypeToFalse Sword .sword
             , test "剣の技が表示対象外かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示対象にする" <|
@@ -135,6 +153,61 @@ suite =
                     \_ ->
                         verifySendMsgFromSelectBox "40" (SelectCharaClass Data.SpecialChara) initialModel <|
                             Query.find [ tag "select", classes [ "chara-classes" ] ]
+                ]
+
+            -- キャラクター一覧
+            , describe "キャラクター一覧に対し、各キャラクターの名前を option の要素に、ID を option の value 属性に設定する"
+                [ test "帝国重装歩兵" <|
+                    \_ ->
+                        { initialModel | charas = heavyInfantries }
+                            |> view
+                            |> Query.fromHtml
+                            |> Query.find [ tag "select", classes [ "charas" ] ]
+                            |> Query.contains
+                                [ H.option [ Attrs.value "0" ] [ H.text "ベア" ]
+                                , H.option [ Attrs.value "1" ] [ H.text "バイソン" ]
+                                , H.option [ Attrs.value "2" ] [ H.text "ウォーラス" ]
+                                , H.option [ Attrs.value "3" ] [ H.text "スネイル" ]
+                                , H.option [ Attrs.value "4" ] [ H.text "ヘッジホッグ" ]
+                                , H.option [ Attrs.value "5" ] [ H.text "トータス" ]
+                                , H.option [ Attrs.value "6" ] [ H.text "ライノ" ]
+                                , H.option [ Attrs.value "7" ] [ H.text "フェルディナント" ]
+                                ]
+                , test "特殊" <|
+                    \_ ->
+                        { initialModel | charas = specialCharas }
+                            |> view
+                            |> Query.fromHtml
+                            |> Query.find [ tag "select", classes [ "charas" ] ]
+                            |> Query.contains
+                                [ H.option [ Attrs.value "300" ] [ H.text "レオン" ]
+                                , H.option [ Attrs.value "301" ] [ H.text "ジェラール" ]
+                                , H.option [ Attrs.value "302" ] [ H.text "コッペリア" ]
+                                , H.option [ Attrs.value "303" ] [ H.text "最終皇帝(男)" ]
+                                , H.option [ Attrs.value "304" ] [ H.text "最終皇帝(女)" ]
+                                ]
+                ]
+
+            -- キャラクター選択
+            , describe "キャラクターが選択された場合、そのキャラクターの閃きタイプに対応するメッセージを送信する"
+                [ test "ベアを選択された場合、SelectChara General メッセージを送信する" <|
+                    \_ ->
+                        let
+                            model =
+                                { initialModel | charas = heavyInfantries }
+                        in
+                        -- ベアのキャラクターID は 0
+                        verifySendMsgFromSelectBox "0" (SelectChara Data.General) model <|
+                            Query.find [ tag "select", classes [ "charas" ] ]
+                , test "レオンを選択された場合、SelectChara CannotSpark メッセージを送信する" <|
+                    \_ ->
+                        let
+                            model =
+                                { initialModel | charas = specialCharas }
+                        in
+                        -- レオンのキャラクターID は 300
+                        verifySendMsgFromSelectBox "300" (SelectChara Data.CannotSpark) model <|
+                            Query.find [ tag "select", classes [ "charas" ] ]
                 ]
 
             -- 剣ボタン
@@ -277,8 +350,33 @@ selectedAllWeaponTypes =
 initialModel : Model
 initialModel =
     { charaClasses = Data.charaClasses
+    , allCharas = Data.charas
+    , charas = []
     , selectedWeaponTypes = unselectedAllWeaponTypes
     }
+
+
+heavyInfantries : List Chara
+heavyInfantries =
+    [ Chara 0 "ベア" Data.General
+    , Chara 1 "バイソン" Data.General
+    , Chara 2 "ウォーラス" Data.General
+    , Chara 3 "スネイル" Data.Sword2
+    , Chara 4 "ヘッジホッグ" Data.General
+    , Chara 5 "トータス" Data.General
+    , Chara 6 "ライノ" Data.General
+    , Chara 7 "フェルディナント" Data.General
+    ]
+
+
+specialCharas : List Chara
+specialCharas =
+    [ Chara 300 "レオン" Data.CannotSpark
+    , Chara 301 "ジェラール" Data.Spell
+    , Chara 302 "コッペリア" Data.CannotSpark
+    , Chara 303 "最終皇帝(男)" Data.Sword2
+    , Chara 304 "最終皇帝(女)" Data.Sword2
+    ]
 
 
 {-| 指定された武器種を選択中に変更するか検証する
