@@ -100,11 +100,6 @@ type WeaponType
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ChangeWeaponType weaponType ->
-            ( { model | selectedWeaponTypes = invertSelected weaponType model.selectedWeaponTypes }
-            , Cmd.none
-            )
-
         SelectCharaClass charaClassType ->
             let
                 newCharas =
@@ -115,6 +110,11 @@ update msg model =
         SelectChara sparkType ->
             -- TODO 閃きタイプを基に閃ける技一覧を作成
             ( model, Cmd.none )
+
+        ChangeWeaponType weaponType ->
+            ( { model | selectedWeaponTypes = invertSelected weaponType model.selectedWeaponTypes }
+            , Cmd.none
+            )
 
 
 {-| 閃き可能な技について、指定された武器タイプの表示 ON/OFF を切り替える
