@@ -117,6 +117,8 @@ update msg model =
             ( model, Cmd.none )
 
 
+{-| 閃き可能な技について、指定された武器タイプの表示 ON/OFF を切り替える
+-}
 invertSelected : WeaponType -> SelectedWeaponTypes -> SelectedWeaponTypes
 invertSelected weaponType selected =
     case weaponType of
@@ -230,6 +232,8 @@ view { charaClasses, charas, selectedWeaponTypes } =
         ]
 
 
+{-| クラス一覧用の change イベントハンドラを作成する
+-}
 toSelectCharaClassAction : List Data.CharaClass -> (String -> Msg)
 toSelectCharaClassAction charaClasses =
     \targetValue ->
@@ -294,6 +298,8 @@ toSelectCharaAction charas =
             |> SelectChara
 
 
+{-| 閃き可能な技一覧を武器タイプでフィルタリングするボタンを作成する
+-}
 filterButton : WeaponType -> String -> Bool -> Html Msg
 filterButton weaponType weaponName selected =
     button
