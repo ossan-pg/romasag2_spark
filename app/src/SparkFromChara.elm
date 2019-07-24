@@ -31,6 +31,13 @@ type alias Model =
     }
 
 
+type alias Chara =
+    { id : Int
+    , name : String
+    , sparkType : Data.SparkType
+    }
+
+
 type alias SelectedWeaponTypes =
     { sword : Bool
     , greatSword : Bool
@@ -40,13 +47,6 @@ type alias SelectedWeaponTypes =
     , shortSword : Bool
     , bow : Bool
     , martialSkill : Bool
-    }
-
-
-type alias Chara =
-    { id : Int
-    , name : String
-    , sparkType : Data.SparkType
     }
 
 
@@ -79,9 +79,9 @@ initSelectedWeaponTypes =
 
 
 type Msg
-    = ChangeWeaponType WeaponType
-    | SelectCharaClass (Maybe Data.CharaClass)
+    = SelectCharaClass (Maybe Data.CharaClass)
     | SelectChara (Maybe Chara)
+    | ChangeWeaponType WeaponType
 
 
 type WeaponType
