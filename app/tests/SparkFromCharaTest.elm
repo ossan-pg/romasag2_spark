@@ -230,7 +230,7 @@ suite =
                     \_ ->
                         let
                             chara =
-                                Chara 0 "ベア" Data.General
+                                Chara 0 "ベア" Data.SparkGeneral
 
                             model =
                                 { initialModel | charas = heavyInfantries }
@@ -242,7 +242,7 @@ suite =
                     \_ ->
                         let
                             chara =
-                                Chara 300 "レオン" Data.CannotSpark
+                                Chara 300 "レオン" Data.SparkNothing
 
                             model =
                                 { initialModel | charas = specialCharas }
@@ -405,14 +405,14 @@ heavyInfantryClass =
 
 heavyInfantries : List Chara
 heavyInfantries =
-    [ Chara 0 "ベア" Data.General
-    , Chara 1 "バイソン" Data.General
-    , Chara 2 "ウォーラス" Data.General
-    , Chara 3 "スネイル" Data.Sword2
-    , Chara 4 "ヘッジホッグ" Data.General
-    , Chara 5 "トータス" Data.General
-    , Chara 6 "ライノ" Data.General
-    , Chara 7 "フェルディナント" Data.General
+    [ Chara 0 "ベア" Data.SparkGeneral
+    , Chara 1 "バイソン" Data.SparkGeneral
+    , Chara 2 "ウォーラス" Data.SparkGeneral
+    , Chara 3 "スネイル" Data.SparkSword2
+    , Chara 4 "ヘッジホッグ" Data.SparkGeneral
+    , Chara 5 "トータス" Data.SparkGeneral
+    , Chara 6 "ライノ" Data.SparkGeneral
+    , Chara 7 "フェルディナント" Data.SparkGeneral
     ]
 
 
@@ -423,11 +423,11 @@ specialCharaClass =
 
 specialCharas : List Chara
 specialCharas =
-    [ Chara 300 "レオン" Data.CannotSpark
-    , Chara 301 "ジェラール" Data.Spell
-    , Chara 302 "コッペリア" Data.CannotSpark
-    , Chara 303 "最終皇帝(男)" Data.Sword2
-    , Chara 304 "最終皇帝(女)" Data.Sword2
+    [ Chara 300 "レオン" Data.SparkNothing
+    , Chara 301 "ジェラール" Data.SparkSpell
+    , Chara 302 "コッペリア" Data.SparkNothing
+    , Chara 303 "最終皇帝(男)" Data.SparkSword2
+    , Chara 304 "最終皇帝(女)" Data.SparkSword2
     ]
 
 
