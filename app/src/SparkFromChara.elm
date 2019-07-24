@@ -108,7 +108,7 @@ update msg model =
                     ( { model | charas = newCharas }, Cmd.none )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( { model | charas = [] }, Cmd.none )
 
         SelectChara sparkType ->
             -- TODO 閃きタイプを基に閃ける技一覧を作成

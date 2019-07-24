@@ -18,7 +18,15 @@ suite =
     describe "The SparkFromChara module"
         [ describe "update"
             -- キャラクターを設定
-            [ describe "指定されたクラスに対応するキャラクターを Model に設定する"
+            [ test "クラスが指定されていない場合、空のキャラクターリストを Model に設定する" <|
+                \_ ->
+                    -- キャラクターリストを空以外に設定
+                    { initialModel | charas = heavyInfantries }
+                        |> update (SelectCharaClass Nothing)
+                        |> Tuple.first
+                        |> .charas
+                        |> Expect.equal []
+            , describe "指定されたクラスに対応するキャラクターを Model に設定する"
                 [ test "「帝国重装歩兵」が指定された場合、帝国重装歩兵のキャラクターを Model に設定する" <|
                     \_ ->
                         initialModel
