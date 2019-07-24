@@ -19,17 +19,17 @@ suite =
         [ describe "update"
             -- キャラクターを設定
             [ describe "指定されたクラスに対応するキャラクターを Model に設定する"
-                [ test "SelectCharaClass HeavyInfantry が指定された場合、帝国重装歩兵のキャラクターを Model に設定する" <|
+                [ test "「帝国重装歩兵」が指定された場合、帝国重装歩兵のキャラクターを Model に設定する" <|
                     \_ ->
                         initialModel
-                            |> update (SelectCharaClass Data.HeavyInfantry)
+                            |> update (SelectCharaClass <| Just heavyInfantryClass)
                             |> Tuple.first
                             |> .charas
                             |> Expect.equal heavyInfantries
-                , test "SelectCharaClass SpecialChara が指定された場合、特殊キャラクターを Model に設定する" <|
+                , test "「特殊」が指定された場合、特殊キャラクターを Model に設定する" <|
                     \_ ->
                         initialModel
-                            |> update (SelectCharaClass Data.SpecialChara)
+                            |> update (SelectCharaClass <| Just specialCharaClass)
                             |> Tuple.first
                             |> .charas
                             |> Expect.equal specialCharas
@@ -147,11 +147,11 @@ suite =
             , describe "クラスが選択された場合、そのクラスに対応するメッセージを送信する"
                 [ test "帝国重装歩兵を選択された場合、SelectCharaClass HeavyInfantry メッセージを送信する" <|
                     \_ ->
-                        verifySendMsgFromSelectBox "0" (SelectCharaClass Data.HeavyInfantry) initialModel <|
+                        verifySendMsgFromSelectBox "0" (SelectCharaClass <| Just heavyInfantryClass) initialModel <|
                             Query.find [ tag "select", classes [ "chara-classes" ] ]
                 , test "特殊を選択された場合、SelectCharaClass SpecialCharaClass メッセージを送信する" <|
                     \_ ->
-                        verifySendMsgFromSelectBox "40" (SelectCharaClass Data.SpecialChara) initialModel <|
+                        verifySendMsgFromSelectBox "40" (SelectCharaClass <| Just specialCharaClass) initialModel <|
                             Query.find [ tag "select", classes [ "chara-classes" ] ]
                 ]
 
@@ -356,6 +356,11 @@ initialModel =
     }
 
 
+heavyInfantryClass : Data.CharaClass
+heavyInfantryClass =
+    Data.CharaClass Data.HeavyInfantry 0 "帝国重装歩兵" "初期状態で加入済み。"
+
+
 heavyInfantries : List Chara
 heavyInfantries =
     [ Chara 0 "ベア" Data.General
@@ -367,6 +372,11 @@ heavyInfantries =
     , Chara 6 "ライノ" Data.General
     , Chara 7 "フェルディナント" Data.General
     ]
+
+
+specialCharaClass : Data.CharaClass
+specialCharaClass =
+    Data.CharaClass Data.SpecialChara 40 "特殊" "【加入条件省略】"
 
 
 specialCharas : List Chara

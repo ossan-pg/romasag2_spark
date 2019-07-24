@@ -82,7 +82,7 @@ initSelectedWeaponTypes =
 
 type Msg
     = ChangeWeaponType WeaponType
-    | SelectCharaClass Data.CharaClassType
+    | SelectCharaClass (Maybe Data.CharaClass)
     | SelectChara Data.SparkType
 
 
@@ -100,12 +100,17 @@ type WeaponType
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SelectCharaClass charaClassType ->
-            let
-                newCharas =
-                    filterMapCharas charaClassType model.allCharas
-            in
-            ( { model | charas = newCharas }, Cmd.none )
+        SelectCharaClass maybeCharaClass ->
+            case maybeCharaClass of
+                Just charaClass ->
+                    let
+                        newCharas =
+                            filterMapCharas charaClass.charaClassType model.allCharas
+                    in
+                    ( { model | charas = newCharas }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         SelectChara sparkType ->
             -- TODO 閃きタイプを基に閃ける技一覧を作成
@@ -238,11 +243,11 @@ toSelectCharaClassAction : List Data.CharaClass -> (String -> Msg)
 toSelectCharaClassAction charaClasses =
     \targetValue ->
         let
-            -- 変換失敗の場合は 0 (帝国重装歩兵)
+            -- 変換失敗の場合は -1 (該当クラスなし)
             -- targetValue は charaClassess の各 id を変換したものなので
             -- この値が参照されることはないはず (変換に失敗しない)
             defaultId =
-                0
+                -1
 
             id_ =
                 case String.toInt targetValue of
@@ -251,17 +256,9 @@ toSelectCharaClassAction charaClasses =
 
                     Nothing ->
                         defaultId
-
-            -- 該当なしの場合は HeavyInfantry (帝国重装歩兵)
-            -- charaClassess の各 id を基に targetValue を作成しているので
-            -- この値が参照されることはないはず (検索対象が必ず見つかる)
-            defaultCharaClass =
-                Data.HeavyInfantry
         in
         charaClasses
             |> ListEx.find (.id >> (==) id_)
-            |> Maybe.map .charaClassType
-            |> Maybe.withDefault defaultCharaClass
             |> SelectCharaClass
 
 
