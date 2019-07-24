@@ -1,4 +1,4 @@
-module SparkFromChara exposing (Chara, Model, Msg(..), SelectedWeaponTypes, WeaponType(..), main, update, view)
+module SparkFromChara exposing (Chara, Model, Msg(..), SelectedWeaponTypes, main, update, view)
 
 import Browser
 import Data
@@ -81,18 +81,7 @@ initSelectedWeaponTypes =
 type Msg
     = SelectCharaClass (Maybe Data.CharaClass)
     | SelectChara (Maybe Chara)
-    | ChangeWeaponType WeaponType
-
-
-type WeaponType
-    = Sword -- 剣
-    | GreatSword -- 大剣
-    | Axe -- 斧
-    | Mace -- 棍棒
-    | Spear -- 槍
-    | ShortSword -- 小剣
-    | Bow -- 弓
-    | MartialSkill -- 体術
+    | ChangeWeaponType Data.WeaponType
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -122,31 +111,31 @@ update msg model =
 
 {-| 閃き可能な技について、指定された武器タイプの表示 ON/OFF を切り替える
 -}
-invertSelected : WeaponType -> SelectedWeaponTypes -> SelectedWeaponTypes
+invertSelected : Data.WeaponType -> SelectedWeaponTypes -> SelectedWeaponTypes
 invertSelected weaponType selected =
     case weaponType of
-        Sword ->
+        Data.WeaponSword ->
             { selected | sword = not selected.sword }
 
-        GreatSword ->
+        Data.WeaponGreatSword ->
             { selected | greatSword = not selected.greatSword }
 
-        Axe ->
+        Data.WeaponAxe ->
             { selected | axe = not selected.axe }
 
-        Mace ->
+        Data.WeaponMace ->
             { selected | mace = not selected.mace }
 
-        Spear ->
+        Data.WeaponSpear ->
             { selected | spear = not selected.spear }
 
-        ShortSword ->
+        Data.WeaponShortSword ->
             { selected | shortSword = not selected.shortSword }
 
-        Bow ->
+        Data.WeaponBow ->
             { selected | bow = not selected.bow }
 
-        MartialSkill ->
+        Data.WeaponMartialSkill ->
             { selected | martialSkill = not selected.martialSkill }
 
 
@@ -198,16 +187,16 @@ view { charaClasses, charas, selectedWeaponTypes } =
             [ div [] [ text "閃き可能な技" ]
             , div [ Attrs.class "weapon-type-filter" ]
                 [ div []
-                    [ filterButton Sword "剣" selectedWeaponTypes.sword
-                    , filterButton GreatSword "大剣" selectedWeaponTypes.greatSword
-                    , filterButton Axe "斧" selectedWeaponTypes.axe
-                    , filterButton Mace "棍棒" selectedWeaponTypes.mace
+                    [ filterButton Data.WeaponSword "剣" selectedWeaponTypes.sword
+                    , filterButton Data.WeaponGreatSword "大剣" selectedWeaponTypes.greatSword
+                    , filterButton Data.WeaponAxe "斧" selectedWeaponTypes.axe
+                    , filterButton Data.WeaponMace "棍棒" selectedWeaponTypes.mace
                     ]
                 , div []
-                    [ filterButton Spear "槍" selectedWeaponTypes.spear
-                    , filterButton ShortSword "小剣" selectedWeaponTypes.shortSword
-                    , filterButton Bow "弓" selectedWeaponTypes.bow
-                    , filterButton MartialSkill "体術" selectedWeaponTypes.martialSkill
+                    [ filterButton Data.WeaponSpear "槍" selectedWeaponTypes.spear
+                    , filterButton Data.WeaponShortSword "小剣" selectedWeaponTypes.shortSword
+                    , filterButton Data.WeaponBow "弓" selectedWeaponTypes.bow
+                    , filterButton Data.WeaponMartialSkill "体術" selectedWeaponTypes.martialSkill
                     ]
                 ]
             , select [ Attrs.class "wazas", Attrs.size 8 ] <|
@@ -297,7 +286,7 @@ toSelectCharaAction charas =
 
 {-| 閃き可能な技一覧を武器タイプでフィルタリングするボタンを作成する
 -}
-filterButton : WeaponType -> String -> Bool -> Html Msg
+filterButton : Data.WeaponType -> String -> Bool -> Html Msg
 filterButton weaponType weaponName selected =
     button
         [ Events.onClick <| ChangeWeaponType weaponType

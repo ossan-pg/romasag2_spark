@@ -1,12 +1,14 @@
 module Data exposing
     ( CharaClassType(..), CharaClass, charaClasses
     , SparkType(..), Chara, charas
+    , WeaponType(..)
     )
 
 {-|
 
 @docs CharaClassType, CharaClass, charaClasses
 @docs SparkType, Chara, charas
+@docs WeaponType
 
 -}
 
@@ -467,3 +469,15 @@ charas =
     , Chara 303 "最終皇帝(男)" 19 25 23 23 15 24 21 10 5 5 5 5 0 0 0 0 10 0 SpecialChara 0 SparkSword2
     , Chara 304 "最終皇帝(女)" 10 23 24 24 15 25 20 10 5 5 5 5 0 0 0 0 10 0 SpecialChara 0 SparkSword2
     ]
+
+
+type WeaponType
+    = WeaponSword -- 剣
+    | WeaponGreatSword -- 大剣
+    | WeaponAxe -- 斧
+    | WeaponMace -- 棍棒
+    | WeaponSpear -- 槍
+    | WeaponShortSword -- 小剣
+    | WeaponBow -- 弓
+    | WeaponMartialSkill -- 体術
+
