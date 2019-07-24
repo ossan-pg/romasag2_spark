@@ -81,7 +81,7 @@ initSelectedWeaponTypes =
 type Msg
     = ChangeWeaponType WeaponType
     | SelectCharaClass (Maybe Data.CharaClass)
-    | SelectChara Data.SparkType
+    | SelectChara (Maybe Chara)
 
 
 type WeaponType
@@ -110,7 +110,7 @@ update msg model =
                 Nothing ->
                     ( { model | charas = [] }, Cmd.none )
 
-        SelectChara sparkType ->
+        SelectChara maybeChara ->
             -- TODO 閃きタイプを基に閃ける技一覧を作成
             ( model, Cmd.none )
 
@@ -276,7 +276,7 @@ toSelectCharaAction : List Chara -> (String -> Msg)
 toSelectCharaAction charas =
     \targetValue ->
         let
-            -- 変換失敗の場合は 0 (帝国重装歩兵)
+            -- 変換失敗の場合は -1 (該当キャラなし)
             -- targetValue は charas の各 id を変換したものなので
             -- この値が参照されることはないはず (変換に失敗しない)
             defaultId =
@@ -289,17 +289,9 @@ toSelectCharaAction charas =
 
                     Nothing ->
                         defaultId
-
-            -- 該当なしの場合は General
-            -- 同じ charas の各 id を基に targetValue を作成しているので
-            -- この値が参照されることはないはず (検索対象が必ず見つかる)
-            defaultSparkType =
-                Data.General
         in
         charas
             |> ListEx.find (.id >> (==) id_)
-            |> Maybe.map .sparkType
-            |> Maybe.withDefault defaultSparkType
             |> SelectChara
 
 

@@ -206,24 +206,42 @@ suite =
                 ]
 
             -- キャラクター選択
-            , describe "キャラクターが選択された場合、そのキャラクターの閃きタイプに対応するメッセージを送信する"
-                [ test "ベアを選択された場合、SelectChara General メッセージを送信する" <|
+            , test "無効なキャラクターが選択された場合、Nothing を SelectChara に設定して送信する" <|
+                \_ ->
+                    -- UI 的にあり得ないはずだが、仮に起きた場合にどうなるかを
+                    -- 把握するためテストしておく
+                    let
+                        -- キャラクター一覧は帝国重装歩兵
+                        model =
+                            { initialModel | charas = heavyInfantries }
+                    in
+                    -- 帝国重装歩兵以外のキャラクターID を指定する
+                    verifySendMsgFromSelectBox "8" (SelectChara Nothing) model <|
+                        Query.find [ tag "select", classes [ "charas" ] ]
+            , describe "キャラクターが選択された場合、そのキャラクターの値を SelectChara に設定して送信する"
+                [ test "ベア" <|
                     \_ ->
                         let
+                            chara =
+                                Chara 0 "ベア" Data.General
+
                             model =
                                 { initialModel | charas = heavyInfantries }
                         in
                         -- ベアのキャラクターID は 0
-                        verifySendMsgFromSelectBox "0" (SelectChara Data.General) model <|
+                        verifySendMsgFromSelectBox "0" (SelectChara <| Just chara) model <|
                             Query.find [ tag "select", classes [ "charas" ] ]
-                , test "レオンを選択された場合、SelectChara CannotSpark メッセージを送信する" <|
+                , test "レオン" <|
                     \_ ->
                         let
+                            chara =
+                                Chara 300 "レオン" Data.CannotSpark
+
                             model =
                                 { initialModel | charas = specialCharas }
                         in
                         -- レオンのキャラクターID は 300
-                        verifySendMsgFromSelectBox "300" (SelectChara Data.CannotSpark) model <|
+                        verifySendMsgFromSelectBox "300" (SelectChara <| Just chara) model <|
                             Query.find [ tag "select", classes [ "charas" ] ]
                 ]
 
