@@ -152,6 +152,13 @@ suite =
                             ]
 
             -- クラス選択
+            , test "無効なクラスが選択された場合、Nothing を SelectCharaClass に設定して送信する" <|
+                \_ ->
+                    -- UI 的にあり得ないはずだが、仮に起きた場合にどうなるかを
+                    -- 把握するためテストしておく
+                    -- 存在しないクラスID を指定する
+                    verifySendMsgFromSelectBox "32" (SelectCharaClass Nothing) initialModel <|
+                        Query.find [ tag "select", classes [ "chara-classes" ] ]
             , describe "クラスが選択された場合、そのクラスの値を SelectCharaClass に設定して送信する"
                 [ test "帝国重装歩兵" <|
                     \_ ->
