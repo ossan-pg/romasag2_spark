@@ -152,12 +152,12 @@ suite =
                             ]
 
             -- クラス選択
-            , describe "クラスが選択された場合、そのクラスに対応するメッセージを送信する"
-                [ test "帝国重装歩兵を選択された場合、SelectCharaClass HeavyInfantry メッセージを送信する" <|
+            , describe "クラスが選択された場合、そのクラスの値を SelectCharaClass に設定して送信する"
+                [ test "帝国重装歩兵" <|
                     \_ ->
                         verifySendMsgFromSelectBox "0" (SelectCharaClass <| Just heavyInfantryClass) initialModel <|
                             Query.find [ tag "select", classes [ "chara-classes" ] ]
-                , test "特殊を選択された場合、SelectCharaClass SpecialCharaClass メッセージを送信する" <|
+                , test "特殊" <|
                     \_ ->
                         verifySendMsgFromSelectBox "40" (SelectCharaClass <| Just specialCharaClass) initialModel <|
                             Query.find [ tag "select", classes [ "chara-classes" ] ]
