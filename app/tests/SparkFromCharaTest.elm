@@ -156,6 +156,15 @@ suite =
                 ]
 
             -- キャラクター一覧
+            , test "Model にキャラクターが誰も設定されていない場合、セレクトボックスの 1項目目に「クラス未選択」を Disabld 状態で表示する" <|
+                \_ ->
+                    { initialModel | charas = [] }
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ tag "select", classes [ "charas" ] ]
+                        |> Query.contains
+                            [ H.option [ Attrs.disabled True ] [ H.text "クラス未選択" ]
+                            ]
             , describe "キャラクター一覧に対し、各キャラクターの名前を option の要素に、ID を option の value 属性に設定する"
                 [ test "帝国重装歩兵" <|
                     \_ ->

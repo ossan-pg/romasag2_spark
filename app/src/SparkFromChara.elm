@@ -54,9 +54,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { charaClasses = Data.charaClasses
       , allCharas = Data.charas
-
-      -- 初期状態では帝国重装歩兵を選択した状態にする
-      , charas = filterMapCharas Data.HeavyInfantry Data.charas
+      , charas = []
       , selectedWeaponTypes = initSelectedWeaponTypes
       }
     , Cmd.none
@@ -180,11 +178,21 @@ view { charaClasses, charas, selectedWeaponTypes } =
         , div [ Attrs.class "charas-outer" ]
             [ div [] [ text "キャラクター" ]
             , select [ Attrs.class "charas", Attrs.size 8, EventsEx.onChange <| toSelectCharaAction charas ] <|
-                List.map
-                    (\{ id, name } ->
-                        option [ Attrs.value <| String.fromInt id ] [ text name ]
-                    )
-                    charas
+                if List.isEmpty charas then
+                    -- キャラクターのリストが空＝クラス未選択の状態。
+                    -- option がなかったり文字列が半角文字や全角空白で
+                    -- 構成されていたりするとセレクトボックスの高さが低くなる。
+                    -- 機能的には何も問題ないが見た目が気になるので、
+                    -- これを防止するために全角の文字列を表示する。
+                    [ option [ Attrs.disabled True ] [ text "クラス未選択" ]
+                    ]
+
+                else
+                    List.map
+                        (\{ id, name } ->
+                            option [ Attrs.value <| String.fromInt id ] [ text name ]
+                        )
+                        charas
             ]
         , div [ Attrs.class "wazas-outer" ]
             [ div [] [ text "閃き可能な技" ]
