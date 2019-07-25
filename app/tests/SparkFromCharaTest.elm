@@ -229,26 +229,20 @@ suite =
                 [ test "ベア" <|
                     \_ ->
                         let
-                            chara =
-                                Chara 0 "ベア" Data.SparkGeneral
-
                             model =
                                 { initialModel | charas = heavyInfantries }
                         in
                         -- ベアのキャラクターID は 0
-                        verifySendMsgFromSelectBox "0" (SelectChara <| Just chara) model <|
+                        verifySendMsgFromSelectBox "0" (SelectChara <| Just charaAsBear) model <|
                             Query.find [ tag "select", classes [ "charas" ] ]
                 , test "レオン" <|
                     \_ ->
                         let
-                            chara =
-                                Chara 300 "レオン" Data.SparkNothing
-
                             model =
                                 { initialModel | charas = specialCharas }
                         in
                         -- レオンのキャラクターID は 300
-                        verifySendMsgFromSelectBox "300" (SelectChara <| Just chara) model <|
+                        verifySendMsgFromSelectBox "300" (SelectChara <| Just charaAsLeon) model <|
                             Query.find [ tag "select", classes [ "charas" ] ]
                 ]
 
@@ -403,9 +397,14 @@ heavyInfantryClass =
     Data.CharaClass Data.HeavyInfantry 0 "帝国重装歩兵" "初期状態で加入済み。"
 
 
+charaAsBear : Chara
+charaAsBear =
+    Chara 0 "ベア" Data.SparkGeneral
+
+
 heavyInfantries : List Chara
 heavyInfantries =
-    [ Chara 0 "ベア" Data.SparkGeneral
+    [ charaAsBear
     , Chara 1 "バイソン" Data.SparkGeneral
     , Chara 2 "ウォーラス" Data.SparkGeneral
     , Chara 3 "スネイル" Data.SparkSword2
@@ -421,9 +420,14 @@ specialCharaClass =
     Data.CharaClass Data.SpecialChara 40 "特殊" "【加入条件省略】"
 
 
+charaAsLeon : Chara
+charaAsLeon =
+    Chara 300 "レオン" Data.SparkNothing
+
+
 specialCharas : List Chara
 specialCharas =
-    [ Chara 300 "レオン" Data.SparkNothing
+    [ charaAsLeon
     , Chara 301 "ジェラール" Data.SparkSpell
     , Chara 302 "コッペリア" Data.SparkNothing
     , Chara 303 "最終皇帝(男)" Data.SparkSword2
