@@ -43,69 +43,33 @@ suite =
                             |> Expect.equal specialCharas
                 ]
 
-            -- 剣フィルタ
-            , test "剣の技が表示 ON かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponSword .sword
-            , test "剣の技が表示 OFF かつメッセージが ChangeWeaponType Sword だった場合、剣の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponSword .sword
-
-            -- 大剣フィルタ
-            , test "大剣の技が表示 ON かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponGreatSword .greatSword
-            , test "大剣の技が表示 OFF かつメッセージが ChangeWeaponType GreatSword だった場合、大剣の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponGreatSword .greatSword
-
-            -- 斧フィルタ
-            , test "斧の技が表示 ON かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponAxe .axe
-            , test "斧の技が表示 OFF かつメッセージが ChangeWeaponType Axe だった場合、斧の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponAxe .axe
-
-            -- 棍棒フィルタ
-            , test "棍棒の技が表示 ON かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponMace .mace
-            , test "棍棒の技が表示 OFF かつメッセージが ChangeWeaponType Mace だった場合、棍棒の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponMace .mace
-
-            --槍フィルタ
-            , test "槍の技が表示 ON かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponSpear .spear
-            , test "槍の技が表示 OFF かつメッセージが ChangeWeaponType Spear だった場合、槍の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponSpear .spear
-
-            -- 小剣フィルタ
-            , test "小剣の技が表示 ON かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponShortSword .shortSword
-            , test "小剣の技が表示 OFF かつメッセージが ChangeWeaponType ShortSword だった場合、小剣の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponShortSword .shortSword
-
-            -- 弓フィルタ
-            , test "弓の技が表示 ON かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponBow .bow
-            , test "弓の技が表示 OFF かつメッセージが ChangeWeaponType Bow だった場合、弓の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponBow .bow
-
-            -- 体術フィルタ
-            , test "体術の技が表示 ON かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示 OFF にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToFalse Data.WeaponMartialSkill .martialSkill
-            , test "体術の技が表示 OFF かつメッセージが ChangeWeaponType MartialSkill だった場合、体術の技を表示 ON にする" <|
-                \_ ->
-                    verifySelectedWeaponTypeToTrue Data.WeaponMartialSkill .martialSkill
+            -- 武器タイプを設定
+            , describe "指定された武器タイプを Model に設定する"
+                [ test "剣" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponAxe Data.WeaponSword
+                , test "大剣" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponGreatSword
+                , test "斧" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponAxe
+                , test "棍棒" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponMace
+                , test "槍" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponSpear
+                , test "小剣" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponShortSword
+                , test "弓" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponBow
+                , test "体術" <|
+                    \_ ->
+                        verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponMartialSkill
+                ]
             ]
         , describe "view"
             -- クラス一覧
@@ -246,141 +210,35 @@ suite =
                             Query.find [ tag "select", classes [ "charas" ] ]
                 ]
 
-            -- 剣ボタン
-            , test "剣の技が表示 ON の場合、剣ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "剣" "selected" <|
-                        { unselectedAllWeaponTypes | sword = True }
-            , test "剣の技が表示 OFF の場合、剣ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "剣" "unselected" <|
-                        { selectedAllWeaponTypes | sword = False }
-            , test "剣ボタンがクリックされた場合、ChangeWeaponType Sword メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponSword 0
-
-            -- 大剣ボタン
-            , test "大剣の技が表示 ON の場合、大剣ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "大剣" "selected" <|
-                        { unselectedAllWeaponTypes | greatSword = True }
-            , test "大剣の技が表示 OFF の場合、大剣ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "大剣" "unselected" <|
-                        { selectedAllWeaponTypes | greatSword = False }
-            , test "大剣ボタンがクリックされた場合、ChangeWeaponType GreatSword メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponGreatSword 1
-
-            -- 斧ボタン
-            , test "斧の技が表示 ON の場合、斧ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "斧" "selected" <|
-                        { unselectedAllWeaponTypes | axe = True }
-            , test "斧の技が表示 OFF の場合、斧ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "斧" "unselected" <|
-                        { selectedAllWeaponTypes | axe = False }
-            , test "斧ボタンがクリックされた場合、ChangeWeaponType Axe メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponAxe 2
-
-            -- 棍棒ボタン
-            , test "棍棒の技が表示 ON の場合、棍棒ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "棍棒" "selected" <|
-                        { unselectedAllWeaponTypes | mace = True }
-            , test "棍棒の技が表示 OFF の場合、棍棒ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "棍棒" "unselected" <|
-                        { selectedAllWeaponTypes | mace = False }
-            , test "棍棒ボタンがクリックされた場合、ChangeWeaponType Mace メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponMace 3
-
-            -- 槍ボタン
-            , test "槍の技が表示 ON の場合、槍ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "槍" "selected" <|
-                        { unselectedAllWeaponTypes | spear = True }
-            , test "槍の技が表示 OFF の場合、槍ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "槍" "unselected" <|
-                        { selectedAllWeaponTypes | spear = False }
-            , test "槍ボタンがクリックされた場合、ChangeWeaponType Spear メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponSpear 4
-
-            -- 小剣ボタン
-            , test "小剣の技が表示 ON の場合、小剣ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "小剣" "selected" <|
-                        { unselectedAllWeaponTypes | shortSword = True }
-            , test "小剣の技が表示 OFF の場合、小剣ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "小剣" "unselected" <|
-                        { selectedAllWeaponTypes | shortSword = False }
-            , test "小剣ボタンがクリックされた場合、ChangeWeaponType ShortSword メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponShortSword 5
-
-            -- 弓ボタン
-            , test "弓の技が表示 ON の場合、弓ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "弓" "selected" <|
-                        { unselectedAllWeaponTypes | bow = True }
-            , test "弓の技が表示 OFF の場合、弓ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "弓" "unselected" <|
-                        { selectedAllWeaponTypes | bow = False }
-            , test "弓ボタンがクリックされた場合、ChangeWeaponType Bow メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponBow 6
-
-            -- 体術ボタン
-            , test "体術の技が表示 ON の場合、体術ボタンに selected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "体術" "selected" <|
-                        { unselectedAllWeaponTypes | martialSkill = True }
-            , test "体術の技が表示 OFF の場合、体術ボタンに unselected クラスを設定する" <|
-                \_ ->
-                    verifyClassOfButton "体術" "unselected" <|
-                        { selectedAllWeaponTypes | martialSkill = False }
-            , test "体術ボタンがクリックされた場合、ChangeWeaponType MartialSkill メッセージを送信する" <|
-                \_ ->
-                    verifyButtonClick Data.WeaponMartialSkill 7
+            -- 武器タイプ選択
+            , describe "武器タイプが選択された場合、その武器タイプの値を ChangeWeaponType に設定して送信する"
+                [ test "剣" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponSword 0
+                , test "大剣" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponGreatSword 1
+                , test "斧" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponAxe 2
+                , test "棍棒" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponMace 3
+                , test "槍" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponSpear 4
+                , test "小剣" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponShortSword 5
+                , test "弓" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponBow 6
+                , test "体術" <|
+                    \_ ->
+                        verifySendMsgFromRadioButton Data.WeaponMartialSkill 7
+                ]
             ]
         ]
-
-
-{-| 全ての武器種を未選択の SelectedWeaponTypes
--}
-unselectedAllWeaponTypes : SelectedWeaponTypes
-unselectedAllWeaponTypes =
-    { sword = False
-    , greatSword = False
-    , axe = False
-    , mace = False
-    , spear = False
-    , shortSword = False
-    , bow = False
-    , martialSkill = False
-    }
-
-
-{-| 全ての武器種を選択中の SelectedWeaponTypes
--}
-selectedAllWeaponTypes : SelectedWeaponTypes
-selectedAllWeaponTypes =
-    { sword = True
-    , greatSword = True
-    , axe = True
-    , mace = True
-    , spear = True
-    , shortSword = True
-    , bow = True
-    , martialSkill = True
-    }
 
 
 initialModel : Model
@@ -388,7 +246,7 @@ initialModel =
     { charaClasses = Data.charaClasses
     , allCharas = Data.charas
     , charas = []
-    , selectedWeaponTypes = unselectedAllWeaponTypes
+    , weaponType = Data.WeaponSword
     }
 
 
@@ -435,28 +293,15 @@ specialCharas =
     ]
 
 
-{-| 指定された武器種を選択中に変更するか検証する
--}
-verifySelectedWeaponTypeToTrue : Data.WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
-verifySelectedWeaponTypeToTrue weaponType toBool =
-    { initialModel | selectedWeaponTypes = unselectedAllWeaponTypes }
-        |> update (ChangeWeaponType weaponType)
-        |> Tuple.first
-        |> .selectedWeaponTypes
-        |> toBool
-        |> Expect.equal True
-
-
 {-| 指定された武器種を未選択に変更するか検証する
 -}
-verifySelectedWeaponTypeToFalse : Data.WeaponType -> (SelectedWeaponTypes -> Bool) -> Expectation
-verifySelectedWeaponTypeToFalse weaponType toBool =
-    { initialModel | selectedWeaponTypes = selectedAllWeaponTypes }
+verifySetWeaponTypeToModel : Data.WeaponType -> Data.WeaponType -> Expectation
+verifySetWeaponTypeToModel initialWeaponType weaponType =
+    { initialModel | weaponType = initialWeaponType }
         |> update (ChangeWeaponType weaponType)
         |> Tuple.first
-        |> .selectedWeaponTypes
-        |> toBool
-        |> Expect.equal False
+        |> .weaponType
+        |> Expect.equal weaponType
 
 
 {-| セレクトボックスの項目選択時に対応したメッセージが送信されるか検証する
@@ -481,27 +326,15 @@ verifySendMsgFromSelectBox optionValue expectedMsg model query =
         |> Event.expect expectedMsg
 
 
-{-| フィルタボタンに設定するクラスを検証する
--}
-verifyClassOfButton : String -> String -> SelectedWeaponTypes -> Expectation
-verifyClassOfButton weaponType className selectedWeaponTypes =
-    { initialModel | selectedWeaponTypes = selectedWeaponTypes }
-        |> view
-        |> Query.fromHtml
-        |> Query.find [ classes [ "weapon-type-filter" ] ]
-        |> Query.find [ tag "button", classes [ className ] ]
-        |> Query.has [ text weaponType ]
-
-
 {-| フィルタボタンクリック時の動作を検証する
 -}
-verifyButtonClick : Data.WeaponType -> Int -> Expectation
-verifyButtonClick weaponType index_ =
+verifySendMsgFromRadioButton : Data.WeaponType -> Int -> Expectation
+verifySendMsgFromRadioButton weaponType index_ =
     initialModel
         |> view
         |> Query.fromHtml
         |> Query.find [ classes [ "weapon-type-filter" ] ]
-        |> Query.findAll [ tag "button" ]
+        |> Query.findAll [ tag "input" ]
         |> Query.index index_
         |> Event.simulate Event.click
         |> Event.expect (ChangeWeaponType weaponType)
