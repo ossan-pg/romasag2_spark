@@ -139,7 +139,7 @@ invertSelected weaponType selected =
             { selected | martialSkill = not selected.martialSkill }
 
 
-{-| Data.Chara のリストから閃きタイプが一致するキャラクターを抽出し、Chara のリストを作成する
+{-| Data.Chara のリストからクラスが一致するキャラクターを抽出し、Chara のリストを作成する
 -}
 filterMapCharas : Data.CharaClassType -> List Data.Chara -> List Chara
 filterMapCharas charaClassType srcCharas =
