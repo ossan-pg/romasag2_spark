@@ -211,7 +211,7 @@ suite =
                 ]
 
             -- 武器タイプ選択
-            , describe "武器タイプが選択された場合、その武器タイプの値を ChangeWeaponType に設定して送信する"
+            , describe "武器タイプが選択された場合、その武器タイプの値を SelectWeaponType に設定して送信する"
                 [ test "剣" <|
                     \_ ->
                         verifySendMsgFromRadioButton Data.WeaponSword 0
@@ -298,7 +298,7 @@ specialCharas =
 verifySetWeaponTypeToModel : Data.WeaponType -> Data.WeaponType -> Expectation
 verifySetWeaponTypeToModel initialWeaponType weaponType =
     { initialModel | weaponType = initialWeaponType }
-        |> update (ChangeWeaponType weaponType)
+        |> update (SelectWeaponType weaponType)
         |> Tuple.first
         |> .weaponType
         |> Expect.equal weaponType
@@ -337,4 +337,4 @@ verifySendMsgFromRadioButton weaponType index_ =
         |> Query.findAll [ tag "input" ]
         |> Query.index index_
         |> Event.simulate Event.click
-        |> Event.expect (ChangeWeaponType weaponType)
+        |> Event.expect (SelectWeaponType weaponType)

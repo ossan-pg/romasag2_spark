@@ -58,7 +58,7 @@ init _ =
 type Msg
     = SelectCharaClass (Maybe Data.CharaClass)
     | SelectChara (Maybe Chara)
-    | ChangeWeaponType Data.WeaponType
+    | SelectWeaponType Data.WeaponType
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -80,7 +80,7 @@ update msg model =
             -- TODO 閃きタイプを基に閃ける技一覧を作成
             ( model, Cmd.none )
 
-        ChangeWeaponType weaponType ->
+        SelectWeaponType weaponType ->
             ( { model | weaponType = weaponType }
             , Cmd.none
             )
@@ -239,7 +239,7 @@ selectButton weaponType weaponName =
         [ input
             [ Attrs.type_ "radio"
             , Attrs.name "weaponTypes"
-            , Events.onClick <| ChangeWeaponType weaponType
+            , Events.onClick <| SelectWeaponType weaponType
             ]
             []
         , text weaponName
