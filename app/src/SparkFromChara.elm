@@ -27,14 +27,14 @@ type alias Model =
     { charaClasses : List Data.CharaClass
     , allCharas : List Data.Chara
     , charas : List Chara -- 表示用の別の Chara 型 を使用する
-    , weaponType : Data.WeaponType
+    , weaponType : Data.WeaponTypeSymbol
     }
 
 
 type alias Chara =
     { id : Int
     , name : String
-    , sparkType : Data.SparkType
+    , sparkType : Data.SparkTypeSymbol
     }
 
 
@@ -58,7 +58,7 @@ init _ =
 type Msg
     = SelectCharaClass (Maybe Data.CharaClass)
     | SelectChara (Maybe Chara)
-    | SelectWeaponType Data.WeaponType
+    | SelectWeaponType Data.WeaponTypeSymbol
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -88,7 +88,7 @@ update msg model =
 
 {-| Data.Chara のリストからクラスが一致するキャラクターを抽出し、Chara のリストを作成する
 -}
-filterMapCharas : Data.CharaClassType -> List Data.Chara -> List Chara
+filterMapCharas : Data.CharaClassSymbol -> List Data.Chara -> List Chara
 filterMapCharas charaClassType srcCharas =
     srcCharas
         |> List.filter (.charaClassType >> (==) charaClassType)
@@ -233,7 +233,7 @@ toSelectCharaAction charas =
 
 {-| 閃き可能な技一覧の武器タイプを選択するボタンを作成する
 -}
-selectButton : Data.WeaponType -> String -> Html Msg
+selectButton : Data.WeaponTypeSymbol -> String -> Html Msg
 selectButton weaponType weaponName =
     label []
         [ input
