@@ -295,7 +295,7 @@ specialCharas =
 
 {-| 指定された武器種を未選択に変更するか検証する
 -}
-verifySetWeaponTypeToModel : Data.WeaponType -> Data.WeaponType -> Expectation
+verifySetWeaponTypeToModel : Data.WeaponTypeSymbol -> Data.WeaponTypeSymbol -> Expectation
 verifySetWeaponTypeToModel initialWeaponType weaponType =
     { initialModel | weaponType = initialWeaponType }
         |> update (SelectWeaponType weaponType)
@@ -328,7 +328,7 @@ verifySendMsgFromSelectBox optionValue expectedMsg model query =
 
 {-| フィルタボタンクリック時の動作を検証する
 -}
-verifySendMsgFromRadioButton : Data.WeaponType -> Int -> Expectation
+verifySendMsgFromRadioButton : Data.WeaponTypeSymbol -> Int -> Expectation
 verifySendMsgFromRadioButton weaponType index_ =
     initialModel
         |> view

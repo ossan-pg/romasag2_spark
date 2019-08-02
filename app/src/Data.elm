@@ -1,19 +1,19 @@
 module Data exposing
-    ( CharaClassType(..), CharaClass, charaClasses
-    , SparkType(..), Chara, charas
-    , WeaponType(..)
+    ( CharaClassSymbol(..), CharaClass, charaClasses
+    , SparkTypeSymbol(..), Chara, charas
+    , WeaponTypeSymbol(..)
     )
 
 {-|
 
-@docs CharaClassType, CharaClass, charaClasses
-@docs SparkType, Chara, charas
-@docs WeaponType
+@docs CharaClassSymbol, CharaClass, charaClasses
+@docs SparkTypeSymbol, Chara, charas
+@docs WeaponTypeSymbol
 
 -}
 
 
-type CharaClassType
+type CharaClassSymbol
     = HeavyInfantry -- 帝国重装歩兵
     | LightInfantryM -- 帝国軽装歩兵(男)
     | LightInfantryF -- 帝国軽装歩兵(女)
@@ -50,7 +50,7 @@ type CharaClassType
 
 
 type alias CharaClass =
-    { charaClassType : CharaClassType
+    { charaClassType : CharaClassSymbol
     , id : Int
     , name : String
     , joinCondition : String
@@ -95,7 +95,7 @@ charaClasses =
     ]
 
 
-type SparkType
+type SparkTypeSymbol
     = SparkSword1 -- 剣1
     | SparkSword2 -- 剣2
     | SparkGreatSword1 -- 大剣1
@@ -134,9 +134,9 @@ type alias Chara =
     , offsetEarth : Int -- 地術レベルの補正値
     , offsetLight : Int -- 天術レベルの補正値
     , offsetDark : Int -- 冥術レベルの補正値
-    , charaClassType : CharaClassType -- キャラのクラス
+    , charaClassType : CharaClassSymbol -- キャラのクラス
     , charaOrder : Int -- キャラのクラス内での順番
-    , sparkType : SparkType -- 閃きタイプ
+    , sparkType : SparkTypeSymbol -- 閃きタイプ
     }
 
 
@@ -471,7 +471,7 @@ charas =
     ]
 
 
-type WeaponType
+type WeaponTypeSymbol
     = WeaponSword -- 剣
     | WeaponGreatSword -- 大剣
     | WeaponAxe -- 斧
@@ -480,4 +480,3 @@ type WeaponType
     | WeaponShortSword -- 小剣
     | WeaponBow -- 弓
     | WeaponMartialSkill -- 体術
-
