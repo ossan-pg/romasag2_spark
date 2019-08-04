@@ -10,7 +10,7 @@ import SparkFromChara exposing (..)
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (classes, tag, text)
+import Test.Html.Selector exposing (checked, classes, tag, text)
 
 
 suite : Test
@@ -210,6 +210,34 @@ suite =
                             Query.find [ tag "select", classes [ "charas" ] ]
                 ]
 
+            -- 武器タイプ表示
+            , describe "Model に設定されている武器タイプをチェック状態にする"
+                [ test "剣" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponSword 0
+                , test "大剣" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponGreatSword 1
+                , test "斧" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponAxe 2
+                , test "棍棒" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponMace 3
+                , test "槍" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponSpear 4
+                , test "小剣" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponShortSword 5
+                , test "弓" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponBow 6
+                , test "体術" <|
+                    \_ ->
+                        verifySelectedWeaponType Data.WeaponMartialSkill 7
+                ]
+
             -- 武器タイプ選択
             , describe "武器タイプが選択された場合、その武器タイプの値を SelectWeaponType に設定して送信する"
                 [ test "剣" <|
@@ -324,6 +352,19 @@ verifySendMsgFromSelectBox optionValue expectedMsg model query =
         |> query
         |> Event.simulate (Event.custom "change" eventObject)
         |> Event.expect expectedMsg
+
+
+{-| Model に指定された武器タイプが選択状態になっている検証する
+-}
+verifySelectedWeaponType : Data.WeaponTypeSymbol -> Int -> Expectation
+verifySelectedWeaponType weaponType index_ =
+    { initialModel | weaponType = weaponType }
+        |> view
+        |> Query.fromHtml
+        |> Query.find [ classes [ "weapon-type-filter" ] ]
+        |> Query.findAll [ tag "input" ]
+        |> Query.index index_
+        |> Query.has [ checked True ]
 
 
 {-| フィルタボタンクリック時の動作を検証する
