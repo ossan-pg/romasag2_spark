@@ -134,16 +134,16 @@ view { charaClasses, charas, weaponType } =
             [ div [] [ text "閃き可能な技" ]
             , div [ Attrs.class "weapon-type-filter" ]
                 [ div []
-                    [ selectButton Data.WeaponSword "剣"
-                    , selectButton Data.WeaponGreatSword "大剣"
-                    , selectButton Data.WeaponAxe "斧"
-                    , selectButton Data.WeaponMace "棍棒"
+                    [ selectButton weaponType Data.WeaponSword "剣"
+                    , selectButton weaponType Data.WeaponGreatSword "大剣"
+                    , selectButton weaponType Data.WeaponAxe "斧"
+                    , selectButton weaponType Data.WeaponMace "棍棒"
                     ]
                 , div []
-                    [ selectButton Data.WeaponSpear "槍"
-                    , selectButton Data.WeaponShortSword "小剣"
-                    , selectButton Data.WeaponBow "弓"
-                    , selectButton Data.WeaponMartialSkill "体術"
+                    [ selectButton weaponType Data.WeaponSpear "槍"
+                    , selectButton weaponType Data.WeaponShortSword "小剣"
+                    , selectButton weaponType Data.WeaponBow "弓"
+                    , selectButton weaponType Data.WeaponMartialSkill "体術"
                     ]
                 ]
             , select [ Attrs.class "wazas", Attrs.size 8 ] <|
@@ -233,12 +233,13 @@ toSelectCharaAction charas =
 
 {-| 閃き可能な技一覧の武器タイプを選択するボタンを作成する
 -}
-selectButton : Data.WeaponTypeSymbol -> String -> Html Msg
-selectButton weaponType weaponName =
+selectButton : Data.WeaponTypeSymbol -> Data.WeaponTypeSymbol -> String -> Html Msg
+selectButton checkedWeaponType weaponType weaponName =
     label []
         [ input
             [ Attrs.type_ "radio"
             , Attrs.name "weaponTypes"
+            , Attrs.checked <| weaponType == checkedWeaponType
             , Events.onClick <| SelectWeaponType weaponType
             ]
             []
