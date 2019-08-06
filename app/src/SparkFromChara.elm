@@ -27,6 +27,7 @@ type alias Model =
     { charaClasses : List Data.CharaClass
     , allCharas : List Data.Chara
     , charas : List Chara -- 表示用の別の Chara 型 を使用する
+    , sparkType : Maybe Data.SparkTypeSymbol
     , weaponType : Data.WeaponTypeSymbol
     , wazas : List Data.Waza
     }
@@ -44,6 +45,7 @@ init _ =
     ( { charaClasses = Data.charaClasses
       , allCharas = Data.charas
       , charas = []
+      , sparkType = Nothing
 
       -- 初期選択は剣タイプ
       , weaponType = Data.WeaponSword
@@ -82,12 +84,15 @@ update msg model =
         SelectChara maybeChara ->
             case maybeChara of
                 Just chara ->
-                    ( { model | wazas = Data.sparkTypeToWazas chara.sparkType }
+                    ( { model
+                        | sparkType = Just chara.sparkType
+                        , wazas = Data.sparkTypeToWazas chara.sparkType
+                      }
                     , Cmd.none
                     )
 
                 Nothing ->
-                    ( { model | wazas = [] }, Cmd.none )
+                    ( { model | sparkType = Nothing, wazas = [] }, Cmd.none )
 
         SelectWeaponType weaponType ->
             ( { model | weaponType = weaponType }
@@ -113,7 +118,7 @@ filterMapCharas { charaClassType } srcCharas =
 
 
 view : Model -> Html Msg
-view { charaClasses, charas, weaponType, wazas } =
+view { charaClasses, charas, sparkType, weaponType, wazas } =
     div [ Attrs.class "main" ]
         [ div [ Attrs.class "chara-classes-outer" ]
             [ div [] [ text "クラス" ]
@@ -144,7 +149,17 @@ view { charaClasses, charas, weaponType, wazas } =
                         charas
             ]
         , div [ Attrs.class "wazas-outer" ]
-            [ div [] [ text "閃き可能な技" ]
+            [ div []
+                [ text <|
+                    case sparkType of
+                        Just sparkType_ ->
+                            "閃き可能な技【"
+                                ++ Data.sparkTypeToName sparkType_
+                                ++ "】"
+
+                        Nothing ->
+                            "閃き可能な技"
+                ]
             , div [ Attrs.class "weapon-type-filter" ]
                 [ div []
                     [ selectButton weaponType Data.WeaponSword "剣"

@@ -10,7 +10,7 @@ import SparkFromChara exposing (..)
 import Test exposing (..)
 import Test.Html.Event as Event
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (checked, classes, tag, text)
+import Test.Html.Selector exposing (checked, classes, containing, tag, text)
 
 
 suite : Test
@@ -86,15 +86,15 @@ suite =
                         initialModel
                             |> update (SelectChara <| Just charaAsBear)
                             |> Tuple.first
-                            |> .wazas
-                            |> Expect.equal (Data.sparkTypeToWazas Data.SparkGeneral)
+                            |> (\model -> ( model.sparkType, model.wazas ))
+                            |> Expect.equal ( Just Data.SparkGeneral, Data.sparkTypeToWazas Data.SparkGeneral )
                 , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
                     \_ ->
                         initialModel
                             |> update (SelectChara <| Just charaAsLeon)
                             |> Tuple.first
-                            |> .wazas
-                            |> Expect.equal (Data.sparkTypeToWazas Data.SparkNothing)
+                            |> (\model -> ( model.sparkType, model.wazas ))
+                            |> Expect.equal ( Just Data.SparkNothing, Data.sparkTypeToWazas Data.SparkNothing )
                 ]
             ]
         , describe "view"
@@ -234,6 +234,34 @@ suite =
                         -- レオンのキャラクターID は 300
                         verifySendMsgFromSelectBox "300" (SelectChara <| Just charaAsLeon) model <|
                             Query.find [ tag "select", classes [ "charas" ] ]
+                ]
+
+            -- 閃きタイプ表示
+            , describe "「閃き可能な技」の右側にキャラクターの閃きタイプを表示する"
+                [ test "閃きタイプの指定なし" <|
+                    \_ ->
+                        { initialModel | sparkType = Nothing }
+                            |> view
+                            |> Query.fromHtml
+                            |> Query.find [ classes [ "wazas-outer" ] ]
+                            |> Query.find [ tag "div", containing [ text "閃き可能な技" ] ]
+                            |> Query.has [ text "閃き可能な技" ]
+                , test "剣1" <|
+                    \_ ->
+                        { initialModel | sparkType = Just Data.SparkSword1 }
+                            |> view
+                            |> Query.fromHtml
+                            |> Query.find [ classes [ "wazas-outer" ] ]
+                            |> Query.find [ tag "div", containing [ text "閃き可能な技" ] ]
+                            |> Query.has [ text "閃き可能な技【剣1】" ]
+                , test "汎用" <|
+                    \_ ->
+                        { initialModel | sparkType = Just Data.SparkGeneral }
+                            |> view
+                            |> Query.fromHtml
+                            |> Query.find [ classes [ "wazas-outer" ] ]
+                            |> Query.find [ tag "div", containing [ text "閃き可能な技" ] ]
+                            |> Query.has [ text "閃き可能な技【汎用】" ]
                 ]
 
             -- 武器タイプ表示
@@ -425,6 +453,7 @@ initialModel =
     { charaClasses = Data.charaClasses
     , allCharas = Data.charas
     , charas = []
+    , sparkType = Nothing
     , weaponType = Data.WeaponSword
     , wazas = []
     }
