@@ -537,7 +537,7 @@ verifySendMsgFromSelectBox optionValue expectedMsg model query =
         |> Event.expect expectedMsg
 
 
-{-| Model に指定された武器タイプが選択状態になっている検証する
+{-| Model に指定された武器タイプが選択状態になっているか検証する
 -}
 verifySelectedWeaponType : Data.WeaponTypeSymbol -> Int -> Expectation
 verifySelectedWeaponType weaponType index_ =
