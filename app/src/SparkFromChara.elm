@@ -72,7 +72,7 @@ update msg model =
                 Just charaClass ->
                     let
                         newCharas =
-                            filterMapCharas charaClass.charaClassType model.allCharas
+                            filterMapCharas charaClass model.allCharas
                     in
                     ( { model | charas = newCharas }, Cmd.none )
 
@@ -101,8 +101,8 @@ update msg model =
 
 {-| Data.Chara のリストからクラスが一致するキャラクターを抽出し、Chara のリストを作成する
 -}
-filterMapCharas : Data.CharaClassSymbol -> List Data.Chara -> List Chara
-filterMapCharas charaClassType srcCharas =
+filterMapCharas : Data.CharaClass -> List Data.Chara -> List Chara
+filterMapCharas { charaClassType } srcCharas =
     srcCharas
         |> List.filter (.charaClassType >> (==) charaClassType)
         |> List.map (\{ id, name, sparkType } -> Chara id name sparkType)
