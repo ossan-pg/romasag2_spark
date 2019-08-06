@@ -70,6 +70,32 @@ suite =
                     \_ ->
                         verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponMartialSkill
                 ]
+
+            -- 閃き可能な技を設定
+            , test "キャラクターが指定されていない場合、空の技リストを Model に設定する" <|
+                \_ ->
+                    -- 技リストを空以外に設定
+                    { initialModel | wazas = Data.wazas }
+                        |> update (SelectChara Nothing)
+                        |> Tuple.first
+                        |> .wazas
+                        |> Expect.equal []
+            , describe "指定されたキャラクターの閃きタイプに対応する技を Model に設定する"
+                [ test "ベアが指定された場合、閃きタイプ「汎用」が閃き可能な技を Model に設定する" <|
+                    \_ ->
+                        initialModel
+                            |> update (SelectChara <| Just charaAsBear)
+                            |> Tuple.first
+                            |> .wazas
+                            |> Expect.equal (Data.sparkTypeToWazas Data.SparkGeneral)
+                , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
+                    \_ ->
+                        initialModel
+                            |> update (SelectChara <| Just charaAsLeon)
+                            |> Tuple.first
+                            |> .wazas
+                            |> Expect.equal (Data.sparkTypeToWazas Data.SparkNothing)
+                ]
             ]
         , describe "view"
             -- クラス一覧
@@ -265,6 +291,131 @@ suite =
                     \_ ->
                         verifySendMsgFromRadioButton Data.WeaponMartialSkill 7
                 ]
+
+            -- 閃き可能な技一覧
+            , test "Model に閃き可能な技が設定されていない場合、セレクトボックスの 1項目目に「キャラクター未選択」を Disabld 状態で表示する" <|
+                \_ ->
+                    { initialModel | wazas = [] }
+                        |> view
+                        |> Query.fromHtml
+                        |> Query.find [ tag "select", classes [ "wazas" ] ]
+                        |> Query.contains
+                            [ H.option [ Attrs.disabled True ] [ H.text "キャラクター未選択" ]
+                            ]
+            , describe "閃き可能な技一覧に対し、現在選択中の武器タイプについて各技の名前を option の要素に、ID を option の value 属性に設定する"
+                -- 「セレクトボックスに特定の要素 *だけ* が含まれていること」を
+                -- 検証したかったが、その方法を見付けられなかった。
+                -- なので、同じ Model に対して
+                -- 「セレクトボックスに想定した要素が含まれていること」と
+                -- 「セレクトボックスの要素が想定した個数であること」の
+                -- 2種類の検証を実施することで仕様通りであるかを担保することにした。
+                [ test "剣" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest Data.WeaponSword <|
+                            [ ( "16", "パリイ" ), ( "17", "二段斬り" ) ]
+                , test "剣(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponSword <|
+                            List.length
+                                [ ( "16", "パリイ" ), ( "17", "二段斬り" ) ]
+                , test "大剣" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest Data.WeaponGreatSword <|
+                            [ ( "42", "巻き打ち" ), ( "43", "強撃" ) ]
+                , test "大剣(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponGreatSword <|
+                            List.length
+                                [ ( "42", "巻き打ち" ), ( "43", "強撃" ) ]
+                , test "斧" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest
+                            Data.WeaponAxe
+                            [ ( "62", "アクスボンバー" ), ( "63", "トマホーク" ) ]
+                , test "斧(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponAxe <|
+                            List.length
+                                [ ( "62", "アクスボンバー" ), ( "63", "トマホーク" ) ]
+                , test "棍棒" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest Data.WeaponMace <|
+                            [ ( "78", "返し突き" ), ( "79", "脳天割り" ) ]
+                , test "棍棒(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponMace <|
+                            List.length
+                                [ ( "78", "返し突き" ), ( "79", "脳天割り" ) ]
+                , test "槍" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest
+                            Data.WeaponSpear
+                            [ ( "94", "足払い" ), ( "95", "二段突き" ) ]
+                , test "槍(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponSpear <|
+                            List.length
+                                [ ( "94", "足払い" ), ( "95", "二段突き" ) ]
+                , test "小剣" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest Data.WeaponShortSword <|
+                            [ ( "113", "感電衝" ), ( "115", "マリオネット" ) ]
+                , test "小剣(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponShortSword <|
+                            List.length
+                                [ ( "113", "感電衝" ), ( "115", "マリオネット" ) ]
+                , test "弓" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest
+                            Data.WeaponBow
+                            [ ( "133", "瞬速の矢" ), ( "134", "でたらめ矢" ) ]
+                , test "弓(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponBow <|
+                            List.length
+                                [ ( "133", "瞬速の矢" ), ( "134", "でたらめ矢" ) ]
+                , test "体術" <|
+                    \_ ->
+                        verifySetWazasToSelectBox wazasForTest Data.WeaponMartialSkill <|
+                            [ ( "150", "ソバット" ), ( "151", "カウンター" ) ]
+                , test "体術(件数)" <|
+                    \_ ->
+                        verifyCountOfWazasInSelectBox wazasForTest Data.WeaponMartialSkill <|
+                            List.length
+                                [ ( "150", "ソバット" ), ( "151", "カウンター" ) ]
+                ]
+
+            -- 閃き可能な技選択
+            , test "無効な技が選択された場合、Nothing を SelectWaza に設定して送信する" <|
+                \_ ->
+                    -- UI 的にあり得ないはずだが、仮に起きた場合にどうなるかを
+                    -- 把握するためテストしておく
+                    let
+                        model =
+                            { initialModel | wazas = [ wazaParry, wazaDoubleCut ] }
+                    in
+                    -- 閃き可能な技一覧にない技ID を指定する
+                    verifySendMsgFromSelectBox "999" (SelectWaza Nothing) model <|
+                        Query.find [ tag "select", classes [ "wazas" ] ]
+            , describe "技が選択された場合、その技の値を SelectWaza に設定して送信する"
+                [ test "パリイ" <|
+                    \_ ->
+                        let
+                            model =
+                                { initialModel | wazas = [ wazaParry, wazaDoubleCut ] }
+                        in
+                        verifySendMsgFromSelectBox "16" (SelectWaza <| Just <| wazaParry) model <|
+                            Query.find [ tag "select", classes [ "wazas" ] ]
+                , test "二段斬り" <|
+                    \_ ->
+                        let
+                            model =
+                                { initialModel | wazas = [ wazaParry, wazaDoubleCut ] }
+                        in
+                        verifySendMsgFromSelectBox "17" (SelectWaza <| Just <| wazaDoubleCut) model <|
+                            Query.find [ tag "select", classes [ "wazas" ] ]
+                ]
             ]
         ]
 
@@ -275,6 +426,7 @@ initialModel =
     , allCharas = Data.charas
     , charas = []
     , weaponType = Data.WeaponSword
+    , wazas = []
     }
 
 
@@ -321,15 +473,46 @@ specialCharas =
     ]
 
 
-{-| 指定された武器種を未選択に変更するか検証する
+wazaParry : Data.Waza
+wazaParry =
+    Data.Waza 16 "パリイ" 0 0 1 Data.WeaponSword
+
+
+wazaDoubleCut : Data.Waza
+wazaDoubleCut =
+    Data.Waza 17 "二段斬り" 2 3 2 Data.WeaponSword
+
+
+wazasForTest : List Data.Waza
+wazasForTest =
+    [ wazaParry
+    , wazaDoubleCut
+    , Data.Waza 42 "巻き打ち" 1 4 1 Data.WeaponGreatSword
+    , Data.Waza 43 "強撃" 3 6 1 Data.WeaponGreatSword
+    , Data.Waza 62 "アクスボンバー" 3 5 1 Data.WeaponAxe
+    , Data.Waza 63 "トマホーク" 1 3 1 Data.WeaponAxe
+    , Data.Waza 78 "返し突き" 0 4 1 Data.WeaponMace
+    , Data.Waza 79 "脳天割り" 3 5 1 Data.WeaponMace
+    , Data.Waza 94 "足払い" 0 0 1 Data.WeaponSpear
+    , Data.Waza 95 "二段突き" 2 3 2 Data.WeaponSpear
+    , Data.Waza 113 "感電衝" 1 2 1 Data.WeaponShortSword
+    , Data.Waza 115 "マリオネット" 6 0 1 Data.WeaponShortSword
+    , Data.Waza 133 "瞬速の矢" 3 5 1 Data.WeaponBow
+    , Data.Waza 134 "でたらめ矢" 2 3 1 Data.WeaponBow
+    , Data.Waza 150 "ソバット" 2 6 1 Data.WeaponMartialSkill
+    , Data.Waza 151 "カウンター" 0 6 1 Data.WeaponMartialSkill
+    ]
+
+
+{-| 指定された武器タイプが Model に設定されるか検証する
 -}
 verifySetWeaponTypeToModel : Data.WeaponTypeSymbol -> Data.WeaponTypeSymbol -> Expectation
-verifySetWeaponTypeToModel initialWeaponType weaponType =
-    { initialModel | weaponType = initialWeaponType }
-        |> update (SelectWeaponType weaponType)
+verifySetWeaponTypeToModel fromWeaponType toWeaponType =
+    { initialModel | weaponType = fromWeaponType }
+        |> update (SelectWeaponType toWeaponType)
         |> Tuple.first
         |> .weaponType
-        |> Expect.equal weaponType
+        |> Expect.equal toWeaponType
 
 
 {-| セレクトボックスの項目選択時に対応したメッセージが送信されるか検証する
@@ -379,3 +562,34 @@ verifySendMsgFromRadioButton weaponType index_ =
         |> Query.index index_
         |> Event.simulate Event.click
         |> Event.expect (SelectWeaponType weaponType)
+
+
+{-| 指定された武器タイプの技がセレクトボックスに設定されるか検証する
+-}
+verifySetWazasToSelectBox : List Data.Waza -> Data.WeaponTypeSymbol -> List ( String, String ) -> Expectation
+verifySetWazasToSelectBox wazas weaponType valueAndTexts =
+    let
+        options =
+            List.map
+                (\( value_, text_ ) ->
+                    H.option [ Attrs.value value_ ] [ H.text text_ ]
+                )
+                valueAndTexts
+    in
+    { initialModel | weaponType = weaponType, wazas = wazas }
+        |> view
+        |> Query.fromHtml
+        |> Query.find [ tag "select", classes [ "wazas" ] ]
+        |> Query.contains options
+
+
+{-| 指定された武器タイプの技がセレクトボックスに設定される件数を検証する
+-}
+verifyCountOfWazasInSelectBox : List Data.Waza -> Data.WeaponTypeSymbol -> Int -> Expectation
+verifyCountOfWazasInSelectBox wazas weaponType count_ =
+    { initialModel | weaponType = weaponType, wazas = wazas }
+        |> view
+        |> Query.fromHtml
+        |> Query.find [ tag "select", classes [ "wazas" ] ]
+        |> Query.findAll [ tag "option" ]
+        |> Query.count (Expect.equal count_)

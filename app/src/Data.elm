@@ -1,16 +1,18 @@
 module Data exposing
     ( CharaClassSymbol(..), CharaClass, charaClasses
     , SparkTypeSymbol(..), Chara, charas
-    , WeaponTypeSymbol(..)
+    , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
     )
 
 {-|
 
 @docs CharaClassSymbol, CharaClass, charaClasses
 @docs SparkTypeSymbol, Chara, charas
-@docs WeaponTypeSymbol
+@docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
 
 -}
+
+import Set exposing (Set)
 
 
 type CharaClassSymbol
@@ -480,3 +482,296 @@ type WeaponTypeSymbol
     | WeaponShortSword -- 小剣
     | WeaponBow -- 弓
     | WeaponMartialSkill -- 体術
+
+
+type alias Waza =
+    { id : Int -- 技別の便宜上のID
+    , name : String -- 技名
+    , wp : Int -- 消費WP
+    , atk : Int -- 1回当たりの攻撃力
+    , nrOfAtk : Int -- 攻撃回数
+    , weaponType : WeaponTypeSymbol -- 武器タイプ
+    }
+
+
+wazas : List Waza
+wazas =
+    [ Waza 0 "(通常攻撃：剣)" 0 3 1 WeaponSword
+    , Waza 1 "(通常攻撃：大剣)" 0 3 1 WeaponGreatSword
+    , Waza 2 "(通常攻撃：斧)" 0 3 1 WeaponAxe
+    , Waza 3 "(通常攻撃：棍棒)" 0 3 1 WeaponMace
+    , Waza 4 "(通常攻撃：槍)" 0 3 1 WeaponSpear
+    , Waza 5 "(通常攻撃：小剣)" 0 3 1 WeaponShortSword
+    , Waza 6 "(通常攻撃：弓)" 0 3 1 WeaponBow
+    , Waza 7 "(通常攻撃：爪)" 0 3 1 WeaponMartialSkill
+    , Waza 10 "パンチ" 0 3 1 WeaponMartialSkill
+    , Waza 11 "ファイナルストライク" 1 12 1 WeaponSword
+    , Waza 12 "ダンシングソード" 5 7 1 WeaponGreatSword
+    , Waza 13 "シャッタースタッフ(攻撃)" 1 15 1 WeaponMace
+    , Waza 14 "シャッタースタッフ(回復)" 1 10 1 WeaponMace
+    , Waza 15 "なぎ払い" 0 2 1 WeaponSword
+    , Waza 16 "パリイ" 0 0 1 WeaponSword
+    , Waza 17 "二段斬り" 2 3 2 WeaponSword
+    , Waza 18 "短冊斬り" 5 3 3 WeaponSword
+    , Waza 19 "みじん斬り" 4 7 1 WeaponSword
+    , Waza 20 "線斬り" 7 3 4 WeaponSword
+    , Waza 21 "空圧波" 5 5 1 WeaponSword
+    , Waza 22 "十文字斬り" 3 6 1 WeaponSword
+    , Waza 23 "つむじ風" 4 6 1 WeaponSword
+    , Waza 24 "音速剣" 5 7 1 WeaponSword
+    , Waza 25 "光速剣" 8 10 1 WeaponSword
+    , Waza 26 "真空斬り" 10 10 1 WeaponSword
+    , Waza 27 "残像剣" 7 7 1 WeaponSword
+    , Waza 28 "不動剣" 14 14 1 WeaponSword
+    , Waza 29 "落月破斬" 1 4 1 WeaponSword
+    , Waza 30 "プロミネンス斬" 4 7 1 WeaponSword
+    , Waza 31 "風狼剣" 1 5 1 WeaponSword
+    , Waza 32 "咬竜剣" 7 8 1 WeaponSword
+    , Waza 33 "サクション" 4 3 1 WeaponSword
+    , Waza 34 "分子分解" 5 0 1 WeaponSword
+    , Waza 35 "スウォーム" 4 5 1 WeaponSword
+    , Waza 36 "カマイタチ" 2 5 1 WeaponSword
+    , Waza 37 "稲妻斬り" 4 6 1 WeaponSword
+    , Waza 41 "みね打ち" 0 0 1 WeaponGreatSword
+    , Waza 42 "巻き打ち" 1 4 1 WeaponGreatSword
+    , Waza 43 "強撃" 3 6 1 WeaponGreatSword
+    , Waza 44 "ディフレクト" 0 0 1 WeaponGreatSword
+    , Waza 45 "切り落とし" 5 6 1 WeaponGreatSword
+    , Waza 46 "ツバメ返し" 9 5 2 WeaponGreatSword
+    , Waza 47 "水鳥剣" 6 6 1 WeaponGreatSword
+    , Waza 48 "無無剣" 5 7 1 WeaponGreatSword
+    , Waza 49 "無明剣" 13 14 1 WeaponGreatSword
+    , Waza 50 "流し斬り" 7 6 1 WeaponGreatSword
+    , Waza 51 "乱れ雪月花" 12 12 1 WeaponGreatSword
+    , Waza 52 "清流剣" 7 8 1 WeaponGreatSword
+    , Waza 53 "活人剣" 15 0 1 WeaponGreatSword
+    , Waza 54 "雷殺斬" 3 7 1 WeaponGreatSword
+    , Waza 55 "聖光" 2 4 1 WeaponGreatSword
+    , Waza 56 "月影" 3 5 1 WeaponGreatSword
+    , Waza 57 "一刀両断" 9 8 1 WeaponGreatSword
+    , Waza 58 "退魔神剣" 4 5 1 WeaponGreatSword
+    , Waza 59 "殺虫剣" 3 6 1 WeaponGreatSword
+    , Waza 60 "殺人剣" 6 6 1 WeaponGreatSword
+    , Waza 62 "アクスボンバー" 3 5 1 WeaponAxe
+    , Waza 63 "トマホーク" 1 3 1 WeaponAxe
+    , Waza 64 "一人時間差" 4 6 1 WeaponAxe
+    , Waza 65 "ヨーヨー" 3 3 1 WeaponAxe
+    , Waza 66 "大木断" 4 6 1 WeaponAxe
+    , Waza 67 "ブレードロール" 8 8 1 WeaponAxe
+    , Waza 68 "次元断" 9 0 1 WeaponAxe
+    , Waza 69 "高速ナブラ" 9 5 3 WeaponAxe
+    , Waza 70 "マキ割りスペシャル" 8 11 1 WeaponAxe
+    , Waza 71 "スカイドライブ" 11 15 1 WeaponAxe
+    , Waza 72 "フェザーシール" 1 0 1 WeaponAxe
+    , Waza 73 "電光ブーメラン" 1 5 1 WeaponAxe
+    , Waza 74 "死の舞い" 9 0 1 WeaponAxe
+    , Waza 75 "幻体戦士法" 10 0 1 WeaponAxe
+    , Waza 76 "デストラクション" 7 11 1 WeaponAxe
+    , Waza 78 "返し突き" 0 4 1 WeaponMace
+    , Waza 79 "脳天割り" 3 5 1 WeaponMace
+    , Waza 80 "骨砕き" 5 6 1 WeaponMace
+    , Waza 81 "削岩撃" 5 4 3 WeaponMace
+    , Waza 82 "ダブルヒット" 4 4 2 WeaponMace
+    , Waza 83 "地裂撃" 5 4 1 WeaponMace
+    , Waza 84 "グランドスラム" 7 5 1 WeaponMace
+    , Waza 85 "オゾンビート" 5 6 1 WeaponMace
+    , Waza 86 "フルフラット" 6 7 1 WeaponMace
+    , Waza 87 "かめごうら割り" 12 11 1 WeaponMace
+    , Waza 88 "ウェアバスター" 1 5 1 WeaponMace
+    , Waza 89 "動くな" 3 0 1 WeaponMace
+    , Waza 90 "スペルエンハンス" 1 0 1 WeaponMace
+    , Waza 91 "祝福" 2 0 1 WeaponMace
+    , Waza 93 "グランドバスター" 3 5 1 WeaponMace
+    , Waza 94 "足払い" 0 0 1 WeaponSpear
+    , Waza 95 "二段突き" 2 3 2 WeaponSpear
+    , Waza 96 "稲妻突き" 4 6 1 WeaponSpear
+    , Waza 97 "くし刺し" 4 5 1 WeaponSpear
+    , Waza 98 "チャージ" 3 6 1 WeaponSpear
+    , Waza 99 "エイミング" 1 3 1 WeaponSpear
+    , Waza 100 "風車" 2 5 1 WeaponSpear
+    , Waza 101 "一文字突き" 5 7 1 WeaponSpear
+    , Waza 102 "活殺化石衝" 6 7 1 WeaponSpear
+    , Waza 103 "スパイラルチャージ" 10 11 1 WeaponSpear
+    , Waza 104 "活殺獣神衝" 8 10 1 WeaponSpear
+    , Waza 105 "無双三段" 9 13 1 WeaponSpear
+    , Waza 106 "ポセイドンシュート" 2 6 1 WeaponSpear
+    , Waza 107 "サンダーボルト" 5 5 1 WeaponSpear
+    , Waza 108 "下り飛竜" 10 15 1 WeaponSpear
+    , Waza 109 "サイコバインド" 6 6 1 WeaponSpear
+    , Waza 112 "フェイント" 0 0 1 WeaponShortSword
+    , Waza 113 "感電衝" 1 2 1 WeaponShortSword
+    , Waza 114 "サイドワインダー" 3 5 1 WeaponShortSword
+    , Waza 115 "マリオネット" 6 0 1 WeaponShortSword
+    , Waza 116 "スネークショット" 6 6 1 WeaponShortSword
+    , Waza 117 "マタドール" 2 6 1 WeaponShortSword
+    , Waza 118 "乱れ突き" 8 4 3 WeaponShortSword
+    , Waza 119 "プラズマスラスト" 4 5 1 WeaponShortSword
+    , Waza 120 "スクリュードライバ" 6 7 1 WeaponShortSword
+    , Waza 121 "幻惑剣" 8 9 1 WeaponShortSword
+    , Waza 122 "ファイナルレター" 10 12 1 WeaponShortSword
+    , Waza 124 "マッドバイター" 1 4 1 WeaponShortSword
+    , Waza 126 "火龍出水" 6 0 1 WeaponShortSword
+    , Waza 130 "百花繚乱" 7 8 1 WeaponShortSword
+    , Waza 133 "瞬速の矢" 3 5 1 WeaponBow
+    , Waza 134 "でたらめ矢" 2 3 1 WeaponBow
+    , Waza 135 "影ぬい" 1 0 1 WeaponBow
+    , Waza 136 "ビーストスレイヤー" 4 6 1 WeaponBow
+    , Waza 137 "アローレイン" 4 5 1 WeaponBow
+    , Waza 138 "二本射ち" 2 3 2 WeaponBow
+    , Waza 139 "イド・ブレイク" 3 4 1 WeaponBow
+    , Waza 140 "影矢" 8 6 1 WeaponBow
+    , Waza 141 "バラージシュート" 10 8 1 WeaponBow
+    , Waza 142 "落鳳破" 5 7 1 WeaponBow
+    , Waza 143 "イヅナ" 10 12 1 WeaponBow
+    , Waza 144 "ハートシーカー" 2 0 1 WeaponBow
+    , Waza 145 "皆死ね矢" 7 0 1 WeaponBow
+    , Waza 146 "スターライトアロー" 8 11 1 WeaponBow
+    , Waza 149 "キック" 0 4 1 WeaponMartialSkill
+    , Waza 150 "ソバット" 2 6 1 WeaponMartialSkill
+    , Waza 151 "カウンター" 0 6 1 WeaponMartialSkill
+    , Waza 152 "ネコだまし" 0 0 1 WeaponMartialSkill
+    , Waza 153 "集気法" 0 3 1 WeaponMartialSkill
+    , Waza 154 "気弾" 3 5 1 WeaponMartialSkill
+    , Waza 155 "コークスクリュー" 4 8 1 WeaponMartialSkill
+    , Waza 156 "不動金しばり" 2 0 1 WeaponMartialSkill
+    , Waza 157 "カポエラキック" 6 9 1 WeaponMartialSkill
+    , Waza 158 "マシンガンジャブ" 6 6 2 WeaponMartialSkill
+    , Waza 159 "ジョルトカウンター" 3 9 1 WeaponMartialSkill
+    , Waza 160 "クワドラブル" 9 12 1 WeaponMartialSkill
+    , Waza 161 "活殺破邪法" 8 10 1 WeaponMartialSkill
+    , Waza 162 "千手観音" 12 9 2 WeaponMartialSkill
+    , Waza 163 "サラマンダークロー" 1 4 1 WeaponMartialSkill
+    , Waza 164 "赤竜波" 4 7 1 WeaponMartialSkill
+    , Waza 167 "ふみつけ" 16 10 1 WeaponMartialSkill
+    , Waza 196 "ベルセルク" 8 0 1 WeaponMartialSkill
+    , Waza 197 "地獄爪殺法" 3 5 1 WeaponMartialSkill
+    ]
+
+
+sparkTypeToWazas : SparkTypeSymbol -> List Waza
+sparkTypeToWazas sparkType =
+    let
+        filterWazas : Set Int -> List Waza
+        filterWazas wazaIds =
+            List.filter (\{ id } -> Set.member id wazaIds) wazas
+    in
+    case sparkType of
+        SparkSword1 ->
+            filterWazas wazasOfSparkSword1
+
+        SparkSword2 ->
+            filterWazas wazasOfSparkSword2
+
+        SparkGreatSword1 ->
+            filterWazas wazasOfSparkGreatSword1
+
+        SparkGreatSword2 ->
+            filterWazas wazasOfSparkGreatSword2
+
+        SparkAxe ->
+            filterWazas wazasOfSparkAxe
+
+        SparkSpearAxe ->
+            filterWazas wazasOfSparkSpearAxe
+
+        SparkMace ->
+            filterWazas wazasOfSparkMace
+
+        SparkSpear ->
+            filterWazas wazasOfSparkSpear
+
+        SparkShortSword ->
+            filterWazas wazasOfSparkShortSword
+
+        SparkBow ->
+            filterWazas wazasOfSparkBow
+
+        SparkMartialSkill1 ->
+            filterWazas wazasOfSparkMartialSkill1
+
+        SparkMartialSkill2 ->
+            filterWazas wazasOfSparkMartialSkill2
+
+        SparkGeneral ->
+            filterWazas wazasOfSparkGeneral
+
+        SparkSpell ->
+            filterWazas wazasOfSparkSpell
+
+        SparkNothing ->
+            filterWazas wazasOfSparkNothing
+
+
+wazasOfSparkSword1 =
+    Set.fromList
+        [ 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 42, 43, 44, 45, 47, 48, 49, 50, 51, 52, 54, 55, 56, 57, 58, 59, 60, 62, 63, 64, 66, 69, 70, 72, 73, 74, 75, 76, 78, 80, 82, 83, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 104, 106, 107, 108, 109, 113, 116, 117, 118, 119, 120, 121, 122, 124, 126, 130, 133, 134, 135, 137, 138, 144, 145, 146, 150, 151, 153, 154, 155 ]
+
+
+wazasOfSparkSword2 =
+    Set.fromList
+        [ 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 44, 45, 47, 48, 50, 52, 54, 55, 56, 57, 58, 59, 60, 62, 63, 72, 73, 74, 75, 76, 78, 80, 82, 83, 88, 89, 90, 91, 93, 94, 96, 98, 99, 100, 101, 102, 106, 107, 108, 109, 113, 116, 117, 118, 119, 124, 126, 130, 133, 134, 135, 137, 138, 144, 145, 146, 150, 151, 153, 154, 158 ]
+
+
+wazasOfSparkGreatSword1 =
+    Set.fromList
+        [ 16, 17, 18, 20, 21, 22, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 42, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 62, 63, 66, 69, 70, 72, 73, 74, 75, 76, 78, 80, 82, 83, 88, 89, 90, 91, 93, 94, 96, 98, 99, 100, 101, 105, 106, 107, 108, 109, 113, 116, 117, 118, 121, 124, 126, 130, 133, 134, 135, 137, 138, 140, 142, 144, 145, 146, 150, 151, 152, 153, 154, 156, 161 ]
+
+
+wazasOfSparkGreatSword2 =
+    Set.fromList
+        [ 16, 17, 21, 22, 23, 24, 26, 29, 30, 31, 32, 33, 34, 35, 36, 37, 42, 43, 44, 45, 47, 48, 50, 51, 52, 54, 55, 56, 57, 58, 59, 60, 62, 63, 66, 67, 70, 72, 73, 74, 75, 76, 78, 80, 82, 83, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 106, 107, 108, 109, 116, 117, 118, 120, 124, 126, 130, 133, 134, 135, 137, 138, 144, 145, 146, 150, 151, 153, 154, 155 ]
+
+
+wazasOfSparkAxe =
+    Set.fromList
+        [ 16, 19, 21, 22, 23, 24, 29, 30, 31, 32, 33, 34, 35, 36, 37, 43, 44, 45, 47, 48, 54, 55, 56, 57, 58, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 80, 81, 82, 83, 84, 87, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 106, 107, 108, 109, 116, 117, 118, 124, 126, 130, 133, 134, 135, 137, 138, 144, 145, 146, 150, 151, 153, 154, 155 ]
+
+
+wazasOfSparkSpearAxe =
+    Set.fromList
+        [ 16, 19, 21, 22, 23, 24, 26, 29, 30, 31, 32, 33, 34, 35, 36, 37, 43, 44, 45, 47, 48, 51, 54, 55, 56, 57, 58, 59, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 80, 82, 83, 84, 85, 87, 88, 89, 90, 91, 93, 94, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 113, 115, 116, 117, 118, 119, 124, 126, 130, 133, 134, 135, 137, 144, 145, 146, 150, 151, 153, 154, 155, 161 ]
+
+
+wazasOfSparkMace =
+    Set.fromList
+        [ 16, 19, 21, 22, 23, 24, 29, 30, 31, 32, 33, 34, 35, 36, 37, 43, 44, 47, 48, 54, 55, 56, 57, 58, 59, 60, 62, 63, 66, 70, 72, 73, 74, 75, 76, 78, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 106, 107, 108, 109, 116, 117, 118, 124, 126, 130, 133, 134, 137, 144, 145, 146, 150, 151, 152, 153, 154, 155 ]
+
+
+wazasOfSparkSpear =
+    Set.fromList
+        [ 16, 21, 22, 23, 24, 29, 30, 31, 32, 33, 34, 35, 36, 37, 43, 44, 47, 48, 54, 55, 56, 57, 58, 59, 60, 62, 63, 66, 70, 72, 73, 74, 75, 76, 78, 80, 82, 83, 88, 89, 90, 91, 93, 94, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 116, 117, 118, 120, 124, 126, 130, 133, 134, 137, 144, 145, 146, 150, 151, 153, 154, 155, 161 ]
+
+
+wazasOfSparkShortSword =
+    Set.fromList
+        [ 16, 21, 22, 23, 24, 25, 26, 29, 30, 31, 32, 33, 34, 35, 36, 37, 44, 47, 48, 54, 55, 56, 57, 58, 59, 60, 62, 63, 72, 73, 74, 75, 76, 78, 80, 82, 83, 88, 89, 90, 91, 93, 94, 97, 98, 99, 100, 101, 103, 106, 107, 108, 109, 113, 115, 116, 117, 118, 119, 120, 121, 122, 124, 126, 130, 133, 134, 136, 137, 138, 143, 144, 145, 146, 150, 151, 153, 154, 155, 158, 159 ]
+
+
+wazasOfSparkBow =
+    Set.fromList
+        [ 16, 21, 22, 23, 24, 26, 29, 30, 31, 32, 33, 34, 35, 36, 37, 44, 47, 48, 54, 55, 56, 57, 58, 59, 60, 62, 63, 72, 73, 74, 75, 76, 80, 82, 83, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 106, 107, 108, 109, 116, 117, 118, 121, 124, 126, 130, 133, 134, 135, 136, 137, 138, 140, 141, 142, 143, 144, 145, 146, 150, 151, 153, 154, 155 ]
+
+
+wazasOfSparkMartialSkill1 =
+    Set.fromList
+        [ 16, 21, 22, 23, 24, 29, 43, 44, 46, 47, 48, 52, 62, 63, 66, 67, 70, 80, 82, 83, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 102, 104, 116, 117, 118, 133, 134, 135, 137, 142, 144, 145, 146, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 161, 162, 196 ]
+
+
+wazasOfSparkMartialSkill2 =
+    Set.fromList
+        [ 16, 21, 22, 23, 24, 29, 43, 44, 47, 48, 62, 63, 66, 70, 80, 82, 83, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 116, 117, 118, 133, 134, 135, 137, 144, 145, 146, 150, 151, 153, 154, 155, 156, 157, 158, 159, 160, 162, 196 ]
+
+
+wazasOfSparkGeneral =
+    Set.fromList
+        [ 16, 19, 21, 22, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 43, 44, 47, 48, 51, 54, 55, 56, 57, 58, 59, 60, 62, 63, 66, 70, 72, 73, 74, 75, 76, 80, 81, 82, 83, 85, 88, 89, 90, 91, 93, 94, 97, 98, 99, 100, 101, 103, 104, 106, 107, 108, 109, 116, 117, 118, 120, 124, 126, 130, 133, 134, 135, 137, 144, 145, 146, 150, 151, 153, 154, 155 ]
+
+
+wazasOfSparkSpell =
+    Set.fromList
+        [ 16, 21, 22, 23, 24, 29, 30, 31, 32, 33, 34, 35, 36, 37, 43, 44, 47, 48, 54, 55, 56, 57, 58, 59, 60, 62, 63, 66, 70, 72, 73, 74, 75, 76, 80, 82, 83, 88, 89, 90, 91, 93, 94, 98, 99, 100, 101, 106, 107, 108, 109, 116, 117, 118, 124, 126, 130, 133, 134, 135, 137, 144, 145, 146, 150, 151, 153, 154 ]
+
+
+wazasOfSparkNothing =
+    Set.fromList
+        [ 16, 29, 30, 31, 32, 33, 34, 35, 36, 37, 44, 54, 55, 56, 57, 58, 59, 60, 72, 73, 74, 75, 76, 88, 89, 90, 91, 93, 100, 106, 107, 108, 109, 117, 124, 126, 130, 144, 145, 146, 151, 153 ]

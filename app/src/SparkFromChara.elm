@@ -28,6 +28,7 @@ type alias Model =
     , allCharas : List Data.Chara
     , charas : List Chara -- 表示用の別の Chara 型 を使用する
     , weaponType : Data.WeaponTypeSymbol
+    , wazas : List Data.Waza
     }
 
 
@@ -46,6 +47,7 @@ init _ =
 
       -- 初期選択は剣タイプ
       , weaponType = Data.WeaponSword
+      , wazas = []
       }
     , Cmd.none
     )
@@ -59,6 +61,7 @@ type Msg
     = SelectCharaClass (Maybe Data.CharaClass)
     | SelectChara (Maybe Chara)
     | SelectWeaponType Data.WeaponTypeSymbol
+    | SelectWaza (Maybe Data.Waza)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -77,13 +80,23 @@ update msg model =
                     ( { model | charas = [] }, Cmd.none )
 
         SelectChara maybeChara ->
-            -- TODO 閃きタイプを基に閃ける技一覧を作成
-            ( model, Cmd.none )
+            case maybeChara of
+                Just chara ->
+                    ( { model | wazas = Data.sparkTypeToWazas chara.sparkType }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( { model | wazas = [] }, Cmd.none )
 
         SelectWeaponType weaponType ->
             ( { model | weaponType = weaponType }
             , Cmd.none
             )
+
+        SelectWaza maybeWaza ->
+            -- TODO 技選択時の動作を書く
+            ( model, Cmd.none )
 
 
 {-| Data.Chara のリストからクラスが一致するキャラクターを抽出し、Chara のリストを作成する
@@ -100,7 +113,7 @@ filterMapCharas charaClassType srcCharas =
 
 
 view : Model -> Html Msg
-view { charaClasses, charas, weaponType } =
+view { charaClasses, charas, weaponType, wazas } =
     div [ Attrs.class "main" ]
         [ div [ Attrs.class "chara-classes-outer" ]
             [ div [] [ text "クラス" ]
@@ -146,9 +159,18 @@ view { charaClasses, charas, weaponType } =
                     , selectButton weaponType Data.WeaponMartialSkill "体術"
                     ]
                 ]
-            , select [ Attrs.class "wazas", Attrs.size 8 ] <|
-                List.repeat 1 <|
-                    option [ Attrs.value "Todo" ] [ text "シャッタースタッフ(攻撃)" ]
+            , select [ Attrs.class "wazas", Attrs.size 8, EventsEx.onChange <| toSelectWazaAction wazas ] <|
+                if List.isEmpty wazas then
+                    [ option [ Attrs.disabled True ] [ text "キャラクター未選択" ]
+                    ]
+
+                else
+                    wazas
+                        |> List.filter (.weaponType >> (==) weaponType)
+                        |> List.map
+                            (\{ id, name } ->
+                                option [ Attrs.value <| String.fromInt id ] [ text name ]
+                            )
             ]
         , div [ Attrs.class "nums-of-shown-records-outer" ]
             [ div [] [ text "表示件数" ]
@@ -229,6 +251,31 @@ toSelectCharaAction charas =
         charas
             |> ListEx.find (.id >> (==) id_)
             |> SelectChara
+
+
+{-| 閃き可能な技一覧用の change イベントハンドラを作成する
+-}
+toSelectWazaAction : List Data.Waza -> (String -> Msg)
+toSelectWazaAction wazas =
+    \targetValue ->
+        let
+            -- 変換失敗の場合は -1 (該当キャラなし)
+            -- targetValue は wazas の各 id を変換したものなので
+            -- この値が参照されることはないはず (変換に失敗しない)
+            defaultId =
+                -1
+
+            id_ =
+                case String.toInt targetValue of
+                    Just n ->
+                        n
+
+                    Nothing ->
+                        defaultId
+        in
+        wazas
+            |> ListEx.find (.id >> (==) id_)
+            |> SelectWaza
 
 
 {-| 閃き可能な技一覧の武器タイプを選択するボタンを作成する
