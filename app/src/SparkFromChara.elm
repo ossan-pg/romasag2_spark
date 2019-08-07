@@ -46,9 +46,7 @@ init _ =
       , allCharas = Data.charas
       , charas = []
       , sparkType = Nothing
-
-      -- 初期選択は剣タイプ
-      , weaponType = Data.WeaponSword
+      , weaponType = Data.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
       }
     , Cmd.none
