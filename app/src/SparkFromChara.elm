@@ -203,7 +203,7 @@ view { charaClasses, charas, sparkType, weaponType, wazas } =
                             , th [ Attrs.class "enemy-type" ] [ text "種族" ]
                             , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
                             ]
-                            :: (List.repeat 16 <|
+                            :: (List.repeat 1 <|
                                     tr []
                                         [ td [ Attrs.class "number" ] [ text "50" ]
                                         , td [ Attrs.class "spark-rate" ] [ text "20.0" ]
