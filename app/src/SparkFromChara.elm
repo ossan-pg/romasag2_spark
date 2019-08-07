@@ -27,6 +27,7 @@ type alias Model =
     { charaClasses : List Data.CharaClass
     , allCharas : List Data.Chara
     , charas : List Chara -- 表示用の別の Chara 型 を使用する
+    , charaIndex : Maybe Int
     , sparkType : Maybe Data.SparkTypeSymbol
     , weaponType : Data.WeaponTypeSymbol
     , wazas : List Data.Waza
@@ -37,6 +38,7 @@ type alias Chara =
     { id : Int
     , name : String
     , sparkType : Data.SparkTypeSymbol
+    , index : Int
     }
 
 
@@ -45,6 +47,7 @@ init _ =
     ( { charaClasses = Data.charaClasses
       , allCharas = Data.charas
       , charas = []
+      , charaIndex = Nothing
       , sparkType = Nothing
       , weaponType = Data.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
@@ -83,8 +86,18 @@ update msg model =
                     let
                         newCharas =
                             filterMapCharas charaClass model.allCharas
+
+                        charaIndex_ =
+                            Maybe.withDefault -1 model.charaIndex
+
+                        -- キャラクター一覧で選択中のキャラクターと
+                        -- 同じ位置のキャラクターを選択している状態にする
+                        msg_ =
+                            SelectChara <| ListEx.getAt charaIndex_ newCharas
                     in
-                    ( { model | charas = newCharas }, Cmd.none )
+                    ( update msg_ { model | charas = newCharas } |> Tuple.first
+                    , Cmd.none
+                    )
 
                 Nothing ->
                     ( { model | charas = [] }, Cmd.none )
@@ -93,7 +106,8 @@ update msg model =
             case maybeChara of
                 Just chara ->
                     ( { model
-                        | sparkType = Just chara.sparkType
+                        | charaIndex = Just chara.index
+                        , sparkType = Just chara.sparkType
                         , wazas = Data.sparkTypeToWazas chara.sparkType
                       }
                     , Cmd.none
@@ -118,7 +132,10 @@ filterMapCharas : Data.CharaClass -> List Data.Chara -> List Chara
 filterMapCharas { charaClassType } srcCharas =
     srcCharas
         |> List.filter (.charaClassType >> (==) charaClassType)
-        |> List.map (\{ id, name, sparkType } -> Chara id name sparkType)
+        |> List.indexedMap
+            (\index { id, name, sparkType } ->
+                Chara id name sparkType index
+            )
 
 
 
