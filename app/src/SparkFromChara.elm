@@ -46,9 +46,7 @@ init _ =
       , allCharas = Data.charas
       , charas = []
       , sparkType = Nothing
-
-      -- 初期選択は剣タイプ
-      , weaponType = Data.WeaponSword
+      , weaponType = Data.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
       }
     , Cmd.none
@@ -64,6 +62,16 @@ type Msg
     | SelectChara (Maybe Chara)
     | SelectWeaponType Data.WeaponTypeSymbol
     | SelectWaza (Maybe Data.Waza)
+
+
+
+-- TODO キャラクターの (クラスによる) フィルタリングは update 側で、
+-- 閃き可能な技の (武器タイプによる) フィルタリングは view 側で実施しており、
+-- 処理を担当する関数に一貫性がなく気持ち悪い。
+-- view 側でフィルタリングするように統一したいが、一旦全ての機能を実装することを
+-- 優先する。
+-- ちなみに update 側でフィルタリングするようにすると、処理が複雑化するため
+-- こちらは避ける。
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -205,7 +213,7 @@ view { charaClasses, charas, sparkType, weaponType, wazas } =
                             , th [ Attrs.class "enemy-type" ] [ text "種族" ]
                             , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
                             ]
-                            :: (List.repeat 16 <|
+                            :: (List.repeat 1 <|
                                     tr []
                                         [ td [ Attrs.class "number" ] [ text "50" ]
                                         , td [ Attrs.class "spark-rate" ] [ text "20.0" ]
