@@ -64,6 +64,16 @@ type Msg
     | SelectWaza (Maybe Data.Waza)
 
 
+
+-- TODO キャラクターの (クラスによる) フィルタリングは update 側で、
+-- 閃き可能な技の (武器タイプによる) フィルタリングは view 側で実施しており、
+-- 処理を担当する関数に一貫性がなく気持ち悪い。
+-- view 側でフィルタリングするように統一したいが、一旦全ての機能を実装することを
+-- 優先する。
+-- ちなみに update 側でフィルタリングするようにすると、処理が複雑化するため
+-- こちらは避ける。
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
