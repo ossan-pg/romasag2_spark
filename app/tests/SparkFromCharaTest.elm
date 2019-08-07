@@ -86,15 +86,15 @@ suite =
                         initialModel
                             |> update (SelectChara <| Just charaAsBear)
                             |> Tuple.first
-                            |> (\model -> ( model.sparkType, model.wazas ))
-                            |> Expect.equal ( Just Data.SparkGeneral, Data.sparkTypeToWazas Data.SparkGeneral )
+                            |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
+                            |> Expect.equal ( Just 0, Just Data.SparkGeneral, Data.sparkTypeToWazas Data.SparkGeneral )
                 , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
                     \_ ->
                         initialModel
                             |> update (SelectChara <| Just charaAsLeon)
                             |> Tuple.first
-                            |> (\model -> ( model.sparkType, model.wazas ))
-                            |> Expect.equal ( Just Data.SparkNothing, Data.sparkTypeToWazas Data.SparkNothing )
+                            |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
+                            |> Expect.equal ( Just 0, Just Data.SparkNothing, Data.sparkTypeToWazas Data.SparkNothing )
                 ]
             ]
         , describe "view"
@@ -453,6 +453,7 @@ initialModel =
     { charaClasses = Data.charaClasses
     , allCharas = Data.charas
     , charas = []
+    , charaIndex = Nothing
     , sparkType = Nothing
     , weaponType = Data.WeaponSword
     , wazas = []
@@ -466,19 +467,19 @@ heavyInfantryClass =
 
 charaAsBear : Chara
 charaAsBear =
-    Chara 0 "ベア" Data.SparkGeneral
+    Chara 0 "ベア" Data.SparkGeneral 0
 
 
 heavyInfantries : List Chara
 heavyInfantries =
     [ charaAsBear
-    , Chara 1 "バイソン" Data.SparkGeneral
-    , Chara 2 "ウォーラス" Data.SparkGeneral
-    , Chara 3 "スネイル" Data.SparkSword2
-    , Chara 4 "ヘッジホッグ" Data.SparkGeneral
-    , Chara 5 "トータス" Data.SparkGeneral
-    , Chara 6 "ライノ" Data.SparkGeneral
-    , Chara 7 "フェルディナント" Data.SparkGeneral
+    , Chara 1 "バイソン" Data.SparkGeneral 1
+    , Chara 2 "ウォーラス" Data.SparkGeneral 2
+    , Chara 3 "スネイル" Data.SparkSword2 3
+    , Chara 4 "ヘッジホッグ" Data.SparkGeneral 4
+    , Chara 5 "トータス" Data.SparkGeneral 5
+    , Chara 6 "ライノ" Data.SparkGeneral 6
+    , Chara 7 "フェルディナント" Data.SparkGeneral 7
     ]
 
 
@@ -489,16 +490,16 @@ specialCharaClass =
 
 charaAsLeon : Chara
 charaAsLeon =
-    Chara 300 "レオン" Data.SparkNothing
+    Chara 300 "レオン" Data.SparkNothing 0
 
 
 specialCharas : List Chara
 specialCharas =
     [ charaAsLeon
-    , Chara 301 "ジェラール" Data.SparkSpell
-    , Chara 302 "コッペリア" Data.SparkNothing
-    , Chara 303 "最終皇帝(男)" Data.SparkSword2
-    , Chara 304 "最終皇帝(女)" Data.SparkSword2
+    , Chara 301 "ジェラール" Data.SparkSpell 1
+    , Chara 302 "コッペリア" Data.SparkNothing 2
+    , Chara 303 "最終皇帝(男)" Data.SparkSword2 3
+    , Chara 304 "最終皇帝(女)" Data.SparkSword2 4
     ]
 
 
