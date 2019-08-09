@@ -2,6 +2,7 @@ module Data exposing
     ( CharaClassSymbol(..), CharaClass, charaClasses
     , SparkTypeSymbol(..), sparkTypeToName, Chara, charas
     , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
+    , FromWaza, WazaDeriviation, findWazaDeriviations
     )
 
 {-|
@@ -9,9 +10,11 @@ module Data exposing
 @docs CharaClassSymbol, CharaClass, charaClasses
 @docs SparkTypeSymbol, sparkTypeToName, Chara, charas
 @docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
+@docs FromWaza, WazaDeriviation, findWazaDeriviations
 
 -}
 
+import List.Extra as ListEx
 import Set exposing (Set)
 
 
@@ -824,3 +827,232 @@ wazasOfSparkSpell =
 wazasOfSparkNothing =
     Set.fromList
         [ 16, 29, 30, 31, 32, 33, 34, 35, 36, 37, 44, 54, 55, 56, 57, 58, 59, 60, 72, 73, 74, 75, 76, 88, 89, 90, 91, 93, 100, 106, 107, 108, 109, 117, 124, 126, 130, 144, 145, 146, 151, 153 ]
+
+
+type alias WazaDeriviation_ =
+    { fromId : Int -- 派生元の技ID
+    , toId : Int -- 派生先の技ID
+    , sparkLevel : Int -- 閃き難度
+    }
+
+
+wazaDeriviations_ : List WazaDeriviation_
+wazaDeriviations_ =
+    [ WazaDeriviation_ 0 17 8
+    , WazaDeriviation_ 0 18 19
+    , WazaDeriviation_ 0 19 15
+    , WazaDeriviation_ 0 20 27
+    , WazaDeriviation_ 0 21 18
+    , WazaDeriviation_ 0 24 25
+    , WazaDeriviation_ 0 25 49
+    , WazaDeriviation_ 0 27 30
+    , WazaDeriviation_ 0 28 45
+    , WazaDeriviation_ 0 29 7
+    , WazaDeriviation_ 0 35 13
+    , WazaDeriviation_ 0 30 20
+    , WazaDeriviation_ 0 31 10
+    , WazaDeriviation_ 0 32 31
+    , WazaDeriviation_ 0 33 16
+    , WazaDeriviation_ 0 34 17
+    , WazaDeriviation_ 0 36 23
+    , WazaDeriviation_ 0 37 35
+    , WazaDeriviation_ 1 42 9
+    , WazaDeriviation_ 1 43 12
+    , WazaDeriviation_ 1 45 20
+    , WazaDeriviation_ 1 46 40
+    , WazaDeriviation_ 1 47 26
+    , WazaDeriviation_ 1 48 25
+    , WazaDeriviation_ 1 50 24
+    , WazaDeriviation_ 1 51 41
+    , WazaDeriviation_ 1 52 32
+    , WazaDeriviation_ 1 53 44
+    , WazaDeriviation_ 1 54 16
+    , WazaDeriviation_ 1 55 14
+    , WazaDeriviation_ 1 56 17
+    , WazaDeriviation_ 1 57 35
+    , WazaDeriviation_ 1 58 22
+    , WazaDeriviation_ 1 59 19
+    , WazaDeriviation_ 1 60 29
+    , WazaDeriviation_ 1 29 12
+    , WazaDeriviation_ 2 62 11
+    , WazaDeriviation_ 2 63 6
+    , WazaDeriviation_ 2 64 19
+    , WazaDeriviation_ 2 65 45
+    , WazaDeriviation_ 2 66 15
+    , WazaDeriviation_ 2 67 27
+    , WazaDeriviation_ 2 68 24
+    , WazaDeriviation_ 2 69 36
+    , WazaDeriviation_ 2 70 40
+    , WazaDeriviation_ 2 71 46
+    , WazaDeriviation_ 2 72 10
+    , WazaDeriviation_ 2 73 25
+    , WazaDeriviation_ 2 74 30
+    , WazaDeriviation_ 2 75 28
+    , WazaDeriviation_ 2 76 31
+    , WazaDeriviation_ 3 78 5
+    , WazaDeriviation_ 3 80 23
+    , WazaDeriviation_ 3 81 25
+    , WazaDeriviation_ 3 82 18
+    , WazaDeriviation_ 3 83 15
+    , WazaDeriviation_ 3 85 34
+    , WazaDeriviation_ 3 86 26
+    , WazaDeriviation_ 3 88 8
+    , WazaDeriviation_ 3 89 10
+    , WazaDeriviation_ 3 90 12
+    , WazaDeriviation_ 3 91 13
+    , WazaDeriviation_ 3 55 20
+    , WazaDeriviation_ 3 93 15
+    , WazaDeriviation_ 4 94 6
+    , WazaDeriviation_ 4 96 22
+    , WazaDeriviation_ 4 97 15
+    , WazaDeriviation_ 4 98 18
+    , WazaDeriviation_ 4 99 8
+    , WazaDeriviation_ 4 101 20
+    , WazaDeriviation_ 4 102 27
+    , WazaDeriviation_ 4 103 48
+    , WazaDeriviation_ 4 104 51
+    , WazaDeriviation_ 4 105 40
+    , WazaDeriviation_ 4 106 17
+    , WazaDeriviation_ 4 107 24
+    , WazaDeriviation_ 4 108 48
+    , WazaDeriviation_ 4 109 32
+    , WazaDeriviation_ 5 114 14
+    , WazaDeriviation_ 5 115 25
+    , WazaDeriviation_ 5 116 27
+    , WazaDeriviation_ 5 118 30
+    , WazaDeriviation_ 5 119 19
+    , WazaDeriviation_ 5 121 25
+    , WazaDeriviation_ 5 122 40
+    , WazaDeriviation_ 5 124 15
+    , WazaDeriviation_ 5 126 36
+    , WazaDeriviation_ 5 130 23
+    , WazaDeriviation_ 5 120 38
+    , WazaDeriviation_ 6 133 21
+    , WazaDeriviation_ 6 134 6
+    , WazaDeriviation_ 6 135 10
+    , WazaDeriviation_ 6 136 16
+    , WazaDeriviation_ 6 137 26
+    , WazaDeriviation_ 6 138 12
+    , WazaDeriviation_ 6 140 33
+    , WazaDeriviation_ 6 141 40
+    , WazaDeriviation_ 6 142 22
+    , WazaDeriviation_ 6 143 46
+    , WazaDeriviation_ 6 144 19
+    , WazaDeriviation_ 6 145 13
+    , WazaDeriviation_ 10 152 5
+    , WazaDeriviation_ 10 154 13
+    , WazaDeriviation_ 10 155 20
+    , WazaDeriviation_ 10 156 24
+    , WazaDeriviation_ 10 158 26
+    , WazaDeriviation_ 10 161 45
+    , WazaDeriviation_ 15 18 15
+    , WazaDeriviation_ 15 22 14
+    , WazaDeriviation_ 15 23 20
+    , WazaDeriviation_ 15 26 40
+    , WazaDeriviation_ 17 20 23
+    , WazaDeriviation_ 20 19 12
+    , WazaDeriviation_ 20 24 30
+    , WazaDeriviation_ 23 26 28
+    , WazaDeriviation_ 24 25 35
+    , WazaDeriviation_ 24 27 25
+    , WazaDeriviation_ 31 32 25
+    , WazaDeriviation_ 42 45 16
+    , WazaDeriviation_ 43 46 34
+    , WazaDeriviation_ 43 54 12
+    , WazaDeriviation_ 43 57 25
+    , WazaDeriviation_ 45 46 37
+    , WazaDeriviation_ 46 51 37
+    , WazaDeriviation_ 48 49 38
+    , WazaDeriviation_ 50 47 21
+    , WazaDeriviation_ 50 52 25
+    , WazaDeriviation_ 59 60 21
+    , WazaDeriviation_ 63 65 20
+    , WazaDeriviation_ 63 71 38
+    , WazaDeriviation_ 63 73 5
+    , WazaDeriviation_ 64 69 28
+    , WazaDeriviation_ 64 70 36
+    , WazaDeriviation_ 66 67 20
+    , WazaDeriviation_ 66 68 15
+    , WazaDeriviation_ 67 68 14
+    , WazaDeriviation_ 70 76 15
+    , WazaDeriviation_ 79 80 16
+    , WazaDeriviation_ 80 87 43
+    , WazaDeriviation_ 82 81 20
+    , WazaDeriviation_ 82 87 39
+    , WazaDeriviation_ 83 84 29
+    , WazaDeriviation_ 95 105 38
+    , WazaDeriviation_ 96 107 14
+    , WazaDeriviation_ 97 106 12
+    , WazaDeriviation_ 98 103 39
+    , WazaDeriviation_ 98 108 45
+    , WazaDeriviation_ 99 102 20
+    , WazaDeriviation_ 99 104 36
+    , WazaDeriviation_ 103 108 38
+    , WazaDeriviation_ 113 119 15
+    , WazaDeriviation_ 114 116 20
+    , WazaDeriviation_ 114 120 27
+    , WazaDeriviation_ 114 124 5
+    , WazaDeriviation_ 118 119 13
+    , WazaDeriviation_ 118 130 17
+    , WazaDeriviation_ 133 143 36
+    , WazaDeriviation_ 134 137 16
+    , WazaDeriviation_ 134 141 25
+    , WazaDeriviation_ 136 142 22
+    , WazaDeriviation_ 136 144 9
+    , WazaDeriviation_ 137 146 37
+    , WazaDeriviation_ 138 140 20
+    , WazaDeriviation_ 149 150 12
+    , WazaDeriviation_ 149 157 28
+    , WazaDeriviation_ 150 157 21
+    , WazaDeriviation_ 150 160 30
+    , WazaDeriviation_ 151 159 19
+    , WazaDeriviation_ 153 196 15
+    , WazaDeriviation_ 154 156 13
+    , WazaDeriviation_ 154 161 35
+    , WazaDeriviation_ 158 162 43
+    , WazaDeriviation_ 0 16 5
+    , WazaDeriviation_ 1 44 5
+    , WazaDeriviation_ 4 100 9
+    , WazaDeriviation_ 5 117 11
+    , WazaDeriviation_ 10 151 8
+    , WazaDeriviation_ 10 153 3
+    ]
+
+
+type alias FromWaza =
+    { fromWaza : Waza -- 派生元の技
+    , sparkLevel : Int -- 閃き難度
+    }
+
+
+type alias WazaDeriviation =
+    { toWaza : Waza -- 派生先の技
+    , fromWazas : List FromWaza -- 派生元の技と閃き難度
+    }
+
+
+{-| 指定した技に対する「派生元の技」と「閃き難度」の組み合わせのリストを返す。
+-}
+findWazaDeriviations : Waza -> WazaDeriviation
+findWazaDeriviations toWaza =
+    wazaDeriviations_
+        |> List.filterMap
+            (\{ fromId, toId, sparkLevel } ->
+                if toId == toWaza.id then
+                    -- 指定された技 (toWaza) を閃く派生パターンが存在した場合、
+                    -- wazas から派生元の技 (fromWaza) を解決して
+                    -- WazaDeriviation を作成する
+                    --
+                    -- Maybe.map の結果が Nothing になった場合はデータ不備
+                    -- あるべき技が wazas に含まれていない or
+                    -- 無効な技の ID が wazaDeriviations_ に含まれている
+                    ListEx.find (.id >> (==) fromId) wazas
+                        |> Maybe.map
+                            (\fromWaza ->
+                                FromWaza fromWaza sparkLevel
+                            )
+
+                else
+                    Nothing
+            )
+        |> WazaDeriviation toWaza
