@@ -3,6 +3,7 @@ module Data exposing
     , SparkTypeSymbol(..), sparkTypeToName, Chara, charas
     , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
     , FromWaza, WazaDeriviation, findWazaDeriviations
+    , EnemyTypeSymbol(..), enemyTypeToName, Enemy, enemies
     )
 
 {-|
@@ -11,6 +12,7 @@ module Data exposing
 @docs SparkTypeSymbol, sparkTypeToName, Chara, charas
 @docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
 @docs FromWaza, WazaDeriviation, findWazaDeriviations
+@docs EnemyTypeSymbol, enemyTypeToName, Enemy, enemies
 
 -}
 
@@ -1056,3 +1058,442 @@ findWazaDeriviations toWaza =
                     Nothing
             )
         |> WazaDeriviation toWaza
+
+
+type EnemyTypeSymbol
+    = EnemySkeleton -- 骸骨
+    | EnemyUndead -- ゾンビ
+    | EnemyDemiHuman -- 獣人
+    | EnemyWinged -- 有翼
+    | EnemyDemon -- 悪魔
+    | EnemyBeast -- 獣
+    | EnemyInsect -- 虫
+    | EnemySnake -- 蛇
+    | EnemyFish -- 魚
+    | EnemyPlant -- 植物
+    | EnemyAquatic -- 水棲
+    | EnemySlime -- 無機質
+    | EnemySprite -- 精霊
+    | EnemyHuman -- 人間
+    | EnemyGhost -- 霊体
+    | EnemyReptile -- 爬虫類
+    | EnemyDragon -- 竜
+    | EnemyGiant -- 巨人
+    | EnemyBoss -- ボス
+
+
+enemyTypeToName : EnemyTypeSymbol -> String
+enemyTypeToName symbol =
+    case symbol of
+        EnemySkeleton ->
+            "骸骨"
+
+        EnemyUndead ->
+            "ゾンビ"
+
+        EnemyDemiHuman ->
+            "獣人"
+
+        EnemyWinged ->
+            "有翼"
+
+        EnemyDemon ->
+            "悪魔"
+
+        EnemyBeast ->
+            "獣"
+
+        EnemyInsect ->
+            "虫"
+
+        EnemySnake ->
+            "蛇"
+
+        EnemyFish ->
+            "魚"
+
+        EnemyPlant ->
+            "植物"
+
+        EnemyAquatic ->
+            "水棲"
+
+        EnemySlime ->
+            "無機質"
+
+        EnemySprite ->
+            "精霊"
+
+        EnemyHuman ->
+            "人間"
+
+        EnemyGhost ->
+            "霊体"
+
+        EnemyReptile ->
+            "爬虫類"
+
+        EnemyDragon ->
+            "竜"
+
+        EnemyGiant ->
+            "巨人"
+
+        EnemyBoss ->
+            "ボス"
+
+
+type alias Enemy =
+    { id : Int
+    , name : String
+    , wazaLevel : Int
+    , enemyType : EnemyTypeSymbol
+    , rank : Int
+    }
+
+
+enemies : List Enemy
+enemies =
+    -- 骸骨
+    [ Enemy 0 "ボーンヘッド" 4 EnemySkeleton 1
+    , Enemy 1 "獄門鳥" 7 EnemySkeleton 2
+    , Enemy 2 "ロトンビースト" 8 EnemySkeleton 3
+    , Enemy 3 "フライアー" 6 EnemySkeleton 4
+    , Enemy 4 "腐骨鳥" 10 EnemySkeleton 5
+    , Enemy 5 "スケルトン" 14 EnemySkeleton 6
+    , Enemy 6 "ウインガー" 14 EnemySkeleton 7
+    , Enemy 7 "スパイクヘッド" 18 EnemySkeleton 8
+    , Enemy 8 "スカルデーモン" 20 EnemySkeleton 9
+    , Enemy 9 "ボーンドレイク" 24 EnemySkeleton 10
+    , Enemy 10 "ヘルタスケルター" 24 EnemySkeleton 11
+    , Enemy 11 "ドレッドナイト" 33 EnemySkeleton 12
+    , Enemy 12 "アドバード" 34 EnemySkeleton 13
+    , Enemy 13 "チャリオット" 36 EnemySkeleton 14
+    , Enemy 14 "スカルロード" 39 EnemySkeleton 15
+    , Enemy 15 "ヘルビースト" 41 EnemySkeleton 16
+
+    -- ゾンビ
+    , Enemy 16 "コープス" 4 EnemyUndead 1
+    , Enemy 17 "屍食鬼" 6 EnemyUndead 2
+    , Enemy 18 "ボーンバイター" 8 EnemyUndead 3
+    , Enemy 19 "ゾンビ" 6 EnemyUndead 4
+    , Enemy 20 "屍竜" 9 EnemyUndead 5
+    , Enemy 21 "ノスフェラン" 17 EnemyUndead 6
+    , Enemy 22 "レブナント" 16 EnemyUndead 7
+    , Enemy 23 "吸精鬼" 17 EnemyUndead 8
+    , Enemy 24 "デュラハン" 23 EnemyUndead 9
+    , Enemy 25 "ブレインイーター" 21 EnemyUndead 10
+    , Enemy 26 "腐竜" 28 EnemyUndead 11
+    , Enemy 27 "ブラッドサッカー" 29 EnemyUndead 12
+    , Enemy 28 "寄生鬼" 36 EnemyUndead 13
+    , Enemy 29 "ヴァンパイア(女)" 37 EnemyUndead 14
+    , Enemy 30 "ヴァンパイア(男)" 37 EnemyUndead 15
+    , Enemy 31 "獄竜" 41 EnemyUndead 16
+
+    -- 獣人
+    , Enemy 32 "ゲットー" 4 EnemyDemiHuman 1
+    , Enemy 33 "ゴブリン" 6 EnemyDemiHuman 2
+    , Enemy 34 "ホブリン" 7 EnemyDemiHuman 3
+    , Enemy 35 "ウオッチマン" 8 EnemyDemiHuman 4
+    , Enemy 36 "人狼" 9 EnemyDemiHuman 5
+    , Enemy 37 "オーガ" 14 EnemyDemiHuman 6
+    , Enemy 38 "ドビー" 13 EnemyDemiHuman 7
+    , Enemy 39 "ミノタウロス" 18 EnemyDemiHuman 8
+    , Enemy 40 "オーガバトラー" 21 EnemyDemiHuman 9
+    , Enemy 41 "チャンピオン" 25 EnemyDemiHuman 10
+    , Enemy 42 "百獣王" 28 EnemyDemiHuman 11
+    , Enemy 43 "スフィンクス" 30 EnemyDemiHuman 12
+    , Enemy 44 "マッドオーガ" 33 EnemyDemiHuman 13
+    , Enemy 45 "ビーストメア" 35 EnemyDemiHuman 14
+    , Enemy 46 "ロビンハット" 39 EnemyDemiHuman 15
+    , Enemy 47 "ラルヴァクィーン" 41 EnemyDemiHuman 16
+
+    -- 有翼
+    , Enemy 48 "バルチャー" 5 EnemyWinged 1
+    , Enemy 49 "サイレン" 5 EnemyWinged 2
+    , Enemy 50 "シムルグ" 7 EnemyWinged 3
+    , Enemy 51 "スポイラー" 8 EnemyWinged 4
+    , Enemy 52 "ソニック" 10 EnemyWinged 5
+    , Enemy 53 "フライマンバ" 14 EnemyWinged 6
+    , Enemy 54 "アズテック" 16 EnemyWinged 7
+    , Enemy 55 "ストーマー" 18 EnemyWinged 8
+    , Enemy 56 "クレイジーサン" 21 EnemyWinged 9
+    , Enemy 57 "ワイバーン" 24 EnemyWinged 10
+    , Enemy 58 "ウィズゴブリン" 27 EnemyWinged 11
+    , Enemy 59 "コカトリス" 30 EnemyWinged 12
+    , Enemy 60 "ブレイザー" 33 EnemyWinged 13
+    , Enemy 61 "スノーウィルム" 37 EnemyWinged 14
+    , Enemy 62 "ナイトフォーク" 40 EnemyWinged 15
+    , Enemy 63 "フォージウィルム" 39 EnemyWinged 16
+
+    -- 悪魔
+    , Enemy 64 "ジャム" 4 EnemyDemon 1
+    , Enemy 65 "フィーンド" 7 EnemyDemon 2
+    , Enemy 66 "ナイト" 9 EnemyDemon 3
+    , Enemy 67 "ゼノ" 6 EnemyDemon 4
+    , Enemy 68 "インプ" 7 EnemyDemon 5
+    , Enemy 69 "クローラー" 14 EnemyDemon 6
+    , Enemy 70 "ガーゴイル" 14 EnemyDemon 7
+    , Enemy 71 "カルト" 17 EnemyDemon 8
+    , Enemy 72 "マジシャン" 20 EnemyDemon 9
+    , Enemy 73 "ウイングメア" 26 EnemyDemon 10
+    , Enemy 74 "青鬼" 21 EnemyDemon 11
+    , Enemy 75 "ジョーカー" 28 EnemyDemon 12
+    , Enemy 76 "ヒューリオン" 35 EnemyDemon 13
+    , Enemy 77 "赤鬼" 26 EnemyDemon 14
+    , Enemy 78 "ナックラビー" 41 EnemyDemon 15
+    , Enemy 79 "ディアブロ" 42 EnemyDemon 16
+
+    -- 獣
+    , Enemy 80 "マイザー" 3 EnemyBeast 1
+    , Enemy 81 "バファロー" 5 EnemyBeast 2
+    , Enemy 82 "ムスタング" 7 EnemyBeast 3
+    , Enemy 83 "大河馬" 8 EnemyBeast 4
+    , Enemy 84 "リンクス" 9 EnemyBeast 5
+    , Enemy 85 "ヘルハウンド" 15 EnemyBeast 6
+    , Enemy 86 "ワンプス" 15 EnemyBeast 7
+    , Enemy 87 "レイバーホーン" 19 EnemyBeast 8
+    , Enemy 88 "トリケプス" 20 EnemyBeast 9
+    , Enemy 89 "キマイラ" 26 EnemyBeast 10
+    , Enemy 90 "バク" 27 EnemyBeast 11
+    , Enemy 91 "ゴルゴン" 29 EnemyBeast 12
+    , Enemy 92 "河馬人間" 33 EnemyBeast 13
+    , Enemy 93 "ガルム" 34 EnemyBeast 14
+    , Enemy 94 "ヌエ" 40 EnemyBeast 15
+    , Enemy 95 "トウテツ" 42 EnemyBeast 16
+
+    -- 虫
+    , Enemy 96 "ビー" 3 EnemyInsect 1
+    , Enemy 97 "妖虫" 4 EnemyInsect 2
+    , Enemy 98 "センチペタ" 5 EnemyInsect 3
+    , Enemy 99 "マンターム" 10 EnemyInsect 4
+    , Enemy 100 "ピアス" 6 EnemyInsect 5
+    , Enemy 101 "クラブロブスター" 12 EnemyInsect 6
+    , Enemy 102 "毒虫" 12 EnemyInsect 7
+    , Enemy 103 "アンワーム" 16 EnemyInsect 8
+    , Enemy 104 "タランテラ" 21 EnemyInsect 9
+    , Enemy 105 "タームソルジャー" 23 EnemyInsect 10
+    , Enemy 106 "シザースパイダー" 28 EnemyInsect 11
+    , Enemy 107 "マンティスゴッド" 30 EnemyInsect 12
+    , Enemy 108 "ブラックウィドウ" 34 EnemyInsect 13
+    , Enemy 109 "シャークピード" 33 EnemyInsect 14
+    , Enemy 110 "タームバトラー" 37 EnemyInsect 15
+    , Enemy 111 "カイザーアント" 41 EnemyInsect 16
+
+    -- 蛇
+    , Enemy 112 "飛蛇" 5 EnemySnake 1
+    , Enemy 113 "ヴァイパー" 6 EnemySnake 2
+    , Enemy 114 "パイソン" 8 EnemySnake 3
+    , Enemy 115 "砂竜" 12 EnemySnake 4
+    , Enemy 116 "害蛇" 10 EnemySnake 5
+    , Enemy 117 "オピオン" 13 EnemySnake 6
+    , Enemy 118 "デューンウォーム" 18 EnemySnake 7
+    , Enemy 119 "コウアトル" 18 EnemySnake 8
+    , Enemy 120 "フューザー" 23 EnemySnake 9
+    , Enemy 121 "サンドバイター" 24 EnemySnake 10
+    , Enemy 122 "パイロヒドラ" 31 EnemySnake 11
+    , Enemy 123 "リリス" 32 EnemySnake 12
+    , Enemy 124 "ラットラー" 34 EnemySnake 13
+    , Enemy 125 "エレキテル" 36 EnemySnake 14
+    , Enemy 126 "メドゥサ" 39 EnemySnake 15
+    , Enemy 127 "ヴリトラ" 41 EnemySnake 16
+
+    -- 魚
+    , Enemy 128 "咬魚" 3 EnemyFish 1
+    , Enemy 129 "人食いザメ" 7 EnemyFish 2
+    , Enemy 130 "スノーレディ" 8 EnemyFish 3
+    , Enemy 131 "アルケパイン" 7 EnemyFish 4
+    , Enemy 132 "竜金" 11 EnemyFish 5
+    , Enemy 133 "牙魚" 13 EnemyFish 6
+    , Enemy 134 "ハンマヘッド" 17 EnemyFish 7
+    , Enemy 135 "ヘクトアイ" 18 EnemyFish 8
+    , Enemy 136 "ネプトゥーネ" 23 EnemyFish 9
+    , Enemy 137 "クロイドン" 24 EnemyFish 10
+    , Enemy 138 "スティンガー" 28 EnemyFish 11
+    , Enemy 139 "スカーレット" 30 EnemyFish 12
+    , Enemy 140 "トリトーン" 34 EnemyFish 13
+    , Enemy 141 "人面ザメ" 36 EnemyFish 14
+    , Enemy 142 "チェスタトン" 38 EnemyFish 15
+    , Enemy 143 "アルビオン" 43 EnemyFish 16
+
+    -- 植物
+    , Enemy 144 "サラ" 4 EnemyPlant 1
+    , Enemy 145 "マンドレーク" 3 EnemyPlant 2
+    , Enemy 146 "クリーパー" 7 EnemyPlant 3
+    , Enemy 147 "ウッドノイド" 10 EnemyPlant 4
+    , Enemy 148 "スプリッツァー" 11 EnemyPlant 5
+    , Enemy 149 "お化けキノコ" 17 EnemyPlant 6
+    , Enemy 150 "ナスティペタル" 13 EnemyPlant 7
+    , Enemy 151 "グラスホッパー" 18 EnemyPlant 8
+    , Enemy 152 "ナイトシェード" 20 EnemyPlant 9
+    , Enemy 153 "シグナルツリー" 19 EnemyPlant 10
+    , Enemy 154 "ブラディマリー" 25 EnemyPlant 11
+    , Enemy 155 "ラッフルツリー" 31 EnemyPlant 12
+    , Enemy 156 "トーチャー" 32 EnemyPlant 13
+    , Enemy 157 "アルラウネ" 35 EnemyPlant 14
+    , Enemy 158 "ナイトヘッド" 28 EnemyPlant 15
+    , Enemy 159 "マルガリータ" 38 EnemyPlant 16
+
+    -- 水棲
+    , Enemy 160 "ウミウシ" 4 EnemyAquatic 1
+    , Enemy 161 "オクトパス" 6 EnemyAquatic 2
+    , Enemy 162 "サベイジクラブ" 8 EnemyAquatic 3
+    , Enemy 163 "ニクサー" 14 EnemyAquatic 4
+    , Enemy 164 "ニクシー" 17 EnemyAquatic 5
+    , Enemy 165 "アメ降らし" 11 EnemyAquatic 6
+    , Enemy 166 "メーベルワーゲン" 13 EnemyAquatic 7
+    , Enemy 167 "装甲竜" 16 EnemyAquatic 8
+    , Enemy 168 "グレートシザー" 18 EnemyAquatic 9
+    , Enemy 169 "チューブウォーム" 22 EnemyAquatic 10
+    , Enemy 170 "大海竜" 25 EnemyAquatic 11
+    , Enemy 171 "ディープワン" 19 EnemyAquatic 12
+    , Enemy 172 "ペグパウラー" 32 EnemyAquatic 13
+    , Enemy 173 "クラブライダー" 36 EnemyAquatic 14
+    , Enemy 174 "首長竜" 40 EnemyAquatic 15
+    , Enemy 175 "ベインサーペント" 41 EnemyAquatic 16
+
+    -- 無機質
+    , Enemy 176 "ジェル" 3 EnemySlime 1
+    , Enemy 177 "溶解獣" 4 EnemySlime 2
+    , Enemy 178 "スライム" 5 EnemySlime 3
+    , Enemy 179 "大ヒル" 7 EnemySlime 4
+    , Enemy 180 "ディノバブル" 8 EnemySlime 5
+    , Enemy 181 "ゼラチナスマター" 11 EnemySlime 6
+    , Enemy 182 "ゼリー" 14 EnemySlime 7
+    , Enemy 183 "ムドメイン" 15 EnemySlime 8
+    , Enemy 184 "サイケビースト" 17 EnemySlime 9
+    , Enemy 185 "ブロッブ" 21 EnemySlime 10
+    , Enemy 186 "ウーズ" 22 EnemySlime 11
+    , Enemy 187 "毒液獣" 27 EnemySlime 12
+    , Enemy 188 "ベインパープル" 31 EnemySlime 13
+    , Enemy 189 "毒ヒル" 32 EnemySlime 14
+    , Enemy 190 "アゾート" 33 EnemySlime 15
+    , Enemy 191 "ゴールドバウム" 35 EnemySlime 16
+
+    -- 精霊
+    , Enemy 192 "シー" 3 EnemySprite 1
+    , Enemy 193 "アムネジア" 8 EnemySprite 2
+    , Enemy 194 "リキッド" 10 EnemySprite 3
+    , Enemy 195 "エアー" 10 EnemySprite 4
+    , Enemy 196 "フレイム" 10 EnemySprite 5
+    , Enemy 197 "ソイル" 10 EnemySprite 6
+    , Enemy 198 "バルキリー" 14 EnemySprite 7
+    , Enemy 199 "水の精霊" 15 EnemySprite 8
+    , Enemy 200 "土の精霊" 18 EnemySprite 9
+    , Enemy 201 "シュラーク" 22 EnemySprite 10
+    , Enemy 202 "風の精霊" 27 EnemySprite 11
+    , Enemy 203 "ジャン" 29 EnemySprite 12
+    , Enemy 204 "パザティブ" 27 EnemySprite 13
+    , Enemy 205 "火の精霊" 33 EnemySprite 14
+    , Enemy 206 "マーリド" 36 EnemySprite 15
+    , Enemy 207 "セフィラス" 39 EnemySprite 16
+
+    -- 人間
+    , Enemy 208 "アデプト" 5 EnemyHuman 1
+    , Enemy 209 "影" 7 EnemyHuman 2
+    , Enemy 210 "ノービス" 4 EnemyHuman 3
+    , Enemy 211 "シニアー" 8 EnemyHuman 4
+    , Enemy 212 "ガリアンブルー" 11 EnemyHuman 5
+    , Enemy 213 "ヴァイカー" 14 EnemyHuman 6
+    , Enemy 214 "キラーマシン" 17 EnemyHuman 7
+    , Enemy 215 "ドラフトレッド" 19 EnemyHuman 8
+    , Enemy 216 "エルダー" 19 EnemyHuman 9
+    , Enemy 217 "マスター" 20 EnemyHuman 10
+    , Enemy 218 "グレート" 24 EnemyHuman 11
+    , Enemy 219 "シルバービート" 29 EnemyHuman 12
+    , Enemy 220 "ラーマ" 33 EnemyHuman 13
+    , Enemy 221 "ブラックレギオン" 38 EnemyHuman 14
+    , Enemy 222 "ドクター" 32 EnemyHuman 15
+    , Enemy 223 "ミスティック" 42 EnemyHuman 16
+
+    -- 霊体
+    , Enemy 224 "生魂" 2 EnemyGhost 1
+    , Enemy 225 "人魂" 2 EnemyGhost 2
+    , Enemy 226 "ハウント" 4 EnemyGhost 3
+    , Enemy 227 "レインイーター" 5 EnemyGhost 4
+    , Enemy 228 "火魂" 6 EnemyGhost 5
+    , Enemy 229 "ハロウィーン" 11 EnemyGhost 6
+    , Enemy 230 "ストームイーター" 12 EnemyGhost 7
+    , Enemy 231 "フューリー" 19 EnemyGhost 8
+    , Enemy 232 "ロア" 19 EnemyGhost 9
+    , Enemy 233 "素魂" 13 EnemyGhost 10
+    , Enemy 234 "ポイゾンイーター" 24 EnemyGhost 11
+    , Enemy 235 "ソロウ" 28 EnemyGhost 12
+    , Enemy 236 "ゴーメンガスト" 32 EnemyGhost 13
+    , Enemy 237 "ジン" 31 EnemyGhost 14
+    , Enemy 238 "パトス" 37 EnemyGhost 15
+    , Enemy 239 "フィア" 39 EnemyGhost 16
+
+    -- 爬虫類
+    , Enemy 240 "タータラ" 5 EnemyReptile 1
+    , Enemy 241 "かえるの王様" 6 EnemyReptile 2
+    , Enemy 242 "ワニゲータ" 7 EnemyReptile 3
+    , Enemy 243 "ウェアフロッグ" 7 EnemyReptile 4
+    , Enemy 244 "リザード" 9 EnemyReptile 5
+    , Enemy 245 "かえるの王子様" 12 EnemyReptile 6
+    , Enemy 246 "リザードマン" 16 EnemyReptile 7
+    , Enemy 247 "リザードレディ" 16 EnemyReptile 8
+    , Enemy 248 "パイロレクス" 21 EnemyReptile 9
+    , Enemy 249 "ホーンリザード" 25 EnemyReptile 10
+    , Enemy 250 "トードマスター" 27 EnemyReptile 11
+    , Enemy 251 "バジリスク" 29 EnemyReptile 12
+    , Enemy 252 "ケロリアン" 29 EnemyReptile 13
+    , Enemy 253 "ラムリザード" 36 EnemyReptile 14
+    , Enemy 254 "かえるの殿様" 38 EnemyReptile 15
+    , Enemy 255 "リザードロード" 40 EnemyReptile 16
+
+    -- 竜
+    , Enemy 300 "火竜" 33 EnemyDragon 0
+    , Enemy 301 "氷竜" 31 EnemyDragon 0
+    , Enemy 302 "雷竜" 34 EnemyDragon 0
+    , Enemy 303 "黒竜" 37 EnemyDragon 0
+    , Enemy 304 "水龍" 32 EnemyDragon 0
+    , Enemy 305 "金龍" 39 EnemyDragon 0
+
+    -- 巨人
+    , Enemy 400 "巨人" 25 EnemyGiant 0
+    , Enemy 401 "サイクロプス" 24 EnemyGiant 0
+    , Enemy 402 "スプリガン" 19 EnemyGiant 0
+    , Enemy 403 "守護者" 31 EnemyGiant 0
+
+    -- ボス
+    , Enemy 500 "ミミック" 9 EnemyBoss 0
+    , Enemy 501 "キング" 8 EnemyBoss 0
+    , Enemy 502 "門" 1 EnemyBoss 0
+    , Enemy 503 "ザ・ドラゴン" 5 EnemyBoss 0
+    , Enemy 504 "バイキング" 8 EnemyBoss 0
+    , Enemy 505 "ギャロン" 15 EnemyBoss 0
+    , Enemy 506 "ギャロン(亡霊)" 16 EnemyBoss 0
+    , Enemy 507 "サイフリート" 12 EnemyBoss 0
+    , Enemy 508 "亡霊兵士" 12 EnemyBoss 0
+    , Enemy 509 "ゲオルグ" 13 EnemyBoss 0
+    , Enemy 510 "セキシュウサイ" 16 EnemyBoss 0
+    , Enemy 511 "岩" 1 EnemyBoss 0
+    , Enemy 512 "魔道士(冥術)" 16 EnemyBoss 0
+    , Enemy 513 "魔道士(通常)" 16 EnemyBoss 0
+    , Enemy 514 "海の主" 21 EnemyBoss 0
+    , Enemy 515 "クィーン" 14 EnemyBoss 0
+    , Enemy 516 "リアルクィーン" 23 EnemyBoss 0
+
+    -- ボス(七英雄)
+    , Enemy 600 "クジンシー0" 6 EnemyBoss 0
+    , Enemy 601 "クジンシー1" 8 EnemyBoss 0
+    , Enemy 602 "クジンシー2" 31 EnemyBoss 0
+    , Enemy 603 "ダンターグ1" 20 EnemyBoss 0
+    , Enemy 604 "ダンターグ2" 23 EnemyBoss 0
+    , Enemy 605 "ダンターグ3" 25 EnemyBoss 0
+    , Enemy 606 "ダンターグ4" 31 EnemyBoss 0
+    , Enemy 607 "ボクオーン1" 21 EnemyBoss 0
+    , Enemy 608 "ボクオーン2" 26 EnemyBoss 0
+    , Enemy 609 "ロックブーケ1" 23 EnemyBoss 0
+    , Enemy 610 "ロックブーケ2" 28 EnemyBoss 0
+    , Enemy 611 "ノエル1" 26 EnemyBoss 0
+    , Enemy 612 "ノエル2" 29 EnemyBoss 0
+    , Enemy 613 "ノエル1(怒り)" 26 EnemyBoss 0
+    , Enemy 614 "ノエル2(怒り)" 32 EnemyBoss 0
+    , Enemy 615 "スービエ1" 21 EnemyBoss 0
+    , Enemy 616 "スービエ2" 21 EnemyBoss 0
+    , Enemy 617 "ワグナス1" 20 EnemyBoss 0
+    , Enemy 618 "ワグナス2" 25 EnemyBoss 0
+    , Enemy 619 "七英雄" 36 EnemyBoss 0
+    ]
