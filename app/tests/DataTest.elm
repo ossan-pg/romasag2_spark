@@ -10,7 +10,6 @@ suite : Test
 suite =
     describe "The Data module"
         [ describe "findWazaDeriviations"
-            -- キャラクターを設定
             [ test "閃かない技を指定した場合、空のリストを返す" <|
                 \_ ->
                     -- (通常攻撃：剣) を閃くことはない
