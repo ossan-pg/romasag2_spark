@@ -4,6 +4,7 @@ module Data exposing
     , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
     , FromWaza, WazaDeriviation, findWazaDeriviations
     , EnemyTypeSymbol(..), enemyTypeToName, Enemy, enemies
+    , EnemyWithSparkRatio, findEnemiesForSpark
     )
 
 {-|
@@ -13,6 +14,7 @@ module Data exposing
 @docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
 @docs FromWaza, WazaDeriviation, findWazaDeriviations
 @docs EnemyTypeSymbol, enemyTypeToName, Enemy, enemies
+@docs EnemyWithSparkRatio, findEnemiesForSpark
 
 -}
 
@@ -1443,57 +1445,165 @@ enemies =
     , Enemy 255 "リザードロード" 40 EnemyReptile 16
 
     -- 竜
-    , Enemy 300 "火竜" 33 EnemyDragon 0
-    , Enemy 301 "氷竜" 31 EnemyDragon 0
-    , Enemy 302 "雷竜" 34 EnemyDragon 0
-    , Enemy 303 "黒竜" 37 EnemyDragon 0
-    , Enemy 304 "水龍" 32 EnemyDragon 0
-    , Enemy 305 "金龍" 39 EnemyDragon 0
+    , Enemy 300 "火竜" 33 EnemyDragon 40
+    , Enemy 301 "氷竜" 31 EnemyDragon 40
+    , Enemy 302 "雷竜" 34 EnemyDragon 40
+    , Enemy 303 "黒竜" 37 EnemyDragon 40
+    , Enemy 304 "水龍" 32 EnemyDragon 40
+    , Enemy 305 "金龍" 39 EnemyDragon 40
 
     -- 巨人
-    , Enemy 400 "巨人" 25 EnemyGiant 0
-    , Enemy 401 "サイクロプス" 24 EnemyGiant 0
-    , Enemy 402 "スプリガン" 19 EnemyGiant 0
-    , Enemy 403 "守護者" 31 EnemyGiant 0
+    , Enemy 400 "巨人" 25 EnemyGiant 30
+    , Enemy 401 "サイクロプス" 24 EnemyGiant 30
+    , Enemy 402 "スプリガン" 19 EnemyGiant 30
+    , Enemy 403 "守護者" 31 EnemyGiant 30
 
     -- ボス
-    , Enemy 500 "ミミック" 9 EnemyBoss 0
-    , Enemy 501 "キング" 8 EnemyBoss 0
-    , Enemy 502 "門" 1 EnemyBoss 0
-    , Enemy 503 "ザ・ドラゴン" 5 EnemyBoss 0
-    , Enemy 504 "バイキング" 8 EnemyBoss 0
-    , Enemy 505 "ギャロン" 15 EnemyBoss 0
-    , Enemy 506 "ギャロン(亡霊)" 16 EnemyBoss 0
-    , Enemy 507 "サイフリート" 12 EnemyBoss 0
-    , Enemy 508 "亡霊兵士" 12 EnemyBoss 0
-    , Enemy 509 "ゲオルグ" 13 EnemyBoss 0
-    , Enemy 510 "セキシュウサイ" 16 EnemyBoss 0
-    , Enemy 511 "岩" 1 EnemyBoss 0
-    , Enemy 512 "魔道士(冥術)" 16 EnemyBoss 0
-    , Enemy 513 "魔道士(通常)" 16 EnemyBoss 0
-    , Enemy 514 "海の主" 21 EnemyBoss 0
-    , Enemy 515 "クィーン" 14 EnemyBoss 0
-    , Enemy 516 "リアルクィーン" 23 EnemyBoss 0
+    , Enemy 500 "ミミック" 9 EnemyBoss 20
+    , Enemy 501 "キング" 8 EnemyBoss 20
+    , Enemy 502 "門" 1 EnemyBoss 20
+    , Enemy 503 "ザ・ドラゴン" 5 EnemyBoss 20
+    , Enemy 504 "バイキング" 8 EnemyBoss 20
+    , Enemy 505 "ギャロン" 15 EnemyBoss 20
+    , Enemy 506 "ギャロン(亡霊)" 16 EnemyBoss 20
+    , Enemy 507 "サイフリート" 12 EnemyBoss 20
+    , Enemy 508 "亡霊兵士" 12 EnemyBoss 20
+    , Enemy 509 "ゲオルグ" 13 EnemyBoss 20
+    , Enemy 510 "セキシュウサイ" 16 EnemyBoss 20
+    , Enemy 511 "岩" 1 EnemyBoss 20
+    , Enemy 512 "魔道士(冥術)" 16 EnemyBoss 20
+    , Enemy 513 "魔道士(通常)" 16 EnemyBoss 20
+    , Enemy 514 "海の主" 21 EnemyBoss 20
+    , Enemy 515 "クィーン" 14 EnemyBoss 20
+    , Enemy 516 "リアルクィーン" 23 EnemyBoss 20
 
     -- ボス(七英雄)
-    , Enemy 600 "クジンシー0" 6 EnemyBoss 0
-    , Enemy 601 "クジンシー1" 8 EnemyBoss 0
-    , Enemy 602 "クジンシー2" 31 EnemyBoss 0
-    , Enemy 603 "ダンターグ1" 20 EnemyBoss 0
-    , Enemy 604 "ダンターグ2" 23 EnemyBoss 0
-    , Enemy 605 "ダンターグ3" 25 EnemyBoss 0
-    , Enemy 606 "ダンターグ4" 31 EnemyBoss 0
-    , Enemy 607 "ボクオーン1" 21 EnemyBoss 0
-    , Enemy 608 "ボクオーン2" 26 EnemyBoss 0
-    , Enemy 609 "ロックブーケ1" 23 EnemyBoss 0
-    , Enemy 610 "ロックブーケ2" 28 EnemyBoss 0
-    , Enemy 611 "ノエル1" 26 EnemyBoss 0
-    , Enemy 612 "ノエル2" 29 EnemyBoss 0
-    , Enemy 613 "ノエル1(怒り)" 26 EnemyBoss 0
-    , Enemy 614 "ノエル2(怒り)" 32 EnemyBoss 0
-    , Enemy 615 "スービエ1" 21 EnemyBoss 0
-    , Enemy 616 "スービエ2" 21 EnemyBoss 0
-    , Enemy 617 "ワグナス1" 20 EnemyBoss 0
-    , Enemy 618 "ワグナス2" 25 EnemyBoss 0
-    , Enemy 619 "七英雄" 36 EnemyBoss 0
+    , Enemy 600 "クジンシー0" 6 EnemyBoss 50
+    , Enemy 601 "クジンシー1" 8 EnemyBoss 50
+    , Enemy 602 "クジンシー2" 31 EnemyBoss 50
+    , Enemy 603 "ダンターグ1" 20 EnemyBoss 50
+    , Enemy 604 "ダンターグ2" 23 EnemyBoss 50
+    , Enemy 605 "ダンターグ3" 25 EnemyBoss 50
+    , Enemy 606 "ダンターグ4" 31 EnemyBoss 50
+    , Enemy 607 "ボクオーン1" 21 EnemyBoss 50
+    , Enemy 608 "ボクオーン2" 26 EnemyBoss 50
+    , Enemy 609 "ロックブーケ1" 23 EnemyBoss 50
+    , Enemy 610 "ロックブーケ2" 28 EnemyBoss 50
+    , Enemy 611 "ノエル1" 26 EnemyBoss 50
+    , Enemy 612 "ノエル2" 29 EnemyBoss 50
+    , Enemy 613 "ノエル1(怒り)" 26 EnemyBoss 50
+    , Enemy 614 "ノエル2(怒り)" 32 EnemyBoss 50
+    , Enemy 615 "スービエ1" 21 EnemyBoss 50
+    , Enemy 616 "スービエ2" 21 EnemyBoss 50
+    , Enemy 617 "ワグナス1" 20 EnemyBoss 50
+    , Enemy 618 "ワグナス2" 25 EnemyBoss 50
+    , Enemy 619 "七英雄" 36 EnemyBoss 50
     ]
+
+
+type alias EnemyWithSparkRatio =
+    { enemy : Enemy
+    , sparkRatio : Float
+    }
+
+
+findEnemiesForSpark : Int -> List EnemyWithSparkRatio
+findEnemiesForSpark sparkLevel =
+    let
+        -- ソート条件1：閃き率、降順
+        -- ソート条件2：敵のランク、昇順
+        --   閃き率が同じ場合は弱い敵 (≒ランクが低い敵) を先に表示したい
+        -- ソート条件3：敵の ID 、昇順
+        compareEnemy : EnemyWithSparkRatio -> EnemyWithSparkRatio -> Order
+        compareEnemy e1 e2 =
+            case compare e1.sparkRatio e2.sparkRatio of
+                LT ->
+                    GT
+
+                EQ ->
+                    case compare e1.enemy.rank e2.enemy.rank of
+                        LT ->
+                            LT
+
+                        EQ ->
+                            compare e1.enemy.id e2.enemy.id
+
+                        GT ->
+                            GT
+
+                GT ->
+                    LT
+    in
+    enemies
+        -- 閃き率が 0% の場合はあらかじめ除外しておく
+        |> List.filter (\enemy -> enemy.wazaLevel > sparkLevel - 6)
+        |> List.map
+            (\enemy ->
+                EnemyWithSparkRatio enemy <|
+                    calcSparkRatio sparkLevel enemy.wazaLevel
+            )
+        |> List.sortWith compareEnemy
+
+
+calcSparkRatio : Int -> Int -> Float
+calcSparkRatio sparkLevel wazaLevel =
+    let
+        diff =
+            wazaLevel - sparkLevel
+    in
+    if diff >= 6 then
+        -- 6 以上は 9.80% で固定
+        9.8
+
+    else
+        case diff of
+            5 ->
+                -- 厳密には 9.41
+                9.4
+
+            4 ->
+                -- 厳密には 9.41
+                9.4
+
+            3 ->
+                -- 厳密には 8.63
+                8.6
+
+            2 ->
+                -- 厳密には 8.63
+                8.6
+
+            1 ->
+                -- 厳密には 7.84
+                7.8
+
+            0 ->
+                -- 閃き難度と技レベルが一致する場合に閃き率は最大になる
+                20.4
+
+            n ->
+                -- 負値をパターンマッチさせようとするとコンパイルで
+                -- パースエラーになるため、やむを得ずこの形
+                case negate n of
+                    1 ->
+                        5.1
+
+                    2 ->
+                        -- 厳密には 2.35
+                        2.4
+
+                    3 ->
+                        -- 厳密には 1.57
+                        1.6
+
+                    4 ->
+                        -- 厳密には 0.78
+                        0.8
+
+                    5 ->
+                        -- 厳密には 0.39
+                        0.4
+
+                    _ ->
+                        -- -6 以下は閃かない
+                        0.0
