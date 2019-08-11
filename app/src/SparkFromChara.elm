@@ -83,7 +83,11 @@ update msg model =
                 Just charaClass ->
                     let
                         newCharas =
-                            filterMapCharas charaClass
+                            Data.findCharas charaClass
+                                |> List.indexedMap
+                                    (\index { id, name, sparkType } ->
+                                        Chara id name sparkType index
+                                    )
 
                         charaIndex_ =
                             Maybe.withDefault -1 model.charaIndex
@@ -122,18 +126,6 @@ update msg model =
         SelectWaza maybeWaza ->
             -- TODO 技選択時の動作を書く
             ( model, Cmd.none )
-
-
-{-| Data.Chara のリストからクラスが一致するキャラクターを抽出し、Chara のリストを作成する
--}
-filterMapCharas : Data.CharaClass -> List Chara
-filterMapCharas { charaClassType } =
-    Data.charas
-        |> List.filter (.charaClassType >> (==) charaClassType)
-        |> List.indexedMap
-            (\index { id, name, sparkType } ->
-                Chara id name sparkType index
-            )
 
 
 

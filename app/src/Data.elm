@@ -1,13 +1,13 @@
 module Data exposing
     ( CharaClassSymbol(..), CharaClass, charaClasses
-    , SparkTypeSymbol(..), sparkTypeToName, Chara, charas
+    , SparkTypeSymbol(..), sparkTypeToName, Chara, charas, findCharas
     , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
     )
 
 {-|
 
 @docs CharaClassSymbol, CharaClass, charaClasses
-@docs SparkTypeSymbol, sparkTypeToName, Chara, charas
+@docs SparkTypeSymbol, sparkTypeToName, Chara, charas, findCharas
 @docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
 
 -}
@@ -520,6 +520,12 @@ charas =
     , Chara 303 "最終皇帝(男)" 19 25 23 23 15 24 21 10 5 5 5 5 0 0 0 0 10 0 SpecialChara 0 SparkSword2
     , Chara 304 "最終皇帝(女)" 10 23 24 24 15 25 20 10 5 5 5 5 0 0 0 0 10 0 SpecialChara 0 SparkSword2
     ]
+
+
+findCharas : CharaClass -> List Chara
+findCharas { charaClassType } =
+    charas
+        |> List.filter (.charaClassType >> (==) charaClassType)
 
 
 type WeaponTypeSymbol
