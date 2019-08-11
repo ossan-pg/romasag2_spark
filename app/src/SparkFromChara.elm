@@ -25,7 +25,6 @@ main =
 
 type alias Model =
     { charaClasses : List Data.CharaClass
-    , allCharas : List Data.Chara
     , charas : List Chara -- 表示用の別の Chara 型 を使用する
     , charaIndex : Maybe Int
     , sparkType : Maybe Data.SparkTypeSymbol
@@ -45,7 +44,6 @@ type alias Chara =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { charaClasses = Data.charaClasses
-      , allCharas = Data.charas
       , charas = []
       , charaIndex = Nothing
       , sparkType = Nothing
@@ -85,7 +83,7 @@ update msg model =
                 Just charaClass ->
                     let
                         newCharas =
-                            filterMapCharas charaClass model.allCharas
+                            filterMapCharas charaClass
 
                         charaIndex_ =
                             Maybe.withDefault -1 model.charaIndex
@@ -128,9 +126,9 @@ update msg model =
 
 {-| Data.Chara のリストからクラスが一致するキャラクターを抽出し、Chara のリストを作成する
 -}
-filterMapCharas : Data.CharaClass -> List Data.Chara -> List Chara
-filterMapCharas { charaClassType } srcCharas =
-    srcCharas
+filterMapCharas : Data.CharaClass -> List Chara
+filterMapCharas { charaClassType } =
+    Data.charas
         |> List.filter (.charaClassType >> (==) charaClassType)
         |> List.indexedMap
             (\index { id, name, sparkType } ->

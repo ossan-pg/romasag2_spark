@@ -35,7 +35,6 @@ suite =
 initialModel : Model
 initialModel =
     { charaClasses = Data.charaClasses
-    , allCharas = Data.charas
     , charas = []
     , charaIndex = Nothing
     , sparkType = Nothing
