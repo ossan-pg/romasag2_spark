@@ -9,13 +9,13 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "The Data module"
-        [ describe "findWazaDeriviations" findWazaDeriviationsTests
+        [ describe "findWazaDerivations" findWazaDerivationsTests
         , describe "findEnemiesForSpark" findEnemiesForSparkTests
         ]
 
 
-findWazaDeriviationsTests : List Test
-findWazaDeriviationsTests =
+findWazaDerivationsTests : List Test
+findWazaDerivationsTests =
     let
         wazaSwordAttack =
             Data.Waza 0 "(通常攻撃：剣)" 0 3 1 Data.WeaponSword
@@ -47,30 +47,30 @@ findWazaDeriviationsTests =
     [ test "閃かない技を指定した場合、空のリストを返す" <|
         \_ ->
             -- (通常攻撃：剣) を閃くことはない
-            Data.findWazaDeriviations wazaSwordAttack
-                |> Expect.equal (Data.WazaDeriviation wazaSwordAttack [])
+            Data.findWazaDerivations wazaSwordAttack
+                |> Expect.equal (Data.WazaDerivation wazaSwordAttack [])
     , test "パリイを指定した場合、派生元の技に (通常攻撃：剣) の 1件だけを含むリストを返す" <|
         \_ ->
-            Data.findWazaDeriviations wazaParry
+            Data.findWazaDerivations wazaParry
                 |> Expect.equal
-                    (Data.WazaDeriviation wazaParry
+                    (Data.WazaDerivation wazaParry
                         [ Data.FromWaza wazaSwordAttack 5
                         ]
                     )
     , test "カポエラキックを指定した場合、派生元の技にキック、ソバットの 2件だけを含むリストを返す" <|
         \_ ->
-            Data.findWazaDeriviations wazaCapoeiraKick
+            Data.findWazaDerivations wazaCapoeiraKick
                 |> Expect.equal
-                    (Data.WazaDeriviation wazaCapoeiraKick
+                    (Data.WazaDerivation wazaCapoeiraKick
                         [ Data.FromWaza wazaKick 28
                         , Data.FromWaza wazaSobat 21
                         ]
                     )
     , test "ツバメ返しを指定した場合、派生元の技に (通常攻撃：大剣)、強撃、切り落としの 3件だけを含むリストを返す" <|
         \_ ->
-            Data.findWazaDeriviations wazaSwallowCut
+            Data.findWazaDerivations wazaSwallowCut
                 |> Expect.equal
-                    (Data.WazaDeriviation wazaSwallowCut
+                    (Data.WazaDerivation wazaSwallowCut
                         [ Data.FromWaza wazaGreatSwordAttack 40
                         , Data.FromWaza wazaPowerHit 34
                         , Data.FromWaza wazaDropCut 37
