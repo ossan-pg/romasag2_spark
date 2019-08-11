@@ -143,104 +143,129 @@ filterMapCharas { charaClassType } srcCharas =
 
 
 view : Model -> Html Msg
-view { charaClasses, charas, sparkType, weaponType, wazas } =
+view model =
     div [ Attrs.class "main" ]
-        [ section [ Attrs.class "chara-classes-outer" ]
-            [ div [] [ text "クラス" ]
-            , select [ Attrs.class "chara-classes", Attrs.size 8, EventsEx.onChange <| toSelectCharaClassAction charaClasses ] <|
+        [ viewCharaClasses model
+        , viewCharas model
+        , viewWazas model
+        , viewNumsOfShownRecords
+        , viewSparkRates model
+        ]
+
+
+viewCharaClasses : Model -> Html Msg
+viewCharaClasses { charaClasses } =
+    section [ Attrs.class "chara-classes-outer" ]
+        [ div [] [ text "クラス" ]
+        , select [ Attrs.class "chara-classes", Attrs.size 8, EventsEx.onChange <| toSelectCharaClassAction charaClasses ] <|
+            List.map
+                (\{ id, name } ->
+                    option [ Attrs.value <| String.fromInt id ] [ text name ]
+                )
+                charaClasses
+        ]
+
+
+viewCharas : Model -> Html Msg
+viewCharas { charas } =
+    section [ Attrs.class "charas-outer" ]
+        [ div [] [ text "キャラクター" ]
+        , select [ Attrs.class "charas", Attrs.size 8, EventsEx.onChange <| toSelectCharaAction charas ] <|
+            if List.isEmpty charas then
+                -- キャラクターのリストが空＝クラス未選択の状態。
+                -- option がなかったり文字列が半角文字や全角空白で
+                -- 構成されていたりするとセレクトボックスの高さが低くなる。
+                -- 機能的には何も問題ないが見た目が気になるので、
+                -- これを防止するために全角の文字列を表示する。
+                [ option [ Attrs.disabled True ] [ text "クラス未選択" ]
+                ]
+
+            else
                 List.map
                     (\{ id, name } ->
                         option [ Attrs.value <| String.fromInt id ] [ text name ]
                     )
-                    charaClasses
-            ]
-        , section [ Attrs.class "charas-outer" ]
-            [ div [] [ text "キャラクター" ]
-            , select [ Attrs.class "charas", Attrs.size 8, EventsEx.onChange <| toSelectCharaAction charas ] <|
-                if List.isEmpty charas then
-                    -- キャラクターのリストが空＝クラス未選択の状態。
-                    -- option がなかったり文字列が半角文字や全角空白で
-                    -- 構成されていたりするとセレクトボックスの高さが低くなる。
-                    -- 機能的には何も問題ないが見た目が気になるので、
-                    -- これを防止するために全角の文字列を表示する。
-                    [ option [ Attrs.disabled True ] [ text "クラス未選択" ]
-                    ]
+                    charas
+        ]
 
-                else
-                    List.map
+
+viewWazas : Model -> Html Msg
+viewWazas { sparkType, weaponType, wazas } =
+    section [ Attrs.class "wazas-outer" ]
+        [ div []
+            [ text <|
+                case sparkType of
+                    Just sparkType_ ->
+                        "閃き可能な技【"
+                            ++ Data.sparkTypeToName sparkType_
+                            ++ "】"
+
+                    Nothing ->
+                        "閃き可能な技"
+            ]
+        , div [ Attrs.class "weapon-type-filter" ]
+            [ div []
+                [ selectButton weaponType Data.WeaponSword "剣"
+                , selectButton weaponType Data.WeaponGreatSword "大剣"
+                , selectButton weaponType Data.WeaponAxe "斧"
+                , selectButton weaponType Data.WeaponMace "棍棒"
+                ]
+            , div []
+                [ selectButton weaponType Data.WeaponSpear "槍"
+                , selectButton weaponType Data.WeaponShortSword "小剣"
+                , selectButton weaponType Data.WeaponBow "弓"
+                , selectButton weaponType Data.WeaponMartialSkill "体術"
+                ]
+            ]
+        , select [ Attrs.class "wazas", Attrs.size 8, EventsEx.onChange <| toSelectWazaAction wazas ] <|
+            if List.isEmpty wazas then
+                [ option [ Attrs.disabled True ] [ text "キャラクター未選択" ]
+                ]
+
+            else
+                wazas
+                    |> List.filter (.weaponType >> (==) weaponType)
+                    |> List.map
                         (\{ id, name } ->
                             option [ Attrs.value <| String.fromInt id ] [ text name ]
                         )
-                        charas
-            ]
-        , section [ Attrs.class "wazas-outer" ]
-            [ div []
-                [ text <|
-                    case sparkType of
-                        Just sparkType_ ->
-                            "閃き可能な技【"
-                                ++ Data.sparkTypeToName sparkType_
-                                ++ "】"
-
-                        Nothing ->
-                            "閃き可能な技"
-                ]
-            , div [ Attrs.class "weapon-type-filter" ]
-                [ div []
-                    [ selectButton weaponType Data.WeaponSword "剣"
-                    , selectButton weaponType Data.WeaponGreatSword "大剣"
-                    , selectButton weaponType Data.WeaponAxe "斧"
-                    , selectButton weaponType Data.WeaponMace "棍棒"
-                    ]
-                , div []
-                    [ selectButton weaponType Data.WeaponSpear "槍"
-                    , selectButton weaponType Data.WeaponShortSword "小剣"
-                    , selectButton weaponType Data.WeaponBow "弓"
-                    , selectButton weaponType Data.WeaponMartialSkill "体術"
-                    ]
-                ]
-            , select [ Attrs.class "wazas", Attrs.size 8, EventsEx.onChange <| toSelectWazaAction wazas ] <|
-                if List.isEmpty wazas then
-                    [ option [ Attrs.disabled True ] [ text "キャラクター未選択" ]
-                    ]
-
-                else
-                    wazas
-                        |> List.filter (.weaponType >> (==) weaponType)
-                        |> List.map
-                            (\{ id, name } ->
-                                option [ Attrs.value <| String.fromInt id ] [ text name ]
-                            )
-            ]
-        , section [ Attrs.class "nums-of-shown-records-outer" ]
-            [ div [] [ text "表示件数" ]
-            , select [ Attrs.class "nums-of-shown-records", Attrs.size 4 ] <|
-                List.map (\n -> option [ Attrs.value n ] [ text n ]) <|
-                    List.map String.fromInt [ 5, 10, 20, 30, 40, 50 ]
-            ]
-        , section [ Attrs.class "spark-rates-outer" ] <|
-            List.concat <|
-                List.repeat 1 <|
-                    [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
-                    , table [ Attrs.class "spark-rates" ] <|
-                        tr []
-                            [ th [ Attrs.class "number" ] [ text "#" ]
-                            , th [ Attrs.class "spark-rate" ] [ text "閃き率" ]
-                            , th [ Attrs.class "enemy-name" ] [ text "モンスター" ]
-                            , th [ Attrs.class "enemy-type" ] [ text "種族" ]
-                            , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
-                            ]
-                            :: (List.repeat 1 <|
-                                    tr []
-                                        [ td [ Attrs.class "number" ] [ text "50" ]
-                                        , td [ Attrs.class "spark-rate" ] [ text "20.0" ]
-                                        , td [ Attrs.class "enemy-name" ] [ text "ヴァンパイア(女)" ]
-                                        , td [ Attrs.class "enemy-type" ] [ text "ゾンビ" ]
-                                        , td [ Attrs.class "enemy-rank" ] [ text "15" ]
-                                        ]
-                               )
-                    ]
         ]
+
+
+viewNumsOfShownRecords : Html Msg
+viewNumsOfShownRecords =
+    section [ Attrs.class "nums-of-shown-records-outer" ]
+        [ div [] [ text "表示件数" ]
+        , select [ Attrs.class "nums-of-shown-records", Attrs.size 4 ] <|
+            List.map (\n -> option [ Attrs.value n ] [ text n ]) <|
+                List.map String.fromInt [ 5, 10, 20, 30, 40, 50 ]
+        ]
+
+
+viewSparkRates : Model -> Html Msg
+viewSparkRates _ =
+    section [ Attrs.class "spark-rates-outer" ] <|
+        List.concat <|
+            List.repeat 1 <|
+                [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
+                , table [ Attrs.class "spark-rates" ] <|
+                    tr []
+                        [ th [ Attrs.class "number" ] [ text "#" ]
+                        , th [ Attrs.class "spark-rate" ] [ text "閃き率" ]
+                        , th [ Attrs.class "enemy-name" ] [ text "モンスター" ]
+                        , th [ Attrs.class "enemy-type" ] [ text "種族" ]
+                        , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
+                        ]
+                        :: (List.repeat 1 <|
+                                tr []
+                                    [ td [ Attrs.class "number" ] [ text "50" ]
+                                    , td [ Attrs.class "spark-rate" ] [ text "20.0" ]
+                                    , td [ Attrs.class "enemy-name" ] [ text "ヴァンパイア(女)" ]
+                                    , td [ Attrs.class "enemy-type" ] [ text "ゾンビ" ]
+                                    , td [ Attrs.class "enemy-rank" ] [ text "15" ]
+                                    ]
+                           )
+                ]
 
 
 {-| クラス一覧用の change イベントハンドラを作成する
