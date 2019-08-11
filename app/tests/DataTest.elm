@@ -84,9 +84,9 @@ findEnemiesForSparkTests =
     let
         -- ソート条件である閃き率、敵のランク、敵の ID を
         -- 確認しやすい形式に変換する
-        pretty : Data.EnemyWithSparkRatio -> ( Float, ( Int, Int, String ) )
-        pretty { enemy, sparkRatio } =
-            ( sparkRatio, ( enemy.rank, enemy.id, enemy.name ) )
+        pretty : Data.EnemyWithSparkRate -> ( Float, ( Int, Int, String ) )
+        pretty { enemy, sparkRate } =
+            ( sparkRate, ( enemy.rank, enemy.id, enemy.name ) )
     in
     [ describe "閃き難度を基に、閃き率の降順、敵のランクの昇順、敵の ID の昇順でソートされた敵のリストを返す"
         [ test "閃き難度が 49 の場合、空のリストを返す" <|

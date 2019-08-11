@@ -4,7 +4,7 @@ module Data exposing
     , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
     , FromWaza, WazaDeriviation, findWazaDeriviations
     , EnemyTypeSymbol(..), enemyTypeToName, Enemy, enemies
-    , EnemyWithSparkRatio, findEnemiesForSpark
+    , EnemyWithSparkRate, findEnemiesForSpark
     )
 
 {-|
@@ -14,7 +14,7 @@ module Data exposing
 @docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
 @docs FromWaza, WazaDeriviation, findWazaDeriviations
 @docs EnemyTypeSymbol, enemyTypeToName, Enemy, enemies
-@docs EnemyWithSparkRatio, findEnemiesForSpark
+@docs EnemyWithSparkRate, findEnemiesForSpark
 
 -}
 
@@ -1501,22 +1501,22 @@ enemies =
     ]
 
 
-type alias EnemyWithSparkRatio =
+type alias EnemyWithSparkRate =
     { enemy : Enemy
-    , sparkRatio : Float
+    , sparkRate : Float
     }
 
 
-findEnemiesForSpark : Int -> List EnemyWithSparkRatio
+findEnemiesForSpark : Int -> List EnemyWithSparkRate
 findEnemiesForSpark sparkLevel =
     let
         -- ソート条件1：閃き率、降順
         -- ソート条件2：敵のランク、昇順
         --   閃き率が同じ場合は弱い敵 (≒ランクが低い敵) を先に表示したい
         -- ソート条件3：敵の ID 、昇順
-        compareEnemy : EnemyWithSparkRatio -> EnemyWithSparkRatio -> Order
+        compareEnemy : EnemyWithSparkRate -> EnemyWithSparkRate -> Order
         compareEnemy e1 e2 =
-            case compare e1.sparkRatio e2.sparkRatio of
+            case compare e1.sparkRate e2.sparkRate of
                 LT ->
                     GT
 
@@ -1539,14 +1539,14 @@ findEnemiesForSpark sparkLevel =
         |> List.filter (\enemy -> enemy.wazaLevel > sparkLevel - 6)
         |> List.map
             (\enemy ->
-                EnemyWithSparkRatio enemy <|
-                    calcSparkRatio sparkLevel enemy.wazaLevel
+                EnemyWithSparkRate enemy <|
+                    calcSparkRate sparkLevel enemy.wazaLevel
             )
         |> List.sortWith compareEnemy
 
 
-calcSparkRatio : Int -> Int -> Float
-calcSparkRatio sparkLevel wazaLevel =
+calcSparkRate : Int -> Int -> Float
+calcSparkRate sparkLevel wazaLevel =
     let
         diff =
             wazaLevel - sparkLevel
