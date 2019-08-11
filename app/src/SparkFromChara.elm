@@ -145,7 +145,7 @@ filterMapCharas { charaClassType } srcCharas =
 view : Model -> Html Msg
 view { charaClasses, charas, sparkType, weaponType, wazas } =
     div [ Attrs.class "main" ]
-        [ div [ Attrs.class "chara-classes-outer" ]
+        [ section [ Attrs.class "chara-classes-outer" ]
             [ div [] [ text "クラス" ]
             , select [ Attrs.class "chara-classes", Attrs.size 8, EventsEx.onChange <| toSelectCharaClassAction charaClasses ] <|
                 List.map
@@ -154,7 +154,7 @@ view { charaClasses, charas, sparkType, weaponType, wazas } =
                     )
                     charaClasses
             ]
-        , div [ Attrs.class "charas-outer" ]
+        , section [ Attrs.class "charas-outer" ]
             [ div [] [ text "キャラクター" ]
             , select [ Attrs.class "charas", Attrs.size 8, EventsEx.onChange <| toSelectCharaAction charas ] <|
                 if List.isEmpty charas then
@@ -173,7 +173,7 @@ view { charaClasses, charas, sparkType, weaponType, wazas } =
                         )
                         charas
             ]
-        , div [ Attrs.class "wazas-outer" ]
+        , section [ Attrs.class "wazas-outer" ]
             [ div []
                 [ text <|
                     case sparkType of
@@ -212,13 +212,13 @@ view { charaClasses, charas, sparkType, weaponType, wazas } =
                                 option [ Attrs.value <| String.fromInt id ] [ text name ]
                             )
             ]
-        , div [ Attrs.class "nums-of-shown-records-outer" ]
+        , section [ Attrs.class "nums-of-shown-records-outer" ]
             [ div [] [ text "表示件数" ]
             , select [ Attrs.class "nums-of-shown-records", Attrs.size 4 ] <|
                 List.map (\n -> option [ Attrs.value n ] [ text n ]) <|
                     List.map String.fromInt [ 5, 10, 20, 30, 40, 50 ]
             ]
-        , div [ Attrs.class "spark-rates-outer" ] <|
+        , section [ Attrs.class "spark-rates-outer" ] <|
             List.concat <|
                 List.repeat 1 <|
                     [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
