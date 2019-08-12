@@ -175,6 +175,55 @@ viewCharas { charas } =
         ]
 
 
+sparkTypeToDisplayName : Repos.SparkTypeSymbol -> String
+sparkTypeToDisplayName symbol =
+    case symbol of
+        Repos.SparkSword1 ->
+            "剣1"
+
+        Repos.SparkSword2 ->
+            "剣2"
+
+        Repos.SparkGreatSword1 ->
+            "大剣1"
+
+        Repos.SparkGreatSword2 ->
+            "大剣2"
+
+        Repos.SparkAxe ->
+            "斧"
+
+        Repos.SparkSpearAxe ->
+            "槍斧"
+
+        Repos.SparkMace ->
+            "棍棒"
+
+        Repos.SparkSpear ->
+            "槍"
+
+        Repos.SparkShortSword ->
+            "小剣"
+
+        Repos.SparkBow ->
+            "弓"
+
+        Repos.SparkMartialSkill1 ->
+            "体術1"
+
+        Repos.SparkMartialSkill2 ->
+            "体術2"
+
+        Repos.SparkGeneral ->
+            "汎用"
+
+        Repos.SparkSpell ->
+            "術"
+
+        Repos.SparkNothing ->
+            "なし"
+
+
 viewWazas : Model -> Html Msg
 viewWazas { sparkType, weaponType, wazas } =
     section [ Attrs.class "wazas-outer" ]
@@ -183,7 +232,7 @@ viewWazas { sparkType, weaponType, wazas } =
                 case sparkType of
                     Just sparkType_ ->
                         "閃き可能な技【"
-                            ++ Repos.sparkTypeToName sparkType_
+                            ++ sparkTypeToDisplayName sparkType_
                             ++ "】"
 
                     Nothing ->
