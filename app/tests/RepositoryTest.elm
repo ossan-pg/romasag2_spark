@@ -1,14 +1,14 @@
-module DataTest exposing (suite)
+module RepositoryTest exposing (suite)
 
-import Data
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
+import Repository as Repos
 import Test exposing (..)
 
 
 suite : Test
 suite =
-    describe "The Data module"
+    describe "The Repos module"
         [ describe "findWazaDerivations" findWazaDerivationsTests
         , describe "findEnemiesForSpark" findEnemiesForSparkTests
         ]
@@ -18,62 +18,62 @@ findWazaDerivationsTests : List Test
 findWazaDerivationsTests =
     let
         wazaSwordAttack =
-            Data.Waza 0 "(通常攻撃：剣)" 0 3 1 Data.WeaponSword
+            Repos.Waza 0 "(通常攻撃：剣)" 0 3 1 Repos.WeaponSword
 
         wazaParry =
-            Data.Waza 16 "パリイ" 0 0 1 Data.WeaponSword
+            Repos.Waza 16 "パリイ" 0 0 1 Repos.WeaponSword
 
         wazaGreatSwordAttack =
-            Data.Waza 1 "(通常攻撃：大剣)" 0 3 1 Data.WeaponGreatSword
+            Repos.Waza 1 "(通常攻撃：大剣)" 0 3 1 Repos.WeaponGreatSword
 
         wazaPowerHit =
-            Data.Waza 43 "強撃" 3 6 1 Data.WeaponGreatSword
+            Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
 
         wazaDropCut =
-            Data.Waza 45 "切り落とし" 5 6 1 Data.WeaponGreatSword
+            Repos.Waza 45 "切り落とし" 5 6 1 Repos.WeaponGreatSword
 
         wazaSwallowCut =
-            Data.Waza 46 "ツバメ返し" 9 5 2 Data.WeaponGreatSword
+            Repos.Waza 46 "ツバメ返し" 9 5 2 Repos.WeaponGreatSword
 
         wazaKick =
-            Data.Waza 149 "キック" 0 4 1 Data.WeaponMartialSkill
+            Repos.Waza 149 "キック" 0 4 1 Repos.WeaponMartialSkill
 
         wazaSobat =
-            Data.Waza 150 "ソバット" 2 6 1 Data.WeaponMartialSkill
+            Repos.Waza 150 "ソバット" 2 6 1 Repos.WeaponMartialSkill
 
         wazaCapoeiraKick =
-            Data.Waza 157 "カポエラキック" 6 9 1 Data.WeaponMartialSkill
+            Repos.Waza 157 "カポエラキック" 6 9 1 Repos.WeaponMartialSkill
     in
     [ test "閃かない技を指定した場合、空のリストを返す" <|
         \_ ->
             -- (通常攻撃：剣) を閃くことはない
-            Data.findWazaDerivations wazaSwordAttack
-                |> Expect.equal (Data.WazaDerivation wazaSwordAttack [])
+            Repos.findWazaDerivations wazaSwordAttack
+                |> Expect.equal (Repos.WazaDerivation wazaSwordAttack [])
     , test "パリイを指定した場合、派生元の技に (通常攻撃：剣) の 1件だけを含むリストを返す" <|
         \_ ->
-            Data.findWazaDerivations wazaParry
+            Repos.findWazaDerivations wazaParry
                 |> Expect.equal
-                    (Data.WazaDerivation wazaParry
-                        [ Data.FromWaza wazaSwordAttack 5
+                    (Repos.WazaDerivation wazaParry
+                        [ Repos.FromWaza wazaSwordAttack 5
                         ]
                     )
     , test "カポエラキックを指定した場合、派生元の技にキック、ソバットの 2件だけを含むリストを返す" <|
         \_ ->
-            Data.findWazaDerivations wazaCapoeiraKick
+            Repos.findWazaDerivations wazaCapoeiraKick
                 |> Expect.equal
-                    (Data.WazaDerivation wazaCapoeiraKick
-                        [ Data.FromWaza wazaKick 28
-                        , Data.FromWaza wazaSobat 21
+                    (Repos.WazaDerivation wazaCapoeiraKick
+                        [ Repos.FromWaza wazaKick 28
+                        , Repos.FromWaza wazaSobat 21
                         ]
                     )
     , test "ツバメ返しを指定した場合、派生元の技に (通常攻撃：大剣)、強撃、切り落としの 3件だけを含むリストを返す" <|
         \_ ->
-            Data.findWazaDerivations wazaSwallowCut
+            Repos.findWazaDerivations wazaSwallowCut
                 |> Expect.equal
-                    (Data.WazaDerivation wazaSwallowCut
-                        [ Data.FromWaza wazaGreatSwordAttack 40
-                        , Data.FromWaza wazaPowerHit 34
-                        , Data.FromWaza wazaDropCut 37
+                    (Repos.WazaDerivation wazaSwallowCut
+                        [ Repos.FromWaza wazaGreatSwordAttack 40
+                        , Repos.FromWaza wazaPowerHit 34
+                        , Repos.FromWaza wazaDropCut 37
                         ]
                     )
     ]
@@ -84,7 +84,7 @@ findEnemiesForSparkTests =
     let
         -- ソート条件である閃き率、敵のランク、敵の ID を
         -- 確認しやすい形式に変換する
-        pretty : Data.EnemyWithSparkRate -> ( Float, ( Int, Int, String ) )
+        pretty : Repos.EnemyWithSparkRate -> ( Float, ( Int, Int, String ) )
         pretty { enemy, sparkRate } =
             ( sparkRate, ( enemy.rank, enemy.id, enemy.name ) )
     in
@@ -95,18 +95,18 @@ findEnemiesForSparkTests =
                 -- 閃き率は 0% になる。
                 -- 敵の技レベルの最高はアルビオンの 43 だけなので、
                 -- 閃き難度が 49 以上の場合は該当する敵がいない。
-                Data.findEnemiesForSpark 49
+                Repos.findEnemiesForSpark 49
                     |> Expect.equal []
         , test "閃き難度が 48 の場合、アルビオンだけを含むリストを返す" <|
             \_ ->
-                Data.findEnemiesForSpark 48
+                Repos.findEnemiesForSpark 48
                     |> List.map pretty
                     |> Expect.equal
                         [ ( 0.4, ( 16, 143, "アルビオン" ) )
                         ]
         , test "閃き難度が 47 の場合、アルビオン、ディアブロ、トウテツ、ミスティックの順に並んだリストを返す" <|
             \_ ->
-                Data.findEnemiesForSpark 47
+                Repos.findEnemiesForSpark 47
                     |> List.map pretty
                     |> Expect.equal
                         [ ( 0.8, ( 16, 143, "アルビオン" ) )
@@ -116,7 +116,7 @@ findEnemiesForSparkTests =
                         ]
         , test "閃き難度が 42 の場合、先頭から 4件がディアブロ、トウテツ、ミスティック、アルビオンの順に並んだリストを返す" <|
             \_ ->
-                Data.findEnemiesForSpark 42
+                Repos.findEnemiesForSpark 42
                     |> List.take 4
                     |> List.map pretty
                     |> Expect.equal
@@ -127,7 +127,7 @@ findEnemiesForSparkTests =
                         ]
         , test "閃き難度が 35 の場合、先頭から 4件がヒューリオン、ビーストメア、アルラウネ、ゴールデンバウムの順に並び、その後ろに閃き率 9.8% の敵、9.4% の敵が続くリストを返す" <|
             \_ ->
-                Data.findEnemiesForSpark 35
+                Repos.findEnemiesForSpark 35
                     |> List.take 26
                     |> List.map pretty
                     |> Expect.equal
