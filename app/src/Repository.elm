@@ -1,4 +1,4 @@
-module Data exposing
+module Repository exposing
     ( CharaClassSymbol(..), CharaClass, charaClasses
     , SparkTypeSymbol(..), sparkTypeToName, Chara, charas, findCharas
     , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas

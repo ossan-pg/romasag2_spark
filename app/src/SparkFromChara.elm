@@ -1,12 +1,12 @@
 module SparkFromChara exposing (IndexedChara, Model, Msg(..), main, update, view)
 
 import Browser
-import Data
 import Html exposing (..)
 import Html.Attributes as Attrs
 import Html.Events as Events
 import Html.Events.Extra as EventsEx
 import List.Extra as ListEx
+import Repository as Repos
 
 
 main : Program () Model Msg
@@ -24,28 +24,28 @@ main =
 
 
 type alias Model =
-    { charaClasses : List Data.CharaClass
+    { charaClasses : List Repos.CharaClass
     , charas : List IndexedChara
     , charaIndex : Maybe Int
-    , sparkType : Maybe Data.SparkTypeSymbol
-    , weaponType : Data.WeaponTypeSymbol
-    , wazas : List Data.Waza
+    , sparkType : Maybe Repos.SparkTypeSymbol
+    , weaponType : Repos.WeaponTypeSymbol
+    , wazas : List Repos.Waza
     }
 
 
 type alias IndexedChara =
     { index : Int
-    , chara : Data.Chara
+    , chara : Repos.Chara
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { charaClasses = Data.charaClasses
+    ( { charaClasses = Repos.charaClasses
       , charas = []
       , charaIndex = Nothing
       , sparkType = Nothing
-      , weaponType = Data.WeaponSword -- 初期選択は剣タイプ
+      , weaponType = Repos.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
       }
     , Cmd.none
@@ -57,10 +57,10 @@ init _ =
 
 
 type Msg
-    = SelectCharaClass (Maybe Data.CharaClass)
+    = SelectCharaClass (Maybe Repos.CharaClass)
     | SelectChara (Maybe IndexedChara)
-    | SelectWeaponType Data.WeaponTypeSymbol
-    | SelectWaza (Maybe Data.Waza)
+    | SelectWeaponType Repos.WeaponTypeSymbol
+    | SelectWaza (Maybe Repos.Waza)
 
 
 
@@ -81,7 +81,7 @@ update msg model =
                 Just charaClass ->
                     let
                         newCharas =
-                            Data.findCharas charaClass
+                            Repos.findCharas charaClass
                                 |> List.indexedMap IndexedChara
 
                         charaIndex_ =
@@ -105,7 +105,7 @@ update msg model =
                     ( { model
                         | charaIndex = Just index
                         , sparkType = Just chara.sparkType
-                        , wazas = Data.sparkTypeToWazas chara.sparkType
+                        , wazas = Repos.sparkTypeToWazas chara.sparkType
                       }
                     , Cmd.none
                     )
@@ -183,7 +183,7 @@ viewWazas { sparkType, weaponType, wazas } =
                 case sparkType of
                     Just sparkType_ ->
                         "閃き可能な技【"
-                            ++ Data.sparkTypeToName sparkType_
+                            ++ Repos.sparkTypeToName sparkType_
                             ++ "】"
 
                     Nothing ->
@@ -191,16 +191,16 @@ viewWazas { sparkType, weaponType, wazas } =
             ]
         , div [ Attrs.class "weapon-type-filter" ]
             [ div []
-                [ selectButton weaponType Data.WeaponSword "剣"
-                , selectButton weaponType Data.WeaponGreatSword "大剣"
-                , selectButton weaponType Data.WeaponAxe "斧"
-                , selectButton weaponType Data.WeaponMace "棍棒"
+                [ selectButton weaponType Repos.WeaponSword "剣"
+                , selectButton weaponType Repos.WeaponGreatSword "大剣"
+                , selectButton weaponType Repos.WeaponAxe "斧"
+                , selectButton weaponType Repos.WeaponMace "棍棒"
                 ]
             , div []
-                [ selectButton weaponType Data.WeaponSpear "槍"
-                , selectButton weaponType Data.WeaponShortSword "小剣"
-                , selectButton weaponType Data.WeaponBow "弓"
-                , selectButton weaponType Data.WeaponMartialSkill "体術"
+                [ selectButton weaponType Repos.WeaponSpear "槍"
+                , selectButton weaponType Repos.WeaponShortSword "小剣"
+                , selectButton weaponType Repos.WeaponBow "弓"
+                , selectButton weaponType Repos.WeaponMartialSkill "体術"
                 ]
             ]
         , select [ Attrs.class "wazas", Attrs.size 8, EventsEx.onChange <| toSelectWazaAction wazas ] <|
@@ -256,7 +256,7 @@ viewSparkRates _ =
 
 {-| クラス一覧用の change イベントハンドラを作成する
 -}
-toSelectCharaClassAction : List Data.CharaClass -> (String -> Msg)
+toSelectCharaClassAction : List Repos.CharaClass -> (String -> Msg)
 toSelectCharaClassAction charaClasses =
     \targetValue ->
         let
@@ -306,7 +306,7 @@ toSelectCharaAction charas =
 
 {-| 閃き可能な技一覧用の change イベントハンドラを作成する
 -}
-toSelectWazaAction : List Data.Waza -> (String -> Msg)
+toSelectWazaAction : List Repos.Waza -> (String -> Msg)
 toSelectWazaAction wazas =
     \targetValue ->
         let
@@ -331,7 +331,7 @@ toSelectWazaAction wazas =
 
 {-| 閃き可能な技一覧の武器タイプを選択するボタンを作成する
 -}
-selectButton : Data.WeaponTypeSymbol -> Data.WeaponTypeSymbol -> String -> Html Msg
+selectButton : Repos.WeaponTypeSymbol -> Repos.WeaponTypeSymbol -> String -> Html Msg
 selectButton checkedWeaponType weaponType weaponName =
     label []
         [ input
