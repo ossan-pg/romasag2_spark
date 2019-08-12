@@ -79,7 +79,7 @@ updateOnSelectCharaTests =
     [ test "キャラクターが指定されていない場合、空の技リストを Model に設定する" <|
         \_ ->
             -- 技リストを空以外に設定
-            { initialModel | wazas = Repos.wazas }
+            { initialModel | wazas = [ wazaParry ] }
                 |> update (SelectChara Nothing)
                 |> Tuple.first
                 |> .wazas

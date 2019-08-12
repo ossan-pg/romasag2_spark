@@ -1,14 +1,14 @@
 module Repository exposing
     ( CharaClassSymbol(..), CharaClass, charaClasses
-    , SparkTypeSymbol(..), sparkTypeToName, Chara, charas, findCharas
-    , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
+    , SparkTypeSymbol(..), sparkTypeToName, Chara, findCharas
+    , WeaponTypeSymbol(..), Waza, sparkTypeToWazas
     )
 
 {-|
 
 @docs CharaClassSymbol, CharaClass, charaClasses
-@docs SparkTypeSymbol, sparkTypeToName, Chara, charas, findCharas
-@docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
+@docs SparkTypeSymbol, sparkTypeToName, Chara, findCharas
+@docs WeaponTypeSymbol, Waza, sparkTypeToWazas
 
 -}
 
