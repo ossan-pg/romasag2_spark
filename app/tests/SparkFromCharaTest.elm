@@ -1,11 +1,11 @@
 module SparkFromCharaTest exposing (suite)
 
-import Data
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Html as H
 import Html.Attributes as Attrs
 import Json.Encode as Encode
+import Repository as Repos
 import SparkFromChara exposing (..)
 import Test exposing (..)
 import Test.Html.Event as Event
@@ -34,11 +34,11 @@ suite =
 
 initialModel : Model
 initialModel =
-    { charaClasses = Data.charaClasses
+    { charaClasses = Repos.charaClasses
     , charas = []
     , charaIndex = Nothing
     , sparkType = Nothing
-    , weaponType = Data.WeaponSword
+    , weaponType = Repos.WeaponSword
     , wazas = []
     }
 
@@ -79,7 +79,7 @@ updateOnSelectCharaTests =
     [ test "キャラクターが指定されていない場合、空の技リストを Model に設定する" <|
         \_ ->
             -- 技リストを空以外に設定
-            { initialModel | wazas = Data.wazas }
+            { initialModel | wazas = [ wazaParry ] }
                 |> update (SelectChara Nothing)
                 |> Tuple.first
                 |> .wazas
@@ -91,14 +91,14 @@ updateOnSelectCharaTests =
                     |> update (SelectChara <| Just charaAsBear)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Data.SparkGeneral, Data.sparkTypeToWazas Data.SparkGeneral )
+                    |> Expect.equal ( Just 0, Just Repos.SparkGeneral, Repos.findWazas Repos.SparkGeneral )
         , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
             \_ ->
                 initialModel
                     |> update (SelectChara <| Just charaAsLeon)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Data.SparkNothing, Data.sparkTypeToWazas Data.SparkNothing )
+                    |> Expect.equal ( Just 0, Just Repos.SparkNothing, Repos.findWazas Repos.SparkNothing )
         ]
     ]
 
@@ -107,7 +107,7 @@ updateOnSelectWeaponTypeTests : List Test
 updateOnSelectWeaponTypeTests =
     let
         -- 指定された武器タイプが Model に設定されるか検証する
-        verifySetWeaponTypeToModel : Data.WeaponTypeSymbol -> Data.WeaponTypeSymbol -> Expectation
+        verifySetWeaponTypeToModel : Repos.WeaponTypeSymbol -> Repos.WeaponTypeSymbol -> Expectation
         verifySetWeaponTypeToModel fromWeaponType toWeaponType =
             { initialModel | weaponType = fromWeaponType }
                 |> update (SelectWeaponType toWeaponType)
@@ -119,28 +119,28 @@ updateOnSelectWeaponTypeTests =
     [ describe "指定された武器タイプを Model に設定する"
         [ test "剣" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponAxe Data.WeaponSword
+                verifySetWeaponTypeToModel Repos.WeaponAxe Repos.WeaponSword
         , test "大剣" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponGreatSword
+                verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponGreatSword
         , test "斧" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponAxe
+                verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponAxe
         , test "棍棒" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponMace
+                verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponMace
         , test "槍" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponSpear
+                verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponSpear
         , test "小剣" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponShortSword
+                verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponShortSword
         , test "弓" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponBow
+                verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponBow
         , test "体術" <|
             \_ ->
-                verifySetWeaponTypeToModel Data.WeaponSword Data.WeaponMartialSkill
+                verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponMartialSkill
         ]
     ]
 
@@ -295,7 +295,7 @@ viewWeaponTypesTests : List Test
 viewWeaponTypesTests =
     let
         -- Model に指定された武器タイプが選択状態になっているか検証する
-        verifySelectedWeaponType : Data.WeaponTypeSymbol -> Int -> Expectation
+        verifySelectedWeaponType : Repos.WeaponTypeSymbol -> Int -> Expectation
         verifySelectedWeaponType weaponType index_ =
             { initialModel | weaponType = weaponType }
                 |> view
@@ -306,7 +306,7 @@ viewWeaponTypesTests =
                 |> Query.has [ checked True ]
 
         -- 武器タイプボタンクリック時の動作を検証する
-        verifySendMsgFromRadioButton : Data.WeaponTypeSymbol -> Int -> Expectation
+        verifySendMsgFromRadioButton : Repos.WeaponTypeSymbol -> Int -> Expectation
         verifySendMsgFromRadioButton weaponType index_ =
             initialModel
                 |> view
@@ -320,41 +320,41 @@ viewWeaponTypesTests =
     -- 武器タイプ表示
     [ describe "Model に設定されている武器タイプをチェック状態にする"
         [ test "剣" <|
-            \_ -> verifySelectedWeaponType Data.WeaponSword 0
+            \_ -> verifySelectedWeaponType Repos.WeaponSword 0
         , test "大剣" <|
-            \_ -> verifySelectedWeaponType Data.WeaponGreatSword 1
+            \_ -> verifySelectedWeaponType Repos.WeaponGreatSword 1
         , test "斧" <|
-            \_ -> verifySelectedWeaponType Data.WeaponAxe 2
+            \_ -> verifySelectedWeaponType Repos.WeaponAxe 2
         , test "棍棒" <|
-            \_ -> verifySelectedWeaponType Data.WeaponMace 3
+            \_ -> verifySelectedWeaponType Repos.WeaponMace 3
         , test "槍" <|
-            \_ -> verifySelectedWeaponType Data.WeaponSpear 4
+            \_ -> verifySelectedWeaponType Repos.WeaponSpear 4
         , test "小剣" <|
-            \_ -> verifySelectedWeaponType Data.WeaponShortSword 5
+            \_ -> verifySelectedWeaponType Repos.WeaponShortSword 5
         , test "弓" <|
-            \_ -> verifySelectedWeaponType Data.WeaponBow 6
+            \_ -> verifySelectedWeaponType Repos.WeaponBow 6
         , test "体術" <|
-            \_ -> verifySelectedWeaponType Data.WeaponMartialSkill 7
+            \_ -> verifySelectedWeaponType Repos.WeaponMartialSkill 7
         ]
 
     -- 武器タイプ選択
     , describe "武器タイプが選択された場合、その武器タイプの値を SelectWeaponType に設定して送信する"
         [ test "剣" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponSword 0
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponSword 0
         , test "大剣" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponGreatSword 1
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponGreatSword 1
         , test "斧" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponAxe 2
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponAxe 2
         , test "棍棒" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponMace 3
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponMace 3
         , test "槍" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponSpear 4
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponSpear 4
         , test "小剣" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponShortSword 5
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponShortSword 5
         , test "弓" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponBow 6
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponBow 6
         , test "体術" <|
-            \_ -> verifySendMsgFromRadioButton Data.WeaponMartialSkill 7
+            \_ -> verifySendMsgFromRadioButton Repos.WeaponMartialSkill 7
         ]
     ]
 
@@ -363,7 +363,7 @@ viewWazasTests : List Test
 viewWazasTests =
     let
         -- 指定された武器タイプの技がセレクトボックスに設定されるか検証する
-        verifySetWazasToSelectBox : List Data.Waza -> Data.WeaponTypeSymbol -> List ( String, String ) -> Expectation
+        verifySetWazasToSelectBox : List Repos.Waza -> Repos.WeaponTypeSymbol -> List ( String, String ) -> Expectation
         verifySetWazasToSelectBox wazas weaponType valueAndTexts =
             let
                 options =
@@ -380,7 +380,7 @@ viewWazasTests =
                 |> Query.contains options
 
         -- 指定された武器タイプの技がセレクトボックスに設定される件数を検証する
-        verifyCountOfWazasInSelectBox : List Data.Waza -> Data.WeaponTypeSymbol -> Int -> Expectation
+        verifyCountOfWazasInSelectBox : List Repos.Waza -> Repos.WeaponTypeSymbol -> Int -> Expectation
         verifyCountOfWazasInSelectBox wazas weaponType count_ =
             { initialModel | weaponType = weaponType, wazas = wazas }
                 |> view
@@ -401,7 +401,7 @@ viewWazasTests =
                     |> Query.has [ text "閃き可能な技" ]
         , test "剣1" <|
             \_ ->
-                { initialModel | sparkType = Just Data.SparkSword1 }
+                { initialModel | sparkType = Just Repos.SparkSword1 }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ classes [ "wazas-outer" ] ]
@@ -409,7 +409,7 @@ viewWazasTests =
                     |> Query.has [ text "閃き可能な技【剣1】" ]
         , test "汎用" <|
             \_ ->
-                { initialModel | sparkType = Just Data.SparkGeneral }
+                { initialModel | sparkType = Just Repos.SparkGeneral }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ classes [ "wazas-outer" ] ]
@@ -436,77 +436,77 @@ viewWazasTests =
         -- 2種類の検証を実施することで仕様通りであるかを担保することにした。
         [ test "剣" <|
             \_ ->
-                verifySetWazasToSelectBox wazasForTest Data.WeaponSword <|
+                verifySetWazasToSelectBox wazasForTest Repos.WeaponSword <|
                     [ ( "16", "パリイ" ), ( "17", "二段斬り" ) ]
         , test "剣(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponSword <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponSword <|
                     List.length
                         [ ( "16", "パリイ" ), ( "17", "二段斬り" ) ]
         , test "大剣" <|
             \_ ->
-                verifySetWazasToSelectBox wazasForTest Data.WeaponGreatSword <|
+                verifySetWazasToSelectBox wazasForTest Repos.WeaponGreatSword <|
                     [ ( "42", "巻き打ち" ), ( "43", "強撃" ) ]
         , test "大剣(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponGreatSword <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponGreatSword <|
                     List.length
                         [ ( "42", "巻き打ち" ), ( "43", "強撃" ) ]
         , test "斧" <|
             \_ ->
                 verifySetWazasToSelectBox wazasForTest
-                    Data.WeaponAxe
+                    Repos.WeaponAxe
                     [ ( "62", "アクスボンバー" ), ( "63", "トマホーク" ) ]
         , test "斧(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponAxe <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponAxe <|
                     List.length
                         [ ( "62", "アクスボンバー" ), ( "63", "トマホーク" ) ]
         , test "棍棒" <|
             \_ ->
-                verifySetWazasToSelectBox wazasForTest Data.WeaponMace <|
+                verifySetWazasToSelectBox wazasForTest Repos.WeaponMace <|
                     [ ( "78", "返し突き" ), ( "79", "脳天割り" ) ]
         , test "棍棒(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponMace <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponMace <|
                     List.length
                         [ ( "78", "返し突き" ), ( "79", "脳天割り" ) ]
         , test "槍" <|
             \_ ->
                 verifySetWazasToSelectBox wazasForTest
-                    Data.WeaponSpear
+                    Repos.WeaponSpear
                     [ ( "94", "足払い" ), ( "95", "二段突き" ) ]
         , test "槍(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponSpear <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponSpear <|
                     List.length
                         [ ( "94", "足払い" ), ( "95", "二段突き" ) ]
         , test "小剣" <|
             \_ ->
-                verifySetWazasToSelectBox wazasForTest Data.WeaponShortSword <|
+                verifySetWazasToSelectBox wazasForTest Repos.WeaponShortSword <|
                     [ ( "113", "感電衝" ), ( "115", "マリオネット" ) ]
         , test "小剣(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponShortSword <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponShortSword <|
                     List.length
                         [ ( "113", "感電衝" ), ( "115", "マリオネット" ) ]
         , test "弓" <|
             \_ ->
                 verifySetWazasToSelectBox wazasForTest
-                    Data.WeaponBow
+                    Repos.WeaponBow
                     [ ( "133", "瞬速の矢" ), ( "134", "でたらめ矢" ) ]
         , test "弓(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponBow <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponBow <|
                     List.length
                         [ ( "133", "瞬速の矢" ), ( "134", "でたらめ矢" ) ]
         , test "体術" <|
             \_ ->
-                verifySetWazasToSelectBox wazasForTest Data.WeaponMartialSkill <|
+                verifySetWazasToSelectBox wazasForTest Repos.WeaponMartialSkill <|
                     [ ( "150", "ソバット" ), ( "151", "カウンター" ) ]
         , test "体術(件数)" <|
             \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Data.WeaponMartialSkill <|
+                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponMartialSkill <|
                     List.length
                         [ ( "150", "ソバット" ), ( "151", "カウンター" ) ]
         ]
@@ -544,90 +544,90 @@ viewWazasTests =
     ]
 
 
-heavyInfantryClass : Data.CharaClass
+heavyInfantryClass : Repos.CharaClass
 heavyInfantryClass =
-    Data.CharaClass Data.HeavyInfantry 0 "帝国重装歩兵" "初期状態で加入済み。"
+    Repos.CharaClass Repos.HeavyInfantry 0 "帝国重装歩兵" "初期状態で加入済み。"
 
 
 charaAsBear : IndexedChara
 charaAsBear =
     IndexedChara 0 <|
-        Data.Chara 0 "ベア" 14 16 12 15 12 11 23 3 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 1 Data.SparkGeneral
+        Repos.Chara 0 "ベア" 14 16 12 15 12 11 23 3 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 1 Repos.SparkGeneral
 
 
 heavyInfantries : List IndexedChara
 heavyInfantries =
     [ charaAsBear
     , IndexedChara 1 <|
-        Data.Chara 1 "バイソン" 15 17 12 16 13 11 21 1 -7 1 -7 1 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 2 Data.SparkGeneral
+        Repos.Chara 1 "バイソン" 15 17 12 16 13 11 21 1 -7 1 -7 1 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 2 Repos.SparkGeneral
     , IndexedChara 2 <|
-        Data.Chara 2 "ウォーラス" 13 16 14 14 10 10 23 1 -7 1 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 3 Data.SparkGeneral
+        Repos.Chara 2 "ウォーラス" 13 16 14 14 10 10 23 1 -7 1 -7 -7 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 3 Repos.SparkGeneral
     , IndexedChara 3 <|
-        Data.Chara 3 "スネイル" 12 15 12 16 13 13 21 2 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 4 Data.SparkSword2
+        Repos.Chara 3 "スネイル" 12 15 12 16 13 13 21 2 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 4 Repos.SparkSword2
     , IndexedChara 4 <|
-        Data.Chara 4 "ヘッジホッグ" 11 18 12 16 12 11 22 0 0 -7 0 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 5 Data.SparkGeneral
+        Repos.Chara 4 "ヘッジホッグ" 11 18 12 16 12 11 22 0 0 -7 0 -7 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 5 Repos.SparkGeneral
     , IndexedChara 5 <|
-        Data.Chara 5 "トータス" 12 15 13 15 14 12 22 1 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 6 Data.SparkGeneral
+        Repos.Chara 5 "トータス" 12 15 13 15 14 12 22 1 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 6 Repos.SparkGeneral
     , IndexedChara 6 <|
-        Data.Chara 6 "ライノ" 13 16 14 15 11 13 21 1 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 7 Data.SparkGeneral
+        Repos.Chara 6 "ライノ" 13 16 14 15 11 13 21 1 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 7 Repos.SparkGeneral
     , IndexedChara 7 <|
-        Data.Chara 7 "フェルディナント" 10 15 13 16 13 10 23 2 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 8 Data.SparkGeneral
+        Repos.Chara 7 "フェルディナント" 10 15 13 16 13 10 23 2 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Repos.HeavyInfantry 8 Repos.SparkGeneral
     ]
 
 
-specialCharaClass : Data.CharaClass
+specialCharaClass : Repos.CharaClass
 specialCharaClass =
-    Data.CharaClass Data.SpecialChara 40 "特殊" "【加入条件省略】"
+    Repos.CharaClass Repos.SpecialChara 40 "特殊" "【加入条件省略】"
 
 
 charaAsLeon : IndexedChara
 charaAsLeon =
     IndexedChara 0 <|
-        Data.Chara 300 "レオン" 19 19 17 20 12 14 20 5 2 0 0 0 0 0 0 0 2 0 Data.SpecialChara 0 Data.SparkNothing
+        Repos.Chara 300 "レオン" 19 19 17 20 12 14 20 5 2 0 0 0 0 0 0 0 2 0 Repos.SpecialChara 0 Repos.SparkNothing
 
 
 specialCharas : List IndexedChara
 specialCharas =
     [ charaAsLeon
     , IndexedChara 1 <|
-        Data.Chara 301 "ジェラール" 16 17 22 19 11 20 11 0 0 0 0 0 0 0 0 0 0 0 Data.SpecialChara 0 Data.SparkSpell
+        Repos.Chara 301 "ジェラール" 16 17 22 19 11 20 11 0 0 0 0 0 0 0 0 0 0 0 Repos.SpecialChara 0 Repos.SparkSpell
     , IndexedChara 2 <|
-        Data.Chara 302 "コッペリア" 99 20 20 15 15 20 20 15 15 15 15 15 0 0 0 0 0 0 Data.SpecialChara 0 Data.SparkNothing
+        Repos.Chara 302 "コッペリア" 99 20 20 15 15 20 20 15 15 15 15 15 0 0 0 0 0 0 Repos.SpecialChara 0 Repos.SparkNothing
     , IndexedChara 3 <|
-        Data.Chara 303 "最終皇帝(男)" 19 25 23 23 15 24 21 10 5 5 5 5 0 0 0 0 10 0 Data.SpecialChara 0 Data.SparkSword2
+        Repos.Chara 303 "最終皇帝(男)" 19 25 23 23 15 24 21 10 5 5 5 5 0 0 0 0 10 0 Repos.SpecialChara 0 Repos.SparkSword2
     , IndexedChara 4 <|
-        Data.Chara 304 "最終皇帝(女)" 10 23 24 24 15 25 20 10 5 5 5 5 0 0 0 0 10 0 Data.SpecialChara 0 Data.SparkSword2
+        Repos.Chara 304 "最終皇帝(女)" 10 23 24 24 15 25 20 10 5 5 5 5 0 0 0 0 10 0 Repos.SpecialChara 0 Repos.SparkSword2
     ]
 
 
-wazaParry : Data.Waza
+wazaParry : Repos.Waza
 wazaParry =
-    Data.Waza 16 "パリイ" 0 0 1 Data.WeaponSword
+    Repos.Waza 16 "パリイ" 0 0 1 Repos.WeaponSword
 
 
-wazaDoubleCut : Data.Waza
+wazaDoubleCut : Repos.Waza
 wazaDoubleCut =
-    Data.Waza 17 "二段斬り" 2 3 2 Data.WeaponSword
+    Repos.Waza 17 "二段斬り" 2 3 2 Repos.WeaponSword
 
 
-wazasForTest : List Data.Waza
+wazasForTest : List Repos.Waza
 wazasForTest =
     [ wazaParry
     , wazaDoubleCut
-    , Data.Waza 42 "巻き打ち" 1 4 1 Data.WeaponGreatSword
-    , Data.Waza 43 "強撃" 3 6 1 Data.WeaponGreatSword
-    , Data.Waza 62 "アクスボンバー" 3 5 1 Data.WeaponAxe
-    , Data.Waza 63 "トマホーク" 1 3 1 Data.WeaponAxe
-    , Data.Waza 78 "返し突き" 0 4 1 Data.WeaponMace
-    , Data.Waza 79 "脳天割り" 3 5 1 Data.WeaponMace
-    , Data.Waza 94 "足払い" 0 0 1 Data.WeaponSpear
-    , Data.Waza 95 "二段突き" 2 3 2 Data.WeaponSpear
-    , Data.Waza 113 "感電衝" 1 2 1 Data.WeaponShortSword
-    , Data.Waza 115 "マリオネット" 6 0 1 Data.WeaponShortSword
-    , Data.Waza 133 "瞬速の矢" 3 5 1 Data.WeaponBow
-    , Data.Waza 134 "でたらめ矢" 2 3 1 Data.WeaponBow
-    , Data.Waza 150 "ソバット" 2 6 1 Data.WeaponMartialSkill
-    , Data.Waza 151 "カウンター" 0 6 1 Data.WeaponMartialSkill
+    , Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
+    , Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
+    , Repos.Waza 62 "アクスボンバー" 3 5 1 Repos.WeaponAxe
+    , Repos.Waza 63 "トマホーク" 1 3 1 Repos.WeaponAxe
+    , Repos.Waza 78 "返し突き" 0 4 1 Repos.WeaponMace
+    , Repos.Waza 79 "脳天割り" 3 5 1 Repos.WeaponMace
+    , Repos.Waza 94 "足払い" 0 0 1 Repos.WeaponSpear
+    , Repos.Waza 95 "二段突き" 2 3 2 Repos.WeaponSpear
+    , Repos.Waza 113 "感電衝" 1 2 1 Repos.WeaponShortSword
+    , Repos.Waza 115 "マリオネット" 6 0 1 Repos.WeaponShortSword
+    , Repos.Waza 133 "瞬速の矢" 3 5 1 Repos.WeaponBow
+    , Repos.Waza 134 "でたらめ矢" 2 3 1 Repos.WeaponBow
+    , Repos.Waza 150 "ソバット" 2 6 1 Repos.WeaponMartialSkill
+    , Repos.Waza 151 "カウンター" 0 6 1 Repos.WeaponMartialSkill
     ]
 
 

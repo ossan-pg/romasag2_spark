@@ -1,14 +1,14 @@
-module Data exposing
+module Repository exposing
     ( CharaClassSymbol(..), CharaClass, charaClasses
-    , SparkTypeSymbol(..), sparkTypeToName, Chara, charas, findCharas
-    , WeaponTypeSymbol(..), Waza, wazas, sparkTypeToWazas
+    , SparkTypeSymbol(..), Chara, findCharas
+    , WeaponTypeSymbol(..), Waza, findWazas
     )
 
 {-|
 
 @docs CharaClassSymbol, CharaClass, charaClasses
-@docs SparkTypeSymbol, sparkTypeToName, Chara, charas, findCharas
-@docs WeaponTypeSymbol, Waza, wazas, sparkTypeToWazas
+@docs SparkTypeSymbol, Chara, findCharas
+@docs WeaponTypeSymbol, Waza, findWazas
 
 -}
 
@@ -113,55 +113,6 @@ type SparkTypeSymbol
     | SparkGeneral -- 汎用
     | SparkSpell --術
     | SparkNothing --なし
-
-
-sparkTypeToName : SparkTypeSymbol -> String
-sparkTypeToName symbol =
-    case symbol of
-        SparkSword1 ->
-            "剣1"
-
-        SparkSword2 ->
-            "剣2"
-
-        SparkGreatSword1 ->
-            "大剣1"
-
-        SparkGreatSword2 ->
-            "大剣2"
-
-        SparkAxe ->
-            "斧"
-
-        SparkSpearAxe ->
-            "槍斧"
-
-        SparkMace ->
-            "棍棒"
-
-        SparkSpear ->
-            "槍"
-
-        SparkShortSword ->
-            "小剣"
-
-        SparkBow ->
-            "弓"
-
-        SparkMartialSkill1 ->
-            "体術1"
-
-        SparkMartialSkill2 ->
-            "体術2"
-
-        SparkGeneral ->
-            "汎用"
-
-        SparkSpell ->
-            "術"
-
-        SparkNothing ->
-            "なし"
 
 
 type alias Chara =
@@ -703,8 +654,8 @@ wazas =
     ]
 
 
-sparkTypeToWazas : SparkTypeSymbol -> List Waza
-sparkTypeToWazas sparkType =
+findWazas : SparkTypeSymbol -> List Waza
+findWazas sparkType =
     let
         filterWazas : Set Int -> List Waza
         filterWazas wazaIds =
