@@ -134,7 +134,7 @@ view model =
         , viewCharas model
         , viewWazas model
         , viewNumsOfShownRecords
-        , viewSparkRates model
+        , viewWazaEnemies model
         ]
 
 
@@ -277,13 +277,13 @@ viewNumsOfShownRecords =
         ]
 
 
-viewSparkRates : Model -> Html Msg
-viewSparkRates _ =
-    section [ Attrs.class "spark-rates-outer" ] <|
+viewWazaEnemies : Model -> Html Msg
+viewWazaEnemies _ =
+    section [ Attrs.class "waza-enemies-outer" ] <|
         List.concat <|
             List.repeat 1 <|
                 [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
-                , table [ Attrs.class "spark-rates" ] <|
+                , table [ Attrs.class "waza-enemies" ] <|
                     tr []
                         [ th [ Attrs.class "number" ] [ text "#" ]
                         , th [ Attrs.class "spark-rate" ] [ text "閃き率" ]
