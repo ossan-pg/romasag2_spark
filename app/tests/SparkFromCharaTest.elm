@@ -549,21 +549,29 @@ heavyInfantryClass =
     Data.CharaClass Data.HeavyInfantry 0 "帝国重装歩兵" "初期状態で加入済み。"
 
 
-charaAsBear : Chara
+charaAsBear : IndexedChara
 charaAsBear =
-    Chara 0 "ベア" Data.SparkGeneral 0
+    IndexedChara 0 <|
+        Data.Chara 0 "ベア" 14 16 12 15 12 11 23 3 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 1 Data.SparkGeneral
 
 
-heavyInfantries : List Chara
+heavyInfantries : List IndexedChara
 heavyInfantries =
     [ charaAsBear
-    , Chara 1 "バイソン" Data.SparkGeneral 1
-    , Chara 2 "ウォーラス" Data.SparkGeneral 2
-    , Chara 3 "スネイル" Data.SparkSword2 3
-    , Chara 4 "ヘッジホッグ" Data.SparkGeneral 4
-    , Chara 5 "トータス" Data.SparkGeneral 5
-    , Chara 6 "ライノ" Data.SparkGeneral 6
-    , Chara 7 "フェルディナント" Data.SparkGeneral 7
+    , IndexedChara 1 <|
+        Data.Chara 1 "バイソン" 15 17 12 16 13 11 21 1 -7 1 -7 1 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 2 Data.SparkGeneral
+    , IndexedChara 2 <|
+        Data.Chara 2 "ウォーラス" 13 16 14 14 10 10 23 1 -7 1 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 3 Data.SparkGeneral
+    , IndexedChara 3 <|
+        Data.Chara 3 "スネイル" 12 15 12 16 13 13 21 2 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 4 Data.SparkSword2
+    , IndexedChara 4 <|
+        Data.Chara 4 "ヘッジホッグ" 11 18 12 16 12 11 22 0 0 -7 0 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 5 Data.SparkGeneral
+    , IndexedChara 5 <|
+        Data.Chara 5 "トータス" 12 15 13 15 14 12 22 1 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 6 Data.SparkGeneral
+    , IndexedChara 6 <|
+        Data.Chara 6 "ライノ" 13 16 14 15 11 13 21 1 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 7 Data.SparkGeneral
+    , IndexedChara 7 <|
+        Data.Chara 7 "フェルディナント" 10 15 13 16 13 10 23 2 -7 -7 -7 -7 -7 -7 -7 -7 -7 -7 Data.HeavyInfantry 8 Data.SparkGeneral
     ]
 
 
@@ -572,18 +580,23 @@ specialCharaClass =
     Data.CharaClass Data.SpecialChara 40 "特殊" "【加入条件省略】"
 
 
-charaAsLeon : Chara
+charaAsLeon : IndexedChara
 charaAsLeon =
-    Chara 300 "レオン" Data.SparkNothing 0
+    IndexedChara 0 <|
+        Data.Chara 300 "レオン" 19 19 17 20 12 14 20 5 2 0 0 0 0 0 0 0 2 0 Data.SpecialChara 0 Data.SparkNothing
 
 
-specialCharas : List Chara
+specialCharas : List IndexedChara
 specialCharas =
     [ charaAsLeon
-    , Chara 301 "ジェラール" Data.SparkSpell 1
-    , Chara 302 "コッペリア" Data.SparkNothing 2
-    , Chara 303 "最終皇帝(男)" Data.SparkSword2 3
-    , Chara 304 "最終皇帝(女)" Data.SparkSword2 4
+    , IndexedChara 1 <|
+        Data.Chara 301 "ジェラール" 16 17 22 19 11 20 11 0 0 0 0 0 0 0 0 0 0 0 Data.SpecialChara 0 Data.SparkSpell
+    , IndexedChara 2 <|
+        Data.Chara 302 "コッペリア" 99 20 20 15 15 20 20 15 15 15 15 15 0 0 0 0 0 0 Data.SpecialChara 0 Data.SparkNothing
+    , IndexedChara 3 <|
+        Data.Chara 303 "最終皇帝(男)" 19 25 23 23 15 24 21 10 5 5 5 5 0 0 0 0 10 0 Data.SpecialChara 0 Data.SparkSword2
+    , IndexedChara 4 <|
+        Data.Chara 304 "最終皇帝(女)" 10 23 24 24 15 25 20 10 5 5 5 5 0 0 0 0 10 0 Data.SpecialChara 0 Data.SparkSword2
     ]
 
 

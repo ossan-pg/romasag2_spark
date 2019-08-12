@@ -1,4 +1,4 @@
-module SparkFromChara exposing (Chara, Model, Msg(..), main, update, view)
+module SparkFromChara exposing (IndexedChara, Model, Msg(..), main, update, view)
 
 import Browser
 import Data
@@ -25,7 +25,7 @@ main =
 
 type alias Model =
     { charaClasses : List Data.CharaClass
-    , charas : List Chara -- 表示用の別の Chara 型 を使用する
+    , charas : List IndexedChara
     , charaIndex : Maybe Int
     , sparkType : Maybe Data.SparkTypeSymbol
     , weaponType : Data.WeaponTypeSymbol
@@ -33,11 +33,9 @@ type alias Model =
     }
 
 
-type alias Chara =
-    { id : Int
-    , name : String
-    , sparkType : Data.SparkTypeSymbol
-    , index : Int
+type alias IndexedChara =
+    { index : Int
+    , chara : Data.Chara
     }
 
 
@@ -60,7 +58,7 @@ init _ =
 
 type Msg
     = SelectCharaClass (Maybe Data.CharaClass)
-    | SelectChara (Maybe Chara)
+    | SelectChara (Maybe IndexedChara)
     | SelectWeaponType Data.WeaponTypeSymbol
     | SelectWaza (Maybe Data.Waza)
 
@@ -84,10 +82,7 @@ update msg model =
                     let
                         newCharas =
                             Data.findCharas charaClass
-                                |> List.indexedMap
-                                    (\index { id, name, sparkType } ->
-                                        Chara id name sparkType index
-                                    )
+                                |> List.indexedMap IndexedChara
 
                         charaIndex_ =
                             Maybe.withDefault -1 model.charaIndex
@@ -106,9 +101,9 @@ update msg model =
 
         SelectChara maybeChara ->
             case maybeChara of
-                Just chara ->
+                Just { index, chara } ->
                     ( { model
-                        | charaIndex = Just chara.index
+                        | charaIndex = Just index
                         , sparkType = Just chara.sparkType
                         , wazas = Data.sparkTypeToWazas chara.sparkType
                       }
@@ -171,11 +166,12 @@ viewCharas { charas } =
                 ]
 
             else
-                List.map
-                    (\{ id, name } ->
-                        option [ Attrs.value <| String.fromInt id ] [ text name ]
-                    )
-                    charas
+                charas
+                    |> List.map .chara
+                    |> List.map
+                        (\{ id, name } ->
+                            option [ Attrs.value <| String.fromInt id ] [ text name ]
+                        )
         ]
 
 
@@ -285,7 +281,7 @@ toSelectCharaClassAction charaClasses =
 
 {-| キャラクター一覧用の change イベントハンドラを作成する
 -}
-toSelectCharaAction : List Chara -> (String -> Msg)
+toSelectCharaAction : List IndexedChara -> (String -> Msg)
 toSelectCharaAction charas =
     \targetValue ->
         let
@@ -304,7 +300,7 @@ toSelectCharaAction charas =
                         defaultId
         in
         charas
-            |> ListEx.find (.id >> (==) id_)
+            |> ListEx.find (.chara >> .id >> (==) id_)
             |> SelectChara
 
 
