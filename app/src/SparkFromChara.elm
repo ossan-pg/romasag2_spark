@@ -1,4 +1,4 @@
-module SparkFromChara exposing (IndexedChara, Model, Msg(..), main, update, view)
+module SparkFromChara exposing (IndexedChara, Model, Msg(..), WazaEnemies, main, update, view)
 
 import Browser
 import Html exposing (..)
@@ -30,12 +30,21 @@ type alias Model =
     , sparkType : Maybe Repos.SparkTypeSymbol
     , weaponType : Repos.WeaponTypeSymbol
     , wazas : List Repos.Waza
+    , wazaEnemies : List WazaEnemies
     }
 
 
 type alias IndexedChara =
     { index : Int
     , chara : Repos.Chara
+    }
+
+
+{-| 派生元の技と、閃き可能な技レベルの敵およびその敵に対する閃き率の一覧
+-}
+type alias WazaEnemies =
+    { fromWaza : Repos.Waza
+    , enemies : List Repos.EnemyWithSparkRate
     }
 
 
@@ -47,6 +56,7 @@ init _ =
       , sparkType = Nothing
       , weaponType = Repos.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
+      , wazaEnemies = []
       }
     , Cmd.none
     )
@@ -119,8 +129,27 @@ update msg model =
             )
 
         SelectWaza maybeWaza ->
-            -- TODO 技選択時の動作を書く
-            ( model, Cmd.none )
+            case maybeWaza of
+                Just waza ->
+                    let
+                        toWazaEnemies : Repos.FromWaza -> WazaEnemies
+                        toWazaEnemies { fromWaza, sparkLevel } =
+                            WazaEnemies fromWaza <|
+                                Repos.findEnemiesForSpark sparkLevel
+
+                        wazaEnemies_ =
+                            Repos.findWazaDerivations waza
+                                |> .fromWazas
+                                |> List.map toWazaEnemies
+                    in
+                    ( { model
+                        | wazaEnemies = wazaEnemies_
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( { model | wazaEnemies = [] }, Cmd.none )
 
 
 

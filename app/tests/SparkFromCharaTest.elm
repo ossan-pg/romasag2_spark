@@ -21,6 +21,7 @@ suite =
                 [ updateOnSelectCharaClassTests
                 , updateOnSelectCharaTests
                 , updateOnSelectWeaponTypeTests
+                , updateOnSelectWazaTests
                 ]
         , describe "view" <|
             List.concat
@@ -40,6 +41,7 @@ initialModel =
     , sparkType = Nothing
     , weaponType = Repos.WeaponSword
     , wazas = []
+    , wazaEnemies = []
     }
 
 
@@ -141,6 +143,119 @@ updateOnSelectWeaponTypeTests =
         , test "体術" <|
             \_ ->
                 verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponMartialSkill
+        ]
+    ]
+
+
+updateOnSelectWazaTests : List Test
+updateOnSelectWazaTests =
+    let
+        verifySetWazaEnemiesToModel toWaza wazaEnemies =
+            let
+                -- 指定された敵リストの各件数で update 結果の
+                -- wazaEnemies の敵リストを切り取る
+                numsOfTake =
+                    wazaEnemies
+                        |> List.map (Tuple.second >> List.length)
+            in
+            initialModel
+                |> update (SelectWaza <| Just toWaza)
+                |> Tuple.first
+                |> .wazaEnemies
+                |> List.map2 Tuple.pair numsOfTake
+                |> List.map
+                    -- 結果を確認しやすい形式に変換する
+                    -- ( "派生元の技",
+                    --   [ ( 閃き率, ( "敵名", 敵種族, 敵ランク ) )
+                    --   , ...
+                    --   ]
+                    -- )
+                    (\( nrOfTake, { fromWaza, enemies } ) ->
+                        ( fromWaza.name
+                        , enemies
+                            |> List.take nrOfTake
+                            |> List.map
+                                (\{ sparkRate, enemy } ->
+                                    ( sparkRate, ( enemy.name, enemy.enemyType, enemy.rank ) )
+                                )
+                        )
+                    )
+                |> Expect.equal wazaEnemies
+    in
+    -- 派生元の技と敵一覧を設定
+    -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
+    [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
+        \_ ->
+            -- 派生元の技と敵のリストを空以外に設定
+            { initialModel | wazaEnemies = [ WazaEnemies wazaParry [] ] }
+                |> update (SelectWaza Nothing)
+                |> Tuple.first
+                |> .wazaEnemies
+                |> Expect.equal []
+    , describe "指定された技に対応する派生元の技と敵一覧を Model に設定する"
+        [ test "パリイ" <|
+            \_ ->
+                verifySetWazaEnemiesToModel wazaParry
+                    [ ( "(通常攻撃：剣)"
+                      , [ ( 20.4, ( "バルチャー", Repos.EnemyWinged, 1 ) )
+                        , ( 20.4, ( "飛蛇", Repos.EnemySnake, 1 ) )
+                        , ( 20.4, ( "アデプト", Repos.EnemyHuman, 1 ) )
+                        , ( 20.4, ( "タータラ", Repos.EnemyReptile, 1 ) )
+                        , ( 20.4, ( "サイレン", Repos.EnemyWinged, 2 ) )
+                        , ( 20.4, ( "バファロー", Repos.EnemyBeast, 2 ) )
+                        , ( 20.4, ( "センチペタ", Repos.EnemyInsect, 3 ) )
+                        , ( 20.4, ( "スライム", Repos.EnemySlime, 3 ) )
+                        , ( 20.4, ( "レインイーター", Repos.EnemyGhost, 4 ) )
+                        , ( 20.4, ( "ザ・ドラゴン", Repos.EnemyBoss, 20 ) )
+                        , ( 9.8, ( "砂竜", Repos.EnemySnake, 4 ) )
+                        , ( 9.8, ( "ニクサー", Repos.EnemyAquatic, 4 ) )
+                        , ( 9.8, ( "竜金", Repos.EnemyFish, 5 ) )
+                        , ( 9.8, ( "スプリッツァー", Repos.EnemyPlant, 5 ) )
+                        , ( 9.8, ( "ニクシー", Repos.EnemyAquatic, 5 ) )
+                        , ( 9.8, ( "ガリアンブルー", Repos.EnemyHuman, 5 ) )
+                        ]
+                      )
+                    ]
+        , test "かめごうら割り" <|
+            \_ ->
+                verifySetWazaEnemiesToModel
+                    (Repos.Waza 87 "かめごうら割り" 12 11 1 Repos.WeaponMace)
+                    [ ( "骨砕き"
+                      , [ ( 20.4, ( "アルビオン", Repos.EnemyFish, 16 ) )
+                        , ( 5.1, ( "ディアブロ", Repos.EnemyDemon, 16 ) )
+                        , ( 5.1, ( "トウテツ", Repos.EnemyBeast, 16 ) )
+                        , ( 5.1, ( "ミスティック", Repos.EnemyHuman, 16 ) )
+                        , ( 2.4, ( "ナックラビー", Repos.EnemyDemon, 15 ) )
+                        , ( 2.4, ( "ヘルビースト", Repos.EnemySkeleton, 16 ) )
+                        , ( 2.4, ( "獄竜", Repos.EnemyUndead, 16 ) )
+                        , ( 2.4, ( "ラルヴァクィーン", Repos.EnemyDemiHuman, 16 ) )
+                        , ( 2.4, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
+                        , ( 2.4, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
+                        , ( 2.4, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
+                        ]
+                      )
+                    , ( "ダブルヒット"
+                      , [ ( 20.4, ( "スカルロード", Repos.EnemySkeleton, 15 ) )
+                        , ( 20.4, ( "ロビンハット", Repos.EnemyDemiHuman, 15 ) )
+                        , ( 20.4, ( "メドゥサ", Repos.EnemySnake, 15 ) )
+                        , ( 20.4, ( "フォージウィルム", Repos.EnemyWinged, 16 ) )
+                        , ( 20.4, ( "セフィラス", Repos.EnemySprite, 16 ) )
+                        , ( 20.4, ( "フィア", Repos.EnemyGhost, 16 ) )
+                        , ( 20.4, ( "金龍", Repos.EnemyDragon, 40 ) )
+                        , ( 9.4, ( "アルビオン", Repos.EnemyFish, 16 ) )
+                        , ( 8.6, ( "ナックラビー", Repos.EnemyDemon, 15 ) )
+                        , ( 8.6, ( "ヘルビースト", Repos.EnemySkeleton, 16 ) )
+                        , ( 8.6, ( "獄竜", Repos.EnemyUndead, 16 ) )
+                        , ( 8.6, ( "ラルヴァクィーン", Repos.EnemyDemiHuman, 16 ) )
+                        , ( 8.6, ( "ディアブロ", Repos.EnemyDemon, 16 ) )
+                        , ( 8.6, ( "トウテツ", Repos.EnemyBeast, 16 ) )
+                        , ( 8.6, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
+                        , ( 8.6, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
+                        , ( 8.6, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
+                        , ( 8.6, ( "ミスティック", Repos.EnemyHuman, 16 ) )
+                        ]
+                      )
+                    ]
         ]
     ]
 
