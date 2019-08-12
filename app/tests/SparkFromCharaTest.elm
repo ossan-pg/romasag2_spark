@@ -91,14 +91,14 @@ updateOnSelectCharaTests =
                     |> update (SelectChara <| Just charaAsBear)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Repos.SparkGeneral, Repos.sparkTypeToWazas Repos.SparkGeneral )
+                    |> Expect.equal ( Just 0, Just Repos.SparkGeneral, Repos.findWazas Repos.SparkGeneral )
         , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
             \_ ->
                 initialModel
                     |> update (SelectChara <| Just charaAsLeon)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Repos.SparkNothing, Repos.sparkTypeToWazas Repos.SparkNothing )
+                    |> Expect.equal ( Just 0, Just Repos.SparkNothing, Repos.findWazas Repos.SparkNothing )
         ]
     ]
 

@@ -105,7 +105,7 @@ update msg model =
                     ( { model
                         | charaIndex = Just index
                         , sparkType = Just chara.sparkType
-                        , wazas = Repos.sparkTypeToWazas chara.sparkType
+                        , wazas = Repos.findWazas chara.sparkType
                       }
                     , Cmd.none
                     )

@@ -1,14 +1,14 @@
 module Repository exposing
     ( CharaClassSymbol(..), CharaClass, charaClasses
     , SparkTypeSymbol(..), sparkTypeToName, Chara, findCharas
-    , WeaponTypeSymbol(..), Waza, sparkTypeToWazas
+    , WeaponTypeSymbol(..), Waza, findWazas
     )
 
 {-|
 
 @docs CharaClassSymbol, CharaClass, charaClasses
 @docs SparkTypeSymbol, sparkTypeToName, Chara, findCharas
-@docs WeaponTypeSymbol, Waza, sparkTypeToWazas
+@docs WeaponTypeSymbol, Waza, findWazas
 
 -}
 
@@ -703,8 +703,8 @@ wazas =
     ]
 
 
-sparkTypeToWazas : SparkTypeSymbol -> List Waza
-sparkTypeToWazas sparkType =
+findWazas : SparkTypeSymbol -> List Waza
+findWazas sparkType =
     let
         filterWazas : Set Int -> List Waza
         filterWazas wazaIds =
