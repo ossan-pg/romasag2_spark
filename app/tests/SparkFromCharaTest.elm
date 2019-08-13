@@ -29,6 +29,7 @@ suite =
                 , viewCharasTests
                 , viewWeaponTypesTests
                 , viewWazasTests
+                , viewWazaEnemiesTests
                 ]
         ]
 
@@ -656,6 +657,163 @@ viewWazasTests =
                 verifySendMsgFromSelectBox "17" (SelectWaza <| Just wazaDoubleCut) model <|
                     Query.find [ tag "select", classes [ "wazas" ] ]
         ]
+    ]
+
+
+viewWazaEnemiesTests : List Test
+viewWazaEnemiesTests =
+    let
+        wazaEnemies =
+            -- 実際と同じ件数を確認する意味はないので、
+            -- 敵の件数はそれぞれ 3件にしている。
+            -- また、閃き率は本来全て 20.4 だが、正しく反映されていることを
+            -- 確認したいので一部任意の値に変更している。
+            [ WazaEnemies (Repos.Waza 2 "(通常攻撃：斧)" 0 3 1 Repos.WeaponAxe)
+                [ Repos.EnemyWithSparkRate
+                    (Repos.Enemy 9 "ボーンドレイク" 24 Repos.EnemySkeleton 10)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 57 "ワイバーン" 24 Repos.EnemyWinged 10)
+                    9.8
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 121 "サンドバイター" 24 Repos.EnemySnake 10)
+                    5.1
+                ]
+            , WazaEnemies (Repos.Waza 66 "大木断" 4 6 1 Repos.WeaponAxe)
+                [ Repos.EnemyWithSparkRate
+                    (Repos.Enemy 85 "ヘルハウンド" 15 Repos.EnemyBeast 6)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 86 "ワンプス" 15 Repos.EnemyBeast 7)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 183 "ムドメイン" 15 Repos.EnemySlime 8)
+                    20.4
+                ]
+            , WazaEnemies (Repos.Waza 67 "ブレードロール" 8 8 1 Repos.WeaponAxe)
+                [ Repos.EnemyWithSparkRate
+                    (Repos.Enemy 163 "ニクサー" 14 Repos.EnemyAquatic 4)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 5 "スケルトン" 14 Repos.EnemySkeleton 6)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 37 "オーガ" 14 Repos.EnemyDemiHuman 6)
+                    20.4
+                ]
+            ]
+    in
+    -- 派生元の技と敵の一覧
+    [ test "Model に派生元の技と敵が設定されていない場合、派生元の技と敵の一覧を表示しない" <|
+        \_ ->
+            { initialModel | wazaEnemies = [] }
+                |> view
+                |> Query.fromHtml
+                |> Query.find [ tag "section", classes [ "waza-enemies-outer" ] ]
+                |> Query.hasNot [ tag "div" ]
+    , test "派生元の技を表示し、その下に項番、閃き率、敵の名前、敵の種族、敵のランクを表形式で表示する" <|
+        \_ ->
+            { initialModel | wazaEnemies = wazaEnemies }
+                |> view
+                |> Query.fromHtml
+                |> Query.find [ tag "section", classes [ "waza-enemies-outer" ] ]
+                |> Query.contains
+                    [ H.section [ Attrs.class "waza-enemies-outer" ]
+                        [ H.section [] [ H.text "派生元：(通常攻撃：斧)" ]
+                        , H.table [ Attrs.class "waza-enemies" ]
+                            [ H.tr []
+                                [ H.th [ Attrs.class "number" ] [ H.text "#" ]
+                                , H.th [ Attrs.class "spark-rate" ] [ H.text "閃き率" ]
+                                , H.th [ Attrs.class "enemy-name" ] [ H.text "モンスター" ]
+                                , H.th [ Attrs.class "enemy-type" ] [ H.text "種族" ]
+                                , H.th [ Attrs.class "enemy-rank" ] [ H.text "ランク" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "1" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ボーンドレイク" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "骸骨" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "10" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "2" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "9.8" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ワイバーン" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "有翼" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "10" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "3" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "5.1" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "サンドバイター" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "蛇" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "10" ]
+                                ]
+                            ]
+                        , H.section [] [ H.text "派生元：大木断" ]
+                        , H.table [ Attrs.class "waza-enemies" ]
+                            [ H.tr []
+                                [ H.th [ Attrs.class "number" ] [ H.text "#" ]
+                                , H.th [ Attrs.class "spark-rate" ] [ H.text "閃き率" ]
+                                , H.th [ Attrs.class "enemy-name" ] [ H.text "モンスター" ]
+                                , H.th [ Attrs.class "enemy-type" ] [ H.text "種族" ]
+                                , H.th [ Attrs.class "enemy-rank" ] [ H.text "ランク" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "1" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ヘルハウンド" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "獣" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "6" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "2" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ワンプス" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "獣" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "7" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "3" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ムドメイン" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "無機質" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "8" ]
+                                ]
+                            ]
+                        , H.section [] [ H.text "派生元：ブレードロール" ]
+                        , H.table [ Attrs.class "waza-enemies" ]
+                            [ H.tr []
+                                [ H.th [ Attrs.class "number" ] [ H.text "#" ]
+                                , H.th [ Attrs.class "spark-rate" ] [ H.text "閃き率" ]
+                                , H.th [ Attrs.class "enemy-name" ] [ H.text "モンスター" ]
+                                , H.th [ Attrs.class "enemy-type" ] [ H.text "種族" ]
+                                , H.th [ Attrs.class "enemy-rank" ] [ H.text "ランク" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "1" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ニクサー" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "水棲" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "4" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "2" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "スケルトン" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "骸骨" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "6" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "3" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "オーガ" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "獣人" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "6" ]
+                                ]
+                            ]
+                        ]
+                    ]
     ]
 
 

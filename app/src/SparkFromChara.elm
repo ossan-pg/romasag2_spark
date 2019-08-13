@@ -307,11 +307,11 @@ viewNumsOfShownRecords =
 
 
 viewWazaEnemies : Model -> Html Msg
-viewWazaEnemies _ =
+viewWazaEnemies { wazaEnemies } =
     section [ Attrs.class "waza-enemies-outer" ] <|
-        List.concat <|
-            List.repeat 1 <|
-                [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
+        List.concatMap
+            (\{ fromWaza, enemies } ->
+                [ section [] [ text <| "派生元：" ++ fromWaza.name ]
                 , table [ Attrs.class "waza-enemies" ] <|
                     tr []
                         [ th [ Attrs.class "number" ] [ text "#" ]
@@ -320,16 +320,20 @@ viewWazaEnemies _ =
                         , th [ Attrs.class "enemy-type" ] [ text "種族" ]
                         , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
                         ]
-                        :: (List.repeat 1 <|
+                        :: List.indexedMap
+                            (\index { sparkRate, enemy } ->
                                 tr []
-                                    [ td [ Attrs.class "number" ] [ text "50" ]
-                                    , td [ Attrs.class "spark-rate" ] [ text "20.0" ]
-                                    , td [ Attrs.class "enemy-name" ] [ text "ヴァンパイア(女)" ]
-                                    , td [ Attrs.class "enemy-type" ] [ text "ゾンビ" ]
-                                    , td [ Attrs.class "enemy-rank" ] [ text "15" ]
+                                    [ td [ Attrs.class "number" ] [ text <| String.fromInt <| index + 1 ]
+                                    , td [ Attrs.class "spark-rate" ] [ text <| String.fromFloat sparkRate ]
+                                    , td [ Attrs.class "enemy-name" ] [ text enemy.name ]
+                                    , td [ Attrs.class "enemy-type" ] [ text <| Repos.enemyTypeToName enemy.enemyType ]
+                                    , td [ Attrs.class "enemy-rank" ] [ text <| String.fromInt enemy.rank ]
                                     ]
-                           )
+                            )
+                            enemies
                 ]
+            )
+            wazaEnemies
 
 
 {-| クラス一覧用の change イベントハンドラを作成する
