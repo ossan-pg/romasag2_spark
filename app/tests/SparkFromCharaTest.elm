@@ -162,7 +162,10 @@ updateOnSelectWeaponTypeTests =
 updateOnSelectWazaTests : List Test
 updateOnSelectWazaTests =
     let
-        -- TODO 型注釈を書く
+        verifySetWazaEnemiesToModel :
+            IndexedWaza
+            -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
+            -> Expectation
         verifySetWazaEnemiesToModel toWaza wazaEnemies =
             let
                 -- 指定された敵リストの各件数で update 結果の
