@@ -42,6 +42,7 @@ initialModel =
     , sparkType = Nothing
     , weaponType = Repos.WeaponSword
     , wazas = []
+    , wazaIndex = Nothing
     , wazaEnemies = []
     }
 
@@ -94,14 +95,24 @@ updateOnSelectCharaTests =
                     |> update (SelectChara <| Just charaAsBear)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Repos.SparkGeneral, Repos.findWazas Repos.SparkGeneral )
+                    |> Expect.equal
+                        ( Just 0
+                        , Just Repos.SparkGeneral
+                        , Repos.findWazas Repos.SparkGeneral
+                            |> List.indexedMap IndexedWaza
+                        )
         , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
             \_ ->
                 initialModel
                     |> update (SelectChara <| Just charaAsLeon)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Repos.SparkNothing, Repos.findWazas Repos.SparkNothing )
+                    |> Expect.equal
+                        ( Just 0
+                        , Just Repos.SparkNothing
+                        , Repos.findWazas Repos.SparkNothing
+                            |> List.indexedMap IndexedWaza
+                        )
         ]
     ]
 
@@ -151,6 +162,7 @@ updateOnSelectWeaponTypeTests =
 updateOnSelectWazaTests : List Test
 updateOnSelectWazaTests =
     let
+        -- TODO 型注釈を書く
         verifySetWazaEnemiesToModel toWaza wazaEnemies =
             let
                 -- 指定された敵リストの各件数で update 結果の
@@ -158,41 +170,47 @@ updateOnSelectWazaTests =
                 numsOfTake =
                     wazaEnemies
                         |> List.map (Tuple.second >> List.length)
+
+                -- 結果を確認しやすい形式に変換する
+                -- ( "派生元の技",
+                --   [ ( 閃き率, ( "敵名", 敵種族, 敵ランク ) )
+                --   , ...
+                --   ]
+                -- )
+                pretty :
+                    List WazaEnemies
+                    -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
+                pretty wazaEnemies_ =
+                    wazaEnemies_
+                        |> List.map2 Tuple.pair numsOfTake
+                        |> List.map
+                            (\( nrOfTake, { fromWaza, enemies } ) ->
+                                ( fromWaza.name
+                                , enemies
+                                    |> List.take nrOfTake
+                                    |> List.map
+                                        (\{ sparkRate, enemy } ->
+                                            ( sparkRate, ( enemy.name, enemy.enemyType, enemy.rank ) )
+                                        )
+                                )
+                            )
             in
             initialModel
                 |> update (SelectWaza <| Just toWaza)
                 |> Tuple.first
-                |> .wazaEnemies
-                |> List.map2 Tuple.pair numsOfTake
-                |> List.map
-                    -- 結果を確認しやすい形式に変換する
-                    -- ( "派生元の技",
-                    --   [ ( 閃き率, ( "敵名", 敵種族, 敵ランク ) )
-                    --   , ...
-                    --   ]
-                    -- )
-                    (\( nrOfTake, { fromWaza, enemies } ) ->
-                        ( fromWaza.name
-                        , enemies
-                            |> List.take nrOfTake
-                            |> List.map
-                                (\{ sparkRate, enemy } ->
-                                    ( sparkRate, ( enemy.name, enemy.enemyType, enemy.rank ) )
-                                )
-                        )
-                    )
-                |> Expect.equal wazaEnemies
+                |> (\m -> ( m.wazaIndex, pretty m.wazaEnemies ))
+                |> Expect.equal ( Just toWaza.index, wazaEnemies )
     in
     -- 派生元の技と敵一覧を設定
     -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
     [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
         \_ ->
             -- 派生元の技と敵のリストを空以外に設定
-            { initialModel | wazaEnemies = [ WazaEnemies wazaParry [] ] }
+            { initialModel | wazaEnemies = [ WazaEnemies wazaParry.waza [] ] }
                 |> update (SelectWaza Nothing)
                 |> Tuple.first
-                |> .wazaEnemies
-                |> Expect.equal []
+                |> (\m -> ( m.wazaIndex, m.wazaEnemies ))
+                |> Expect.equal ( Nothing, [] )
     , describe "指定された技に対応する派生元の技と敵一覧を Model に設定する"
         [ test "パリイ" <|
             \_ ->
@@ -220,7 +238,7 @@ updateOnSelectWazaTests =
         , test "かめごうら割り" <|
             \_ ->
                 verifySetWazaEnemiesToModel
-                    (Repos.Waza 87 "かめごうら割り" 12 11 1 Repos.WeaponMace)
+                    (IndexedWaza 10 <| Repos.Waza 87 "かめごうら割り" 12 11 1 Repos.WeaponMace)
                     [ ( "骨砕き"
                       , [ ( 20.4, ( "アルビオン", Repos.EnemyFish, 16 ) )
                         , ( 5.1, ( "ディアブロ", Repos.EnemyDemon, 16 ) )
@@ -479,7 +497,7 @@ viewWazasTests : List Test
 viewWazasTests =
     let
         -- 指定された武器タイプの技がセレクトボックスに設定されるか検証する
-        verifySetWazasToSelectBox : List Repos.Waza -> Repos.WeaponTypeSymbol -> List ( String, String ) -> Expectation
+        verifySetWazasToSelectBox : List IndexedWaza -> Repos.WeaponTypeSymbol -> List ( String, String ) -> Expectation
         verifySetWazasToSelectBox wazas weaponType valueAndTexts =
             let
                 options =
@@ -496,7 +514,7 @@ viewWazasTests =
                 |> Query.contains options
 
         -- 指定された武器タイプの技がセレクトボックスに設定される件数を検証する
-        verifyCountOfWazasInSelectBox : List Repos.Waza -> Repos.WeaponTypeSymbol -> Int -> Expectation
+        verifyCountOfWazasInSelectBox : List IndexedWaza -> Repos.WeaponTypeSymbol -> Int -> Expectation
         verifyCountOfWazasInSelectBox wazas weaponType count_ =
             { initialModel | weaponType = weaponType, wazas = wazas }
                 |> view
@@ -873,34 +891,34 @@ specialCharas =
     ]
 
 
-wazaParry : Repos.Waza
+wazaParry : IndexedWaza
 wazaParry =
-    Repos.Waza 16 "パリイ" 0 0 1 Repos.WeaponSword
+    IndexedWaza 0 <| Repos.Waza 16 "パリイ" 0 0 1 Repos.WeaponSword
 
 
-wazaDoubleCut : Repos.Waza
+wazaDoubleCut : IndexedWaza
 wazaDoubleCut =
-    Repos.Waza 17 "二段斬り" 2 3 2 Repos.WeaponSword
+    IndexedWaza 1 <| Repos.Waza 17 "二段斬り" 2 3 2 Repos.WeaponSword
 
 
-wazasForTest : List Repos.Waza
+wazasForTest : List IndexedWaza
 wazasForTest =
     [ wazaParry
     , wazaDoubleCut
-    , Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
-    , Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
-    , Repos.Waza 62 "アクスボンバー" 3 5 1 Repos.WeaponAxe
-    , Repos.Waza 63 "トマホーク" 1 3 1 Repos.WeaponAxe
-    , Repos.Waza 78 "返し突き" 0 4 1 Repos.WeaponMace
-    , Repos.Waza 79 "脳天割り" 3 5 1 Repos.WeaponMace
-    , Repos.Waza 94 "足払い" 0 0 1 Repos.WeaponSpear
-    , Repos.Waza 95 "二段突き" 2 3 2 Repos.WeaponSpear
-    , Repos.Waza 113 "感電衝" 1 2 1 Repos.WeaponShortSword
-    , Repos.Waza 115 "マリオネット" 6 0 1 Repos.WeaponShortSword
-    , Repos.Waza 133 "瞬速の矢" 3 5 1 Repos.WeaponBow
-    , Repos.Waza 134 "でたらめ矢" 2 3 1 Repos.WeaponBow
-    , Repos.Waza 150 "ソバット" 2 6 1 Repos.WeaponMartialSkill
-    , Repos.Waza 151 "カウンター" 0 6 1 Repos.WeaponMartialSkill
+    , IndexedWaza 2 <| Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
+    , IndexedWaza 3 <| Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
+    , IndexedWaza 4 <| Repos.Waza 62 "アクスボンバー" 3 5 1 Repos.WeaponAxe
+    , IndexedWaza 5 <| Repos.Waza 63 "トマホーク" 1 3 1 Repos.WeaponAxe
+    , IndexedWaza 6 <| Repos.Waza 78 "返し突き" 0 4 1 Repos.WeaponMace
+    , IndexedWaza 7 <| Repos.Waza 79 "脳天割り" 3 5 1 Repos.WeaponMace
+    , IndexedWaza 8 <| Repos.Waza 94 "足払い" 0 0 1 Repos.WeaponSpear
+    , IndexedWaza 9 <| Repos.Waza 95 "二段突き" 2 3 2 Repos.WeaponSpear
+    , IndexedWaza 10 <| Repos.Waza 113 "感電衝" 1 2 1 Repos.WeaponShortSword
+    , IndexedWaza 11 <| Repos.Waza 115 "マリオネット" 6 0 1 Repos.WeaponShortSword
+    , IndexedWaza 12 <| Repos.Waza 133 "瞬速の矢" 3 5 1 Repos.WeaponBow
+    , IndexedWaza 13 <| Repos.Waza 134 "でたらめ矢" 2 3 1 Repos.WeaponBow
+    , IndexedWaza 14 <| Repos.Waza 150 "ソバット" 2 6 1 Repos.WeaponMartialSkill
+    , IndexedWaza 15 <| Repos.Waza 151 "カウンター" 0 6 1 Repos.WeaponMartialSkill
     ]
 
 

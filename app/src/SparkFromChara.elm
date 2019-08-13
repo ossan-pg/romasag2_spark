@@ -1,4 +1,4 @@
-module SparkFromChara exposing (IndexedChara, Model, Msg(..), WazaEnemies, main, update, view)
+module SparkFromChara exposing (IndexedChara, IndexedWaza, Model, Msg(..), WazaEnemies, main, update, view)
 
 import Browser
 import Html exposing (..)
@@ -29,7 +29,8 @@ type alias Model =
     , charaIndex : Maybe Int
     , sparkType : Maybe Repos.SparkTypeSymbol
     , weaponType : Repos.WeaponTypeSymbol
-    , wazas : List Repos.Waza
+    , wazas : List IndexedWaza
+    , wazaIndex : Maybe Int
     , wazaEnemies : List WazaEnemies
     }
 
@@ -37,6 +38,12 @@ type alias Model =
 type alias IndexedChara =
     { index : Int
     , chara : Repos.Chara
+    }
+
+
+type alias IndexedWaza =
+    { index : Int
+    , waza : Repos.Waza
     }
 
 
@@ -56,6 +63,7 @@ init _ =
       , sparkType = Nothing
       , weaponType = Repos.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
+      , wazaIndex = Nothing
       , wazaEnemies = []
       }
     , Cmd.none
@@ -70,7 +78,7 @@ type Msg
     = SelectCharaClass (Maybe Repos.CharaClass)
     | SelectChara (Maybe IndexedChara)
     | SelectWeaponType Repos.WeaponTypeSymbol
-    | SelectWaza (Maybe Repos.Waza)
+    | SelectWaza (Maybe IndexedWaza)
 
 
 
@@ -112,15 +120,35 @@ update msg model =
         SelectChara maybeChara ->
             case maybeChara of
                 Just { index, chara } ->
-                    ( { model
-                        | charaIndex = Just index
-                        , sparkType = Just chara.sparkType
-                        , wazas = Repos.findWazas chara.sparkType
-                      }
-                    , Cmd.none
-                    )
+                    let
+                        newWazas =
+                            Repos.findWazas chara.sparkType
+                                |> List.indexedMap IndexedWaza
+
+                        wazaIndex_ =
+                            Maybe.withDefault -1 model.wazaIndex
+
+                        -- 閃き可能な技一覧で選択中の技と
+                        -- 同じ位置の技を選択している状態にする
+                        msg_ =
+                            SelectWaza <|
+                                ListEx.getAt wazaIndex_ <|
+                                    -- TODO
+                                    -- フィルタ処理が view 側と重複しているので
+                                    -- 一箇所で実施するよう修正する
+                                    List.filter (.waza >> .weaponType >> (==) model.weaponType)
+                                    <|
+                                        newWazas
+                    in
+                    update msg_
+                        { model
+                            | charaIndex = Just index
+                            , sparkType = Just chara.sparkType
+                            , wazas = newWazas
+                        }
 
                 Nothing ->
+                    -- TODO (issue #21) charaIndex = Nothing を追加
                     ( { model | sparkType = Nothing, wazas = [] }, Cmd.none )
 
         SelectWeaponType weaponType ->
@@ -130,7 +158,7 @@ update msg model =
 
         SelectWaza maybeWaza ->
             case maybeWaza of
-                Just waza ->
+                Just { index, waza } ->
                     let
                         toWazaEnemies : Repos.FromWaza -> WazaEnemies
                         toWazaEnemies { fromWaza, sparkLevel } =
@@ -143,13 +171,19 @@ update msg model =
                                 |> List.map toWazaEnemies
                     in
                     ( { model
-                        | wazaEnemies = wazaEnemies_
+                        | wazaIndex = Just index
+                        , wazaEnemies = wazaEnemies_
                       }
                     , Cmd.none
                     )
 
                 Nothing ->
-                    ( { model | wazaEnemies = [] }, Cmd.none )
+                    ( { model
+                        | wazaIndex = Nothing
+                        , wazaEnemies = []
+                      }
+                    , Cmd.none
+                    )
 
 
 
@@ -288,6 +322,7 @@ viewWazas { sparkType, weaponType, wazas } =
 
             else
                 wazas
+                    |> List.map .waza
                     |> List.filter (.weaponType >> (==) weaponType)
                     |> List.map
                         (\{ id, name } ->
@@ -388,7 +423,7 @@ toSelectCharaAction charas =
 
 {-| 閃き可能な技一覧用の change イベントハンドラを作成する
 -}
-toSelectWazaAction : List Repos.Waza -> (String -> Msg)
+toSelectWazaAction : List IndexedWaza -> (String -> Msg)
 toSelectWazaAction wazas =
     \targetValue ->
         let
@@ -407,7 +442,7 @@ toSelectWazaAction wazas =
                         defaultId
         in
         wazas
-            |> ListEx.find (.id >> (==) id_)
+            |> ListEx.find (.waza >> .id >> (==) id_)
             |> SelectWaza
 
 
