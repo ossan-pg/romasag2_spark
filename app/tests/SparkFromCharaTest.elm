@@ -43,7 +43,7 @@ initialModel =
     , weaponType = Repos.WeaponSword
     , wazas = []
     , wazaIndex = Nothing
-    , wazaEnemies = []
+    , allWazaEnemies = []
     }
 
 
@@ -166,12 +166,12 @@ updateOnSelectWazaTests =
             IndexedWaza
             -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
             -> Expectation
-        verifySetWazaEnemiesToModel toWaza wazaEnemies =
+        verifySetWazaEnemiesToModel toWaza allWazaEnemyTuples =
             let
                 -- 指定された敵リストの各件数で update 結果の
-                -- wazaEnemies の敵リストを切り取る
+                -- allWazaEnemyTuples の敵リストを切り取る
                 numsOfTake =
-                    wazaEnemies
+                    allWazaEnemyTuples
                         |> List.map (Tuple.second >> List.length)
 
                 -- 結果を確認しやすい形式に変換する
@@ -183,8 +183,8 @@ updateOnSelectWazaTests =
                 pretty :
                     List WazaEnemies
                     -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
-                pretty wazaEnemies_ =
-                    wazaEnemies_
+                pretty allWazaEnemies_ =
+                    allWazaEnemies_
                         |> List.map2 Tuple.pair numsOfTake
                         |> List.map
                             (\( nrOfTake, { fromWaza, enemies } ) ->
@@ -201,18 +201,18 @@ updateOnSelectWazaTests =
             initialModel
                 |> update (SelectWaza <| Just toWaza)
                 |> Tuple.first
-                |> (\m -> ( m.wazaIndex, pretty m.wazaEnemies ))
-                |> Expect.equal ( Just toWaza.index, wazaEnemies )
+                |> (\m -> ( m.wazaIndex, pretty m.allWazaEnemies ))
+                |> Expect.equal ( Just toWaza.index, allWazaEnemyTuples )
     in
     -- 派生元の技と敵一覧を設定
     -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
     [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
         \_ ->
             -- 派生元の技と敵のリストを空以外に設定
-            { initialModel | wazaEnemies = [ WazaEnemies wazaParry.waza [] ] }
+            { initialModel | allWazaEnemies = [ WazaEnemies wazaParry.waza [] ] }
                 |> update (SelectWaza Nothing)
                 |> Tuple.first
-                |> (\m -> ( m.wazaIndex, m.wazaEnemies ))
+                |> (\m -> ( m.wazaIndex, m.allWazaEnemies ))
                 |> Expect.equal ( Nothing, [] )
     , describe "指定された技に対応する派生元の技と敵一覧を Model に設定する"
         [ test "パリイ" <|
@@ -684,7 +684,7 @@ viewWazasTests =
 viewWazaEnemiesTests : List Test
 viewWazaEnemiesTests =
     let
-        wazaEnemies =
+        allWazaEnemies =
             -- 実際と同じ件数を確認する意味はないので、
             -- 敵の件数はそれぞれ 3件にしている。
             -- また、閃き率は本来全て 20.4 だが、正しく反映されていることを
@@ -727,14 +727,14 @@ viewWazaEnemiesTests =
     -- 派生元の技と敵の一覧
     [ test "Model に派生元の技と敵が設定されていない場合、派生元の技と敵の一覧を表示しない" <|
         \_ ->
-            { initialModel | wazaEnemies = [] }
+            { initialModel | allWazaEnemies = [] }
                 |> view
                 |> Query.fromHtml
                 |> Query.find [ tag "section", classes [ "waza-enemies-outer" ] ]
                 |> Query.hasNot [ tag "div" ]
     , test "派生元の技を表示し、その下に項番、閃き率、敵の名前、敵の種族、敵のランクを表形式で表示する" <|
         \_ ->
-            { initialModel | wazaEnemies = wazaEnemies }
+            { initialModel | allWazaEnemies = allWazaEnemies }
                 |> view
                 |> Query.fromHtml
                 |> Query.find [ tag "section", classes [ "waza-enemies-outer" ] ]

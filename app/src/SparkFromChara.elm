@@ -31,7 +31,7 @@ type alias Model =
     , weaponType : Repos.WeaponTypeSymbol
     , wazas : List IndexedWaza
     , wazaIndex : Maybe Int
-    , wazaEnemies : List WazaEnemies
+    , allWazaEnemies : List WazaEnemies
     }
 
 
@@ -64,7 +64,7 @@ init _ =
       , weaponType = Repos.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
       , wazaIndex = Nothing
-      , wazaEnemies = []
+      , allWazaEnemies = []
       }
     , Cmd.none
     )
@@ -165,14 +165,14 @@ update msg model =
                             WazaEnemies fromWaza <|
                                 Repos.findEnemiesForSpark sparkLevel
 
-                        wazaEnemies_ =
+                        allWazaEnemies_ =
                             Repos.findWazaDerivations waza
                                 |> .fromWazas
                                 |> List.map toWazaEnemies
                     in
                     ( { model
                         | wazaIndex = Just index
-                        , wazaEnemies = wazaEnemies_
+                        , allWazaEnemies = allWazaEnemies_
                       }
                     , Cmd.none
                     )
@@ -180,7 +180,7 @@ update msg model =
                 Nothing ->
                     ( { model
                         | wazaIndex = Nothing
-                        , wazaEnemies = []
+                        , allWazaEnemies = []
                       }
                     , Cmd.none
                     )
@@ -342,7 +342,7 @@ viewNumsOfShownRecords =
 
 
 viewWazaEnemies : Model -> Html Msg
-viewWazaEnemies { wazaEnemies } =
+viewWazaEnemies { allWazaEnemies } =
     section [ Attrs.class "waza-enemies-outer" ] <|
         List.concatMap
             (\{ fromWaza, enemies } ->
@@ -368,7 +368,7 @@ viewWazaEnemies { wazaEnemies } =
                             enemies
                 ]
             )
-            wazaEnemies
+            allWazaEnemies
 
 
 {-| クラス一覧用の change イベントハンドラを作成する
