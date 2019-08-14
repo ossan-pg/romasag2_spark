@@ -100,12 +100,10 @@ update msg model =
                         msg_ =
                             SelectChara <| ListEx.getAt charaIndex_ newCharas
                     in
-                    ( update msg_ { model | charas = newCharas } |> Tuple.first
-                    , Cmd.none
-                    )
+                    update msg_ { model | charas = newCharas }
 
                 Nothing ->
-                    ( { model | charas = [] }, Cmd.none )
+                    update (SelectChara Nothing) { model | charas = [] }
 
         SelectChara maybeChara ->
             case maybeChara of
@@ -133,8 +131,12 @@ update msg model =
                         }
 
                 Nothing ->
-                    -- TODO (issue #21) charaIndex = Nothing を追加
-                    ( { model | sparkType = Nothing, wazas = [] }, Cmd.none )
+                    update (SelectWaza Nothing)
+                        { model
+                            | charaIndex = Nothing
+                            , sparkType = Nothing
+                            , wazas = []
+                        }
 
         SelectWeaponType weaponType ->
             let

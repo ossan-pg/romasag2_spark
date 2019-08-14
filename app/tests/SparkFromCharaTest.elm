@@ -90,8 +90,13 @@ updateOnSelectCharaTests =
     -- 閃き可能な技を設定
     [ test "キャラクターが指定されていない場合、空の技リストを Model に設定する" <|
         \_ ->
+            -- キャラクターの選択位置、選択中キャラクターの閃きタイプ、
             -- 技リストを空以外に設定
-            { initialModel | wazas = [ wazaParry ] }
+            { initialModel
+                | charaIndex = Just 0
+                , sparkType = Just Repos.SparkAxe
+                , wazas = [ wazaParry ]
+            }
                 |> update (SelectChara Nothing)
                 |> Tuple.first
                 |> pretty
@@ -224,8 +229,11 @@ updateOnSelectWazaTests =
     -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
     [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
         \_ ->
-            -- 派生元の技と敵のリストを空以外に設定
-            { initialModel | allWazaEnemies = [ WazaEnemies wazaParry.waza [] ] }
+            -- 技の選択位置、派生元の技と敵のリストを空以外に設定
+            { initialModel
+                | wazaIndex = Just 0
+                , allWazaEnemies = [ WazaEnemies wazaParry.waza [] ]
+            }
                 |> update (SelectWaza Nothing)
                 |> Tuple.first
                 |> (\m -> ( m.wazaIndex, m.allWazaEnemies ))
