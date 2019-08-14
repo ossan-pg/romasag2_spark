@@ -81,6 +81,7 @@ type Msg
     | SelectChara (Maybe IndexedChara)
     | SelectWeaponType Repos.WeaponTypeSymbol
     | SelectWaza (Maybe IndexedWaza)
+    | SelectNumOfShownEnemies Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -182,6 +183,10 @@ update msg model =
                     , Cmd.none
                     )
 
+        SelectNumOfShownEnemies n ->
+            -- TODO numOfShownEnemies を更新
+            ( model, Cmd.none )
+
 
 
 -- VIEW
@@ -193,7 +198,7 @@ view model =
         [ viewCharaClasses model
         , viewCharas model
         , viewWazas model
-        , viewNumsOfShownRecords
+        , viewNumsOfShownEnemies model
         , viewWazaEnemies model
         ]
 
@@ -327,13 +332,45 @@ viewWazas { sparkType, weaponType, wazas } =
         ]
 
 
-viewNumsOfShownRecords : Html Msg
-viewNumsOfShownRecords =
-    section [ Attrs.class "nums-of-shown-records-outer" ]
+viewNumsOfShownEnemies : Model -> Html Msg
+viewNumsOfShownEnemies { numOfShownEnemies } =
+    let
+        nums =
+            [ 10, 15, 20, 30, 40, 50 ]
+
+        defaultNum =
+            10
+
+        toMsg : Int -> Msg
+        toMsg =
+            \value ->
+                nums
+                    |> ListEx.find ((==) value)
+                    |> Maybe.withDefault defaultNum
+                    |> SelectNumOfShownEnemies
+    in
+    section [ Attrs.class "nums-of-shown-enemies-outer" ]
         [ div [] [ text "表示件数" ]
-        , select [ Attrs.class "nums-of-shown-records", Attrs.size 4 ] <|
-            List.map (\n -> option [ Attrs.value n ] [ text n ]) <|
-                List.map String.fromInt [ 5, 10, 20, 30, 40, 50 ]
+        , select
+            [ Attrs.class "nums-of-shown-enemies"
+            , Attrs.size 6
+            , EventsEx.onChange <| toChangeAction defaultNum toMsg
+            ]
+          <|
+            List.map
+                (\num ->
+                    let
+                        strNum =
+                            String.fromInt num
+                    in
+                    option
+                        [ Attrs.selected <| num == numOfShownEnemies
+                        , Attrs.value strNum
+                        ]
+                        [ text strNum ]
+                )
+            <|
+                nums
         ]
 
 
@@ -456,6 +493,16 @@ selectButton checkedWeaponType weaponType weaponName =
             []
         , text weaponName
         ]
+
+
+{-| セレクトボックスの change イベントハンドラを作成する
+-}
+toChangeAction : Int -> (Int -> Msg) -> (String -> Msg)
+toChangeAction defaultOptionValue toMsg =
+    \targetValue ->
+        String.toInt targetValue
+            |> Maybe.withDefault defaultOptionValue
+            |> toMsg
 
 
 

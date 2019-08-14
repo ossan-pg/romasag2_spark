@@ -29,6 +29,7 @@ suite =
                 , viewCharasTests
                 , viewWeaponTypesTests
                 , viewWazasTests
+                , viewNumOfShownEnemiesTests
                 , viewWazaEnemiesTests
                 ]
         ]
@@ -624,6 +625,70 @@ viewWazasTests =
                 in
                 verifySendMsgFromSelectBox "17" (SelectWaza <| Just wazaDoubleCut) model <|
                     Query.find [ tag "select", classes [ "wazas" ] ]
+        ]
+    ]
+
+
+viewNumOfShownEnemiesTests : List Test
+viewNumOfShownEnemiesTests =
+    -- 敵の表示件数一覧
+    [ describe "敵の表示件数一覧に対し、Model に設定されている敵の表示件数と同じ値の項目を選択状態にする"
+        [ test "10" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 10 }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ tag "select", classes [ "nums-of-shown-enemies" ] ]
+                    |> Query.contains
+                        [ H.option [ Attrs.selected True, Attrs.value "10" ] [ H.text "10" ]
+                        , H.option [ Attrs.selected False, Attrs.value "15" ] [ H.text "15" ]
+                        , H.option [ Attrs.selected False, Attrs.value "20" ] [ H.text "20" ]
+                        , H.option [ Attrs.selected False, Attrs.value "30" ] [ H.text "30" ]
+                        , H.option [ Attrs.selected False, Attrs.value "40" ] [ H.text "40" ]
+                        , H.option [ Attrs.selected False, Attrs.value "50" ] [ H.text "50" ]
+                        ]
+        , test "20" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 20 }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ tag "select", classes [ "nums-of-shown-enemies" ] ]
+                    |> Query.contains
+                        [ H.option [ Attrs.selected False, Attrs.value "10" ] [ H.text "10" ]
+                        , H.option [ Attrs.selected False, Attrs.value "15" ] [ H.text "15" ]
+                        , H.option [ Attrs.selected True, Attrs.value "20" ] [ H.text "20" ]
+                        , H.option [ Attrs.selected False, Attrs.value "30" ] [ H.text "30" ]
+                        , H.option [ Attrs.selected False, Attrs.value "40" ] [ H.text "40" ]
+                        , H.option [ Attrs.selected False, Attrs.value "50" ] [ H.text "50" ]
+                        ]
+        ]
+
+    -- 敵の表示件数選択
+    , describe "表示件数が選択された場合、その値を SelectNumOfShownEnemies に設定して送信する"
+        [ test "10" <|
+            \_ ->
+                let
+                    msg_ =
+                        SelectNumOfShownEnemies 10
+
+                    model =
+                        { initialModel | numOfShownEnemies = 15 }
+                in
+                verifySendMsgFromSelectBox "10" msg_ model <|
+                    Query.find
+                        [ tag "select", classes [ "nums-of-shown-enemies" ] ]
+        , test "30" <|
+            \_ ->
+                let
+                    msg_ =
+                        SelectNumOfShownEnemies 30
+
+                    model =
+                        { initialModel | numOfShownEnemies = 15 }
+                in
+                verifySendMsgFromSelectBox "30" msg_ model <|
+                    Query.find
+                        [ tag "select", classes [ "nums-of-shown-enemies" ] ]
         ]
     ]
 
