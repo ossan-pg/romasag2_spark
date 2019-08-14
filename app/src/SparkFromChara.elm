@@ -184,8 +184,16 @@ update msg model =
                     )
 
         SelectNumOfShownEnemies n ->
-            -- TODO numOfShownEnemies を更新
-            ( model, Cmd.none )
+            let
+                wazaIndex_ =
+                    Maybe.withDefault -1 model.wazaIndex
+
+                msg_ =
+                    SelectWaza <| ListEx.getAt wazaIndex_ model.wazas
+            in
+            -- 表示件数を変更した状態で現在の閃き可能な技を再度選択し、
+            -- 敵一覧を更新する
+            update msg_ { model | numOfShownEnemies = n }
 
 
 

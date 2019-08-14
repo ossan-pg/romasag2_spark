@@ -22,6 +22,7 @@ suite =
                 , updateOnSelectCharaTests
                 , updateOnSelectWeaponTypeTests
                 , updateOnSelectWazaTests
+                , updateOnSelectNumOfShownEnemiesTets
                 ]
         , describe "view" <|
             List.concat
@@ -292,6 +293,27 @@ updateOnSelectWazaTests =
                         ]
                       )
                     ]
+        ]
+    ]
+
+
+updateOnSelectNumOfShownEnemiesTets : List Test
+updateOnSelectNumOfShownEnemiesTets =
+    [ describe "指定された表示件数を Model に設定する"
+        [ test "10" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 15 }
+                    |> update (SelectNumOfShownEnemies 10)
+                    |> Tuple.first
+                    |> .numOfShownEnemies
+                    |> Expect.equal 10
+        , test "40" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 15 }
+                    |> update (SelectNumOfShownEnemies 40)
+                    |> Tuple.first
+                    |> .numOfShownEnemies
+                    |> Expect.equal 40
         ]
     ]
 
