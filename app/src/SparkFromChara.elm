@@ -133,8 +133,13 @@ update msg model =
                         }
 
                 Nothing ->
-                    -- TODO (issue #21) charaIndex = Nothing を追加
-                    ( { model | sparkType = Nothing, wazas = [] }, Cmd.none )
+                    ( { model
+                        | charaIndex = Nothing
+                        , sparkType = Nothing
+                        , wazas = []
+                      }
+                    , Cmd.none
+                    )
 
         SelectWeaponType weaponType ->
             let
