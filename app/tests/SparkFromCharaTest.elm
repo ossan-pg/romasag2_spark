@@ -229,8 +229,11 @@ updateOnSelectWazaTests =
     -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
     [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
         \_ ->
-            -- 派生元の技と敵のリストを空以外に設定
-            { initialModel | allWazaEnemies = [ WazaEnemies wazaParry.waza [] ] }
+            -- 技の選択位置、派生元の技と敵のリストを空以外に設定
+            { initialModel
+                | wazaIndex = Just 0
+                , allWazaEnemies = [ WazaEnemies wazaParry.waza [] ]
+            }
                 |> update (SelectWaza Nothing)
                 |> Tuple.first
                 |> (\m -> ( m.wazaIndex, m.allWazaEnemies ))
