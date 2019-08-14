@@ -43,7 +43,7 @@ initialModel =
     , weaponType = Repos.WeaponSword
     , wazas = []
     , wazaIndex = Nothing
-    , nrOfShownEnemies = 10
+    , numOfShownEnemies = 10
     , allWazaEnemies = []
     }
 
@@ -189,7 +189,7 @@ updateOnSelectWazaTests =
             -> IndexedWaza
             -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
             -> Expectation
-        verifySetWazaEnemiesToModel nrOfShownEnemies toWaza allWazaEnemyTuples =
+        verifySetWazaEnemiesToModel numOfShownEnemies toWaza allWazaEnemyTuples =
             let
                 -- 結果を確認しやすい形式に変換する
                 -- ( "派生元の技",
@@ -213,7 +213,7 @@ updateOnSelectWazaTests =
                                 )
                             )
             in
-            { initialModel | nrOfShownEnemies = nrOfShownEnemies }
+            { initialModel | numOfShownEnemies = numOfShownEnemies }
                 |> update (SelectWaza <| Just toWaza)
                 |> Tuple.first
                 |> (\m -> ( m.wazaIndex, pretty m.allWazaEnemies ))

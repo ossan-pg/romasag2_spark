@@ -31,7 +31,7 @@ type alias Model =
     , weaponType : Repos.WeaponTypeSymbol
     , wazas : List IndexedWaza
     , wazaIndex : Maybe Int
-    , nrOfShownEnemies : Int
+    , numOfShownEnemies : Int
     , allWazaEnemies : List WazaEnemies
     }
 
@@ -65,7 +65,7 @@ init _ =
       , weaponType = Repos.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
       , wazaIndex = Nothing
-      , nrOfShownEnemies = 10
+      , numOfShownEnemies = 10
       , allWazaEnemies = []
       }
     , Cmd.none
@@ -159,7 +159,7 @@ update msg model =
                         toWazaEnemies : Repos.FromWaza -> WazaEnemies
                         toWazaEnemies { fromWaza, sparkLevel } =
                             WazaEnemies fromWaza <|
-                                List.take model.nrOfShownEnemies <|
+                                List.take model.numOfShownEnemies <|
                                     Repos.findEnemiesForSpark sparkLevel
 
                         allWazaEnemies_ =
