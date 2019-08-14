@@ -21,6 +21,7 @@ suite =
                 [ updateOnSelectCharaClassTests
                 , updateOnSelectCharaTests
                 , updateOnSelectWeaponTypeTests
+                , updateOnSelectWazaTests
                 ]
         , describe "view" <|
             List.concat
@@ -28,6 +29,7 @@ suite =
                 , viewCharasTests
                 , viewWeaponTypesTests
                 , viewWazasTests
+                , viewWazaEnemiesTests
                 ]
         ]
 
@@ -40,6 +42,8 @@ initialModel =
     , sparkType = Nothing
     , weaponType = Repos.WeaponSword
     , wazas = []
+    , wazaIndex = Nothing
+    , allWazaEnemies = []
     }
 
 
@@ -91,14 +95,24 @@ updateOnSelectCharaTests =
                     |> update (SelectChara <| Just charaAsBear)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Repos.SparkGeneral, Repos.findWazas Repos.SparkGeneral )
+                    |> Expect.equal
+                        ( Just 0
+                        , Just Repos.SparkGeneral
+                        , Repos.findWazas Repos.SparkGeneral
+                            |> List.indexedMap IndexedWaza
+                        )
         , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
             \_ ->
                 initialModel
                     |> update (SelectChara <| Just charaAsLeon)
                     |> Tuple.first
                     |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
-                    |> Expect.equal ( Just 0, Just Repos.SparkNothing, Repos.findWazas Repos.SparkNothing )
+                    |> Expect.equal
+                        ( Just 0
+                        , Just Repos.SparkNothing
+                        , Repos.findWazas Repos.SparkNothing
+                            |> List.indexedMap IndexedWaza
+                        )
         ]
     ]
 
@@ -141,6 +155,129 @@ updateOnSelectWeaponTypeTests =
         , test "体術" <|
             \_ ->
                 verifySetWeaponTypeToModel Repos.WeaponSword Repos.WeaponMartialSkill
+        ]
+    ]
+
+
+updateOnSelectWazaTests : List Test
+updateOnSelectWazaTests =
+    let
+        verifySetWazaEnemiesToModel :
+            IndexedWaza
+            -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
+            -> Expectation
+        verifySetWazaEnemiesToModel toWaza allWazaEnemyTuples =
+            let
+                -- 指定された敵リストの各件数で update 結果の
+                -- allWazaEnemyTuples の敵リストを切り取る
+                numsOfTake =
+                    allWazaEnemyTuples
+                        |> List.map (Tuple.second >> List.length)
+
+                -- 結果を確認しやすい形式に変換する
+                -- ( "派生元の技",
+                --   [ ( 閃き率, ( "敵名", 敵種族, 敵ランク ) )
+                --   , ...
+                --   ]
+                -- )
+                pretty :
+                    List WazaEnemies
+                    -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
+                pretty allWazaEnemies_ =
+                    allWazaEnemies_
+                        |> List.map2 Tuple.pair numsOfTake
+                        |> List.map
+                            (\( nrOfTake, { fromWaza, enemies } ) ->
+                                ( fromWaza.name
+                                , enemies
+                                    |> List.take nrOfTake
+                                    |> List.map
+                                        (\{ sparkRate, enemy } ->
+                                            ( sparkRate, ( enemy.name, enemy.enemyType, enemy.rank ) )
+                                        )
+                                )
+                            )
+            in
+            initialModel
+                |> update (SelectWaza <| Just toWaza)
+                |> Tuple.first
+                |> (\m -> ( m.wazaIndex, pretty m.allWazaEnemies ))
+                |> Expect.equal ( Just toWaza.index, allWazaEnemyTuples )
+    in
+    -- 派生元の技と敵一覧を設定
+    -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
+    [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
+        \_ ->
+            -- 派生元の技と敵のリストを空以外に設定
+            { initialModel | allWazaEnemies = [ WazaEnemies wazaParry.waza [] ] }
+                |> update (SelectWaza Nothing)
+                |> Tuple.first
+                |> (\m -> ( m.wazaIndex, m.allWazaEnemies ))
+                |> Expect.equal ( Nothing, [] )
+    , describe "指定された技に対応する派生元の技と敵一覧を Model に設定する"
+        [ test "パリイ" <|
+            \_ ->
+                verifySetWazaEnemiesToModel wazaParry
+                    [ ( "(通常攻撃：剣)"
+                      , [ ( 20.4, ( "バルチャー", Repos.EnemyWinged, 1 ) )
+                        , ( 20.4, ( "飛蛇", Repos.EnemySnake, 1 ) )
+                        , ( 20.4, ( "アデプト", Repos.EnemyHuman, 1 ) )
+                        , ( 20.4, ( "タータラ", Repos.EnemyReptile, 1 ) )
+                        , ( 20.4, ( "サイレン", Repos.EnemyWinged, 2 ) )
+                        , ( 20.4, ( "バファロー", Repos.EnemyBeast, 2 ) )
+                        , ( 20.4, ( "センチペタ", Repos.EnemyInsect, 3 ) )
+                        , ( 20.4, ( "スライム", Repos.EnemySlime, 3 ) )
+                        , ( 20.4, ( "レインイーター", Repos.EnemyGhost, 4 ) )
+                        , ( 20.4, ( "ザ・ドラゴン", Repos.EnemyBoss, 20 ) )
+                        , ( 9.8, ( "砂竜", Repos.EnemySnake, 4 ) )
+                        , ( 9.8, ( "ニクサー", Repos.EnemyAquatic, 4 ) )
+                        , ( 9.8, ( "竜金", Repos.EnemyFish, 5 ) )
+                        , ( 9.8, ( "スプリッツァー", Repos.EnemyPlant, 5 ) )
+                        , ( 9.8, ( "ニクシー", Repos.EnemyAquatic, 5 ) )
+                        , ( 9.8, ( "ガリアンブルー", Repos.EnemyHuman, 5 ) )
+                        ]
+                      )
+                    ]
+        , test "かめごうら割り" <|
+            \_ ->
+                verifySetWazaEnemiesToModel
+                    (IndexedWaza 10 <| Repos.Waza 87 "かめごうら割り" 12 11 1 Repos.WeaponMace)
+                    [ ( "骨砕き"
+                      , [ ( 20.4, ( "アルビオン", Repos.EnemyFish, 16 ) )
+                        , ( 5.1, ( "ディアブロ", Repos.EnemyDemon, 16 ) )
+                        , ( 5.1, ( "トウテツ", Repos.EnemyBeast, 16 ) )
+                        , ( 5.1, ( "ミスティック", Repos.EnemyHuman, 16 ) )
+                        , ( 2.4, ( "ナックラビー", Repos.EnemyDemon, 15 ) )
+                        , ( 2.4, ( "ヘルビースト", Repos.EnemySkeleton, 16 ) )
+                        , ( 2.4, ( "獄竜", Repos.EnemyUndead, 16 ) )
+                        , ( 2.4, ( "ラルヴァクィーン", Repos.EnemyDemiHuman, 16 ) )
+                        , ( 2.4, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
+                        , ( 2.4, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
+                        , ( 2.4, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
+                        ]
+                      )
+                    , ( "ダブルヒット"
+                      , [ ( 20.4, ( "スカルロード", Repos.EnemySkeleton, 15 ) )
+                        , ( 20.4, ( "ロビンハット", Repos.EnemyDemiHuman, 15 ) )
+                        , ( 20.4, ( "メドゥサ", Repos.EnemySnake, 15 ) )
+                        , ( 20.4, ( "フォージウィルム", Repos.EnemyWinged, 16 ) )
+                        , ( 20.4, ( "セフィラス", Repos.EnemySprite, 16 ) )
+                        , ( 20.4, ( "フィア", Repos.EnemyGhost, 16 ) )
+                        , ( 20.4, ( "金龍", Repos.EnemyDragon, 40 ) )
+                        , ( 9.4, ( "アルビオン", Repos.EnemyFish, 16 ) )
+                        , ( 8.6, ( "ナックラビー", Repos.EnemyDemon, 15 ) )
+                        , ( 8.6, ( "ヘルビースト", Repos.EnemySkeleton, 16 ) )
+                        , ( 8.6, ( "獄竜", Repos.EnemyUndead, 16 ) )
+                        , ( 8.6, ( "ラルヴァクィーン", Repos.EnemyDemiHuman, 16 ) )
+                        , ( 8.6, ( "ディアブロ", Repos.EnemyDemon, 16 ) )
+                        , ( 8.6, ( "トウテツ", Repos.EnemyBeast, 16 ) )
+                        , ( 8.6, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
+                        , ( 8.6, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
+                        , ( 8.6, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
+                        , ( 8.6, ( "ミスティック", Repos.EnemyHuman, 16 ) )
+                        ]
+                      )
+                    ]
         ]
     ]
 
@@ -363,7 +500,7 @@ viewWazasTests : List Test
 viewWazasTests =
     let
         -- 指定された武器タイプの技がセレクトボックスに設定されるか検証する
-        verifySetWazasToSelectBox : List Repos.Waza -> Repos.WeaponTypeSymbol -> List ( String, String ) -> Expectation
+        verifySetWazasToSelectBox : List IndexedWaza -> Repos.WeaponTypeSymbol -> List ( String, String ) -> Expectation
         verifySetWazasToSelectBox wazas weaponType valueAndTexts =
             let
                 options =
@@ -380,7 +517,7 @@ viewWazasTests =
                 |> Query.contains options
 
         -- 指定された武器タイプの技がセレクトボックスに設定される件数を検証する
-        verifyCountOfWazasInSelectBox : List Repos.Waza -> Repos.WeaponTypeSymbol -> Int -> Expectation
+        verifyCountOfWazasInSelectBox : List IndexedWaza -> Repos.WeaponTypeSymbol -> Int -> Expectation
         verifyCountOfWazasInSelectBox wazas weaponType count_ =
             { initialModel | weaponType = weaponType, wazas = wazas }
                 |> view
@@ -544,6 +681,163 @@ viewWazasTests =
     ]
 
 
+viewWazaEnemiesTests : List Test
+viewWazaEnemiesTests =
+    let
+        allWazaEnemies =
+            -- 実際と同じ件数を確認する意味はないので、
+            -- 敵の件数はそれぞれ 3件にしている。
+            -- また、閃き率は本来全て 20.4 だが、正しく反映されていることを
+            -- 確認したいので一部任意の値に変更している。
+            [ WazaEnemies (Repos.Waza 2 "(通常攻撃：斧)" 0 3 1 Repos.WeaponAxe)
+                [ Repos.EnemyWithSparkRate
+                    (Repos.Enemy 9 "ボーンドレイク" 24 Repos.EnemySkeleton 10)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 57 "ワイバーン" 24 Repos.EnemyWinged 10)
+                    9.8
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 121 "サンドバイター" 24 Repos.EnemySnake 10)
+                    5.1
+                ]
+            , WazaEnemies (Repos.Waza 66 "大木断" 4 6 1 Repos.WeaponAxe)
+                [ Repos.EnemyWithSparkRate
+                    (Repos.Enemy 85 "ヘルハウンド" 15 Repos.EnemyBeast 6)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 86 "ワンプス" 15 Repos.EnemyBeast 7)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 183 "ムドメイン" 15 Repos.EnemySlime 8)
+                    20.4
+                ]
+            , WazaEnemies (Repos.Waza 67 "ブレードロール" 8 8 1 Repos.WeaponAxe)
+                [ Repos.EnemyWithSparkRate
+                    (Repos.Enemy 163 "ニクサー" 14 Repos.EnemyAquatic 4)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 5 "スケルトン" 14 Repos.EnemySkeleton 6)
+                    20.4
+                , Repos.EnemyWithSparkRate
+                    (Repos.Enemy 37 "オーガ" 14 Repos.EnemyDemiHuman 6)
+                    20.4
+                ]
+            ]
+    in
+    -- 派生元の技と敵の一覧
+    [ test "Model に派生元の技と敵が設定されていない場合、派生元の技と敵の一覧を表示しない" <|
+        \_ ->
+            { initialModel | allWazaEnemies = [] }
+                |> view
+                |> Query.fromHtml
+                |> Query.find [ tag "section", classes [ "waza-enemies-outer" ] ]
+                |> Query.hasNot [ tag "div" ]
+    , test "派生元の技を表示し、その下に項番、閃き率、敵の名前、敵の種族、敵のランクを表形式で表示する" <|
+        \_ ->
+            { initialModel | allWazaEnemies = allWazaEnemies }
+                |> view
+                |> Query.fromHtml
+                |> Query.find [ tag "section", classes [ "waza-enemies-outer" ] ]
+                |> Query.contains
+                    [ H.section [ Attrs.class "waza-enemies-outer" ]
+                        [ H.section [] [ H.text "派生元：(通常攻撃：斧)" ]
+                        , H.table [ Attrs.class "waza-enemies" ]
+                            [ H.tr []
+                                [ H.th [ Attrs.class "number" ] [ H.text "#" ]
+                                , H.th [ Attrs.class "spark-rate" ] [ H.text "閃き率" ]
+                                , H.th [ Attrs.class "enemy-name" ] [ H.text "モンスター" ]
+                                , H.th [ Attrs.class "enemy-type" ] [ H.text "種族" ]
+                                , H.th [ Attrs.class "enemy-rank" ] [ H.text "ランク" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "1" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ボーンドレイク" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "骸骨" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "10" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "2" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "9.8" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ワイバーン" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "有翼" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "10" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "3" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "5.1" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "サンドバイター" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "蛇" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "10" ]
+                                ]
+                            ]
+                        , H.section [] [ H.text "派生元：大木断" ]
+                        , H.table [ Attrs.class "waza-enemies" ]
+                            [ H.tr []
+                                [ H.th [ Attrs.class "number" ] [ H.text "#" ]
+                                , H.th [ Attrs.class "spark-rate" ] [ H.text "閃き率" ]
+                                , H.th [ Attrs.class "enemy-name" ] [ H.text "モンスター" ]
+                                , H.th [ Attrs.class "enemy-type" ] [ H.text "種族" ]
+                                , H.th [ Attrs.class "enemy-rank" ] [ H.text "ランク" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "1" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ヘルハウンド" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "獣" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "6" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "2" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ワンプス" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "獣" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "7" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "3" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ムドメイン" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "無機質" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "8" ]
+                                ]
+                            ]
+                        , H.section [] [ H.text "派生元：ブレードロール" ]
+                        , H.table [ Attrs.class "waza-enemies" ]
+                            [ H.tr []
+                                [ H.th [ Attrs.class "number" ] [ H.text "#" ]
+                                , H.th [ Attrs.class "spark-rate" ] [ H.text "閃き率" ]
+                                , H.th [ Attrs.class "enemy-name" ] [ H.text "モンスター" ]
+                                , H.th [ Attrs.class "enemy-type" ] [ H.text "種族" ]
+                                , H.th [ Attrs.class "enemy-rank" ] [ H.text "ランク" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "1" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "ニクサー" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "水棲" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "4" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "2" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "スケルトン" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "骸骨" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "6" ]
+                                ]
+                            , H.tr []
+                                [ H.td [ Attrs.class "number" ] [ H.text "3" ]
+                                , H.td [ Attrs.class "spark-rate" ] [ H.text "20.4" ]
+                                , H.td [ Attrs.class "enemy-name" ] [ H.text "オーガ" ]
+                                , H.td [ Attrs.class "enemy-type" ] [ H.text "獣人" ]
+                                , H.td [ Attrs.class "enemy-rank" ] [ H.text "6" ]
+                                ]
+                            ]
+                        ]
+                    ]
+    ]
+
+
 heavyInfantryClass : Repos.CharaClass
 heavyInfantryClass =
     Repos.CharaClass Repos.HeavyInfantry 0 "帝国重装歩兵" "初期状態で加入済み。"
@@ -600,34 +894,34 @@ specialCharas =
     ]
 
 
-wazaParry : Repos.Waza
+wazaParry : IndexedWaza
 wazaParry =
-    Repos.Waza 16 "パリイ" 0 0 1 Repos.WeaponSword
+    IndexedWaza 0 <| Repos.Waza 16 "パリイ" 0 0 1 Repos.WeaponSword
 
 
-wazaDoubleCut : Repos.Waza
+wazaDoubleCut : IndexedWaza
 wazaDoubleCut =
-    Repos.Waza 17 "二段斬り" 2 3 2 Repos.WeaponSword
+    IndexedWaza 1 <| Repos.Waza 17 "二段斬り" 2 3 2 Repos.WeaponSword
 
 
-wazasForTest : List Repos.Waza
+wazasForTest : List IndexedWaza
 wazasForTest =
     [ wazaParry
     , wazaDoubleCut
-    , Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
-    , Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
-    , Repos.Waza 62 "アクスボンバー" 3 5 1 Repos.WeaponAxe
-    , Repos.Waza 63 "トマホーク" 1 3 1 Repos.WeaponAxe
-    , Repos.Waza 78 "返し突き" 0 4 1 Repos.WeaponMace
-    , Repos.Waza 79 "脳天割り" 3 5 1 Repos.WeaponMace
-    , Repos.Waza 94 "足払い" 0 0 1 Repos.WeaponSpear
-    , Repos.Waza 95 "二段突き" 2 3 2 Repos.WeaponSpear
-    , Repos.Waza 113 "感電衝" 1 2 1 Repos.WeaponShortSword
-    , Repos.Waza 115 "マリオネット" 6 0 1 Repos.WeaponShortSword
-    , Repos.Waza 133 "瞬速の矢" 3 5 1 Repos.WeaponBow
-    , Repos.Waza 134 "でたらめ矢" 2 3 1 Repos.WeaponBow
-    , Repos.Waza 150 "ソバット" 2 6 1 Repos.WeaponMartialSkill
-    , Repos.Waza 151 "カウンター" 0 6 1 Repos.WeaponMartialSkill
+    , IndexedWaza 2 <| Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
+    , IndexedWaza 3 <| Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
+    , IndexedWaza 4 <| Repos.Waza 62 "アクスボンバー" 3 5 1 Repos.WeaponAxe
+    , IndexedWaza 5 <| Repos.Waza 63 "トマホーク" 1 3 1 Repos.WeaponAxe
+    , IndexedWaza 6 <| Repos.Waza 78 "返し突き" 0 4 1 Repos.WeaponMace
+    , IndexedWaza 7 <| Repos.Waza 79 "脳天割り" 3 5 1 Repos.WeaponMace
+    , IndexedWaza 8 <| Repos.Waza 94 "足払い" 0 0 1 Repos.WeaponSpear
+    , IndexedWaza 9 <| Repos.Waza 95 "二段突き" 2 3 2 Repos.WeaponSpear
+    , IndexedWaza 10 <| Repos.Waza 113 "感電衝" 1 2 1 Repos.WeaponShortSword
+    , IndexedWaza 11 <| Repos.Waza 115 "マリオネット" 6 0 1 Repos.WeaponShortSword
+    , IndexedWaza 12 <| Repos.Waza 133 "瞬速の矢" 3 5 1 Repos.WeaponBow
+    , IndexedWaza 13 <| Repos.Waza 134 "でたらめ矢" 2 3 1 Repos.WeaponBow
+    , IndexedWaza 14 <| Repos.Waza 150 "ソバット" 2 6 1 Repos.WeaponMartialSkill
+    , IndexedWaza 15 <| Repos.Waza 151 "カウンター" 0 6 1 Repos.WeaponMartialSkill
     ]
 
 

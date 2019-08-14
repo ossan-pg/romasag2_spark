@@ -1,4 +1,4 @@
-module SparkFromChara exposing (IndexedChara, Model, Msg(..), main, update, view)
+module SparkFromChara exposing (IndexedChara, IndexedWaza, Model, Msg(..), WazaEnemies, main, update, view)
 
 import Browser
 import Html exposing (..)
@@ -29,13 +29,29 @@ type alias Model =
     , charaIndex : Maybe Int
     , sparkType : Maybe Repos.SparkTypeSymbol
     , weaponType : Repos.WeaponTypeSymbol
-    , wazas : List Repos.Waza
+    , wazas : List IndexedWaza
+    , wazaIndex : Maybe Int
+    , allWazaEnemies : List WazaEnemies
     }
 
 
 type alias IndexedChara =
     { index : Int
     , chara : Repos.Chara
+    }
+
+
+type alias IndexedWaza =
+    { index : Int
+    , waza : Repos.Waza
+    }
+
+
+{-| 派生元の技と、閃き可能な技レベルの敵およびその敵に対する閃き率の一覧
+-}
+type alias WazaEnemies =
+    { fromWaza : Repos.Waza
+    , enemies : List Repos.EnemyWithSparkRate
     }
 
 
@@ -47,6 +63,8 @@ init _ =
       , sparkType = Nothing
       , weaponType = Repos.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
+      , wazaIndex = Nothing
+      , allWazaEnemies = []
       }
     , Cmd.none
     )
@@ -60,7 +78,7 @@ type Msg
     = SelectCharaClass (Maybe Repos.CharaClass)
     | SelectChara (Maybe IndexedChara)
     | SelectWeaponType Repos.WeaponTypeSymbol
-    | SelectWaza (Maybe Repos.Waza)
+    | SelectWaza (Maybe IndexedWaza)
 
 
 
@@ -102,15 +120,35 @@ update msg model =
         SelectChara maybeChara ->
             case maybeChara of
                 Just { index, chara } ->
-                    ( { model
-                        | charaIndex = Just index
-                        , sparkType = Just chara.sparkType
-                        , wazas = Repos.findWazas chara.sparkType
-                      }
-                    , Cmd.none
-                    )
+                    let
+                        newWazas =
+                            Repos.findWazas chara.sparkType
+                                |> List.indexedMap IndexedWaza
+
+                        wazaIndex_ =
+                            Maybe.withDefault -1 model.wazaIndex
+
+                        -- 閃き可能な技一覧で選択中の技と
+                        -- 同じ位置の技を選択している状態にする
+                        msg_ =
+                            SelectWaza <|
+                                ListEx.getAt wazaIndex_ <|
+                                    -- TODO
+                                    -- フィルタ処理が view 側と重複しているので
+                                    -- 一箇所で実施するよう修正する
+                                    List.filter (.waza >> .weaponType >> (==) model.weaponType)
+                                    <|
+                                        newWazas
+                    in
+                    update msg_
+                        { model
+                            | charaIndex = Just index
+                            , sparkType = Just chara.sparkType
+                            , wazas = newWazas
+                        }
 
                 Nothing ->
+                    -- TODO (issue #21) charaIndex = Nothing を追加
                     ( { model | sparkType = Nothing, wazas = [] }, Cmd.none )
 
         SelectWeaponType weaponType ->
@@ -119,8 +157,33 @@ update msg model =
             )
 
         SelectWaza maybeWaza ->
-            -- TODO 技選択時の動作を書く
-            ( model, Cmd.none )
+            case maybeWaza of
+                Just { index, waza } ->
+                    let
+                        toWazaEnemies : Repos.FromWaza -> WazaEnemies
+                        toWazaEnemies { fromWaza, sparkLevel } =
+                            WazaEnemies fromWaza <|
+                                Repos.findEnemiesForSpark sparkLevel
+
+                        allWazaEnemies_ =
+                            Repos.findWazaDerivations waza
+                                |> .fromWazas
+                                |> List.map toWazaEnemies
+                    in
+                    ( { model
+                        | wazaIndex = Just index
+                        , allWazaEnemies = allWazaEnemies_
+                      }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( { model
+                        | wazaIndex = Nothing
+                        , allWazaEnemies = []
+                      }
+                    , Cmd.none
+                    )
 
 
 
@@ -134,7 +197,7 @@ view model =
         , viewCharas model
         , viewWazas model
         , viewNumsOfShownRecords
-        , viewSparkRates model
+        , viewWazaEnemies model
         ]
 
 
@@ -259,6 +322,7 @@ viewWazas { sparkType, weaponType, wazas } =
 
             else
                 wazas
+                    |> List.map .waza
                     |> List.filter (.weaponType >> (==) weaponType)
                     |> List.map
                         (\{ id, name } ->
@@ -277,13 +341,13 @@ viewNumsOfShownRecords =
         ]
 
 
-viewSparkRates : Model -> Html Msg
-viewSparkRates _ =
-    section [ Attrs.class "spark-rates-outer" ] <|
-        List.concat <|
-            List.repeat 1 <|
-                [ div [] [ text "派生元：シャッタースタッフ(回復)" ]
-                , table [ Attrs.class "spark-rates" ] <|
+viewWazaEnemies : Model -> Html Msg
+viewWazaEnemies { allWazaEnemies } =
+    section [ Attrs.class "waza-enemies-outer" ] <|
+        List.concatMap
+            (\{ fromWaza, enemies } ->
+                [ section [] [ text <| "派生元：" ++ fromWaza.name ]
+                , table [ Attrs.class "waza-enemies" ] <|
                     tr []
                         [ th [ Attrs.class "number" ] [ text "#" ]
                         , th [ Attrs.class "spark-rate" ] [ text "閃き率" ]
@@ -291,16 +355,20 @@ viewSparkRates _ =
                         , th [ Attrs.class "enemy-type" ] [ text "種族" ]
                         , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
                         ]
-                        :: (List.repeat 1 <|
+                        :: List.indexedMap
+                            (\index { sparkRate, enemy } ->
                                 tr []
-                                    [ td [ Attrs.class "number" ] [ text "50" ]
-                                    , td [ Attrs.class "spark-rate" ] [ text "20.0" ]
-                                    , td [ Attrs.class "enemy-name" ] [ text "ヴァンパイア(女)" ]
-                                    , td [ Attrs.class "enemy-type" ] [ text "ゾンビ" ]
-                                    , td [ Attrs.class "enemy-rank" ] [ text "15" ]
+                                    [ td [ Attrs.class "number" ] [ text <| String.fromInt <| index + 1 ]
+                                    , td [ Attrs.class "spark-rate" ] [ text <| String.fromFloat sparkRate ]
+                                    , td [ Attrs.class "enemy-name" ] [ text enemy.name ]
+                                    , td [ Attrs.class "enemy-type" ] [ text <| Repos.enemyTypeToName enemy.enemyType ]
+                                    , td [ Attrs.class "enemy-rank" ] [ text <| String.fromInt enemy.rank ]
                                     ]
-                           )
+                            )
+                            enemies
                 ]
+            )
+            allWazaEnemies
 
 
 {-| クラス一覧用の change イベントハンドラを作成する
@@ -355,7 +423,7 @@ toSelectCharaAction charas =
 
 {-| 閃き可能な技一覧用の change イベントハンドラを作成する
 -}
-toSelectWazaAction : List Repos.Waza -> (String -> Msg)
+toSelectWazaAction : List IndexedWaza -> (String -> Msg)
 toSelectWazaAction wazas =
     \targetValue ->
         let
@@ -374,7 +442,7 @@ toSelectWazaAction wazas =
                         defaultId
         in
         wazas
-            |> ListEx.find (.id >> (==) id_)
+            |> ListEx.find (.waza >> .id >> (==) id_)
             |> SelectWaza
 
 
