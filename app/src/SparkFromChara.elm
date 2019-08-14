@@ -123,6 +123,8 @@ update msg model =
                     let
                         newWazas =
                             Repos.findWazas chara.sparkType
+                                |> List.filter
+                                    (.weaponType >> (==) model.weaponType)
                                 |> List.indexedMap IndexedWaza
 
                         wazaIndex_ =
@@ -131,14 +133,7 @@ update msg model =
                         -- 閃き可能な技一覧で選択中の技と
                         -- 同じ位置の技を選択している状態にする
                         msg_ =
-                            SelectWaza <|
-                                ListEx.getAt wazaIndex_ <|
-                                    -- TODO
-                                    -- フィルタ処理が view 側と重複しているので
-                                    -- 一箇所で実施するよう修正する
-                                    List.filter (.waza >> .weaponType >> (==) model.weaponType)
-                                    <|
-                                        newWazas
+                            SelectWaza <| ListEx.getAt wazaIndex_ <| newWazas
                     in
                     update msg_
                         { model
@@ -152,9 +147,16 @@ update msg model =
                     ( { model | sparkType = Nothing, wazas = [] }, Cmd.none )
 
         SelectWeaponType weaponType ->
-            ( { model | weaponType = weaponType }
-            , Cmd.none
-            )
+            let
+                charaIndex_ =
+                    Maybe.withDefault -1 model.charaIndex
+
+                msg_ =
+                    SelectChara <| ListEx.getAt charaIndex_ model.charas
+            in
+            -- 武器タイプを変更した状態で現在のキャラクターを再度選択し、
+            -- 閃き可能な技を更新する
+            update msg_ { model | weaponType = weaponType }
 
         SelectWaza maybeWaza ->
             case maybeWaza of
@@ -323,7 +325,6 @@ viewWazas { sparkType, weaponType, wazas } =
             else
                 wazas
                     |> List.map .waza
-                    |> List.filter (.weaponType >> (==) weaponType)
                     |> List.map
                         (\{ id, name } ->
                             option [ Attrs.value <| String.fromInt id ] [ text name ]

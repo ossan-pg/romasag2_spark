@@ -79,6 +79,14 @@ updateOnSelectCharaClassTests =
 
 updateOnSelectCharaTests : List Test
 updateOnSelectCharaTests =
+    let
+        pretty : Model -> ( Maybe Int, Maybe Repos.SparkTypeSymbol, List ( Int, String ) )
+        pretty { charaIndex, sparkType, wazas } =
+            ( charaIndex
+            , sparkType
+            , wazas |> List.map (\{ index, waza } -> ( index, waza.name ))
+            )
+    in
     -- 閃き可能な技を設定
     [ test "キャラクターが指定されていない場合、空の技リストを Model に設定する" <|
         \_ ->
@@ -86,32 +94,40 @@ updateOnSelectCharaTests =
             { initialModel | wazas = [ wazaParry ] }
                 |> update (SelectChara Nothing)
                 |> Tuple.first
-                |> .wazas
-                |> Expect.equal []
+                |> pretty
+                |> Expect.equal ( Nothing, Nothing, [] )
     , describe "指定されたキャラクターの閃きタイプに対応する技を Model に設定する"
-        [ test "ベアが指定された場合、閃きタイプ「汎用」が閃き可能な技を Model に設定する" <|
+        [ test "武器タイプに小剣を選択中の状態でベアが指定された場合、閃きタイプ「汎用」が閃き可能な小剣の技を Model に設定する" <|
             \_ ->
-                initialModel
+                { initialModel | weaponType = Repos.WeaponShortSword }
                     |> update (SelectChara <| Just charaAsBear)
                     |> Tuple.first
-                    |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
+                    |> pretty
                     |> Expect.equal
                         ( Just 0
                         , Just Repos.SparkGeneral
-                        , Repos.findWazas Repos.SparkGeneral
-                            |> List.indexedMap IndexedWaza
+                        , [ ( 0, "スネークショット" )
+                          , ( 1, "マタドール" )
+                          , ( 2, "乱れ突き" )
+                          , ( 3, "スクリュードライバ" )
+                          , ( 4, "マッドバイター" )
+                          , ( 5, "火龍出水" )
+                          , ( 6, "百花繚乱" )
+                          ]
                         )
-        , test "レオンが指定された場合、閃きタイプ「なし」が閃き可能な技を Model に設定する" <|
+        , test "武器タイプに弓を選択中の状態でレオンが指定された場合、閃きタイプ「なし」が閃き可能な弓の技を Model に設定する" <|
             \_ ->
-                initialModel
+                { initialModel | weaponType = Repos.WeaponBow }
                     |> update (SelectChara <| Just charaAsLeon)
                     |> Tuple.first
-                    |> (\m -> ( m.charaIndex, m.sparkType, m.wazas ))
+                    |> pretty
                     |> Expect.equal
                         ( Just 0
                         , Just Repos.SparkNothing
-                        , Repos.findWazas Repos.SparkNothing
-                            |> List.indexedMap IndexedWaza
+                        , [ ( 0, "ハートシーカー" )
+                          , ( 1, "皆死ね矢" )
+                          , ( 2, "スターライトアロー" )
+                          ]
                         )
         ]
     ]
@@ -499,9 +515,9 @@ viewWeaponTypesTests =
 viewWazasTests : List Test
 viewWazasTests =
     let
-        -- 指定された武器タイプの技がセレクトボックスに設定されるか検証する
-        verifySetWazasToSelectBox : List IndexedWaza -> Repos.WeaponTypeSymbol -> List ( String, String ) -> Expectation
-        verifySetWazasToSelectBox wazas weaponType valueAndTexts =
+        -- 指定された閃き可能な技がセレクトボックスに設定されるか検証する
+        verifySetWazasToSelectBox : List IndexedWaza -> List ( String, String ) -> Expectation
+        verifySetWazasToSelectBox wazas valueAndTexts =
             let
                 options =
                     List.map
@@ -510,21 +526,11 @@ viewWazasTests =
                         )
                         valueAndTexts
             in
-            { initialModel | weaponType = weaponType, wazas = wazas }
+            { initialModel | wazas = wazas }
                 |> view
                 |> Query.fromHtml
                 |> Query.find [ tag "select", classes [ "wazas" ] ]
                 |> Query.contains options
-
-        -- 指定された武器タイプの技がセレクトボックスに設定される件数を検証する
-        verifyCountOfWazasInSelectBox : List IndexedWaza -> Repos.WeaponTypeSymbol -> Int -> Expectation
-        verifyCountOfWazasInSelectBox wazas weaponType count_ =
-            { initialModel | weaponType = weaponType, wazas = wazas }
-                |> view
-                |> Query.fromHtml
-                |> Query.find [ tag "select", classes [ "wazas" ] ]
-                |> Query.findAll [ tag "option" ]
-                |> Query.count (Expect.equal count_)
     in
     -- 閃きタイプ表示
     [ describe "「閃き可能な技」の右側にキャラクターの閃きタイプを表示する"
@@ -564,88 +570,32 @@ viewWazasTests =
                 |> Query.contains
                     [ H.option [ Attrs.disabled True ] [ H.text "キャラクター未選択" ]
                     ]
-    , describe "閃き可能な技一覧に対し、現在選択中の武器タイプについて各技の名前を option の要素に、ID を option の value 属性に設定する"
-        -- 「セレクトボックスに特定の要素 *だけ* が含まれていること」を
-        -- 検証したかったが、その方法を見付けられなかった。
-        -- なので、同じ Model に対して
-        -- 「セレクトボックスに想定した要素が含まれていること」と
-        -- 「セレクトボックスの要素が想定した個数であること」の
-        -- 2種類の検証を実施することで仕様通りであるかを担保することにした。
+    , describe "閃き可能な技一覧に対し、指定された閃き可能な技の名前を option の要素に、ID を option の value 属性に設定する"
         [ test "剣" <|
             \_ ->
-                verifySetWazasToSelectBox wazasForTest Repos.WeaponSword <|
+                verifySetWazasToSelectBox
+                    [ wazaParry, wazaDoubleCut ]
                     [ ( "16", "パリイ" ), ( "17", "二段斬り" ) ]
-        , test "剣(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponSword <|
-                    List.length
-                        [ ( "16", "パリイ" ), ( "17", "二段斬り" ) ]
         , test "大剣" <|
             \_ ->
-                verifySetWazasToSelectBox wazasForTest Repos.WeaponGreatSword <|
-                    [ ( "42", "巻き打ち" ), ( "43", "強撃" ) ]
-        , test "大剣(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponGreatSword <|
-                    List.length
-                        [ ( "42", "巻き打ち" ), ( "43", "強撃" ) ]
-        , test "斧" <|
-            \_ ->
-                verifySetWazasToSelectBox wazasForTest
-                    Repos.WeaponAxe
-                    [ ( "62", "アクスボンバー" ), ( "63", "トマホーク" ) ]
-        , test "斧(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponAxe <|
-                    List.length
-                        [ ( "62", "アクスボンバー" ), ( "63", "トマホーク" ) ]
-        , test "棍棒" <|
-            \_ ->
-                verifySetWazasToSelectBox wazasForTest Repos.WeaponMace <|
-                    [ ( "78", "返し突き" ), ( "79", "脳天割り" ) ]
-        , test "棍棒(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponMace <|
-                    List.length
-                        [ ( "78", "返し突き" ), ( "79", "脳天割り" ) ]
-        , test "槍" <|
-            \_ ->
-                verifySetWazasToSelectBox wazasForTest
-                    Repos.WeaponSpear
-                    [ ( "94", "足払い" ), ( "95", "二段突き" ) ]
-        , test "槍(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponSpear <|
-                    List.length
-                        [ ( "94", "足払い" ), ( "95", "二段突き" ) ]
-        , test "小剣" <|
-            \_ ->
-                verifySetWazasToSelectBox wazasForTest Repos.WeaponShortSword <|
-                    [ ( "113", "感電衝" ), ( "115", "マリオネット" ) ]
-        , test "小剣(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponShortSword <|
-                    List.length
-                        [ ( "113", "感電衝" ), ( "115", "マリオネット" ) ]
-        , test "弓" <|
-            \_ ->
-                verifySetWazasToSelectBox wazasForTest
-                    Repos.WeaponBow
-                    [ ( "133", "瞬速の矢" ), ( "134", "でたらめ矢" ) ]
-        , test "弓(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponBow <|
-                    List.length
-                        [ ( "133", "瞬速の矢" ), ( "134", "でたらめ矢" ) ]
-        , test "体術" <|
-            \_ ->
-                verifySetWazasToSelectBox wazasForTest Repos.WeaponMartialSkill <|
-                    [ ( "150", "ソバット" ), ( "151", "カウンター" ) ]
-        , test "体術(件数)" <|
-            \_ ->
-                verifyCountOfWazasInSelectBox wazasForTest Repos.WeaponMartialSkill <|
-                    List.length
-                        [ ( "150", "ソバット" ), ( "151", "カウンター" ) ]
+                verifySetWazasToSelectBox
+                    [ IndexedWaza 0 <|
+                        Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
+                    , IndexedWaza 1 <|
+                        Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
+                    , IndexedWaza 2 <|
+                        Repos.Waza 44 "ディフレクト" 0 0 1 Repos.WeaponGreatSword
+                    , IndexedWaza 3 <|
+                        Repos.Waza 45 "切り落とし" 5 6 1 Repos.WeaponGreatSword
+                    , IndexedWaza 4 <|
+                        Repos.Waza 46 "ツバメ返し" 9 5 2 Repos.WeaponGreatSword
+                    ]
+                    [ ( "42", "巻き打ち" )
+                    , ( "43", "強撃" )
+                    , ( "44", "ディフレクト" )
+                    , ( "45", "切り落とし" )
+                    , ( "46", "ツバメ返し" )
+                    ]
         ]
 
     -- 閃き可能な技選択
@@ -902,27 +852,6 @@ wazaParry =
 wazaDoubleCut : IndexedWaza
 wazaDoubleCut =
     IndexedWaza 1 <| Repos.Waza 17 "二段斬り" 2 3 2 Repos.WeaponSword
-
-
-wazasForTest : List IndexedWaza
-wazasForTest =
-    [ wazaParry
-    , wazaDoubleCut
-    , IndexedWaza 2 <| Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
-    , IndexedWaza 3 <| Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
-    , IndexedWaza 4 <| Repos.Waza 62 "アクスボンバー" 3 5 1 Repos.WeaponAxe
-    , IndexedWaza 5 <| Repos.Waza 63 "トマホーク" 1 3 1 Repos.WeaponAxe
-    , IndexedWaza 6 <| Repos.Waza 78 "返し突き" 0 4 1 Repos.WeaponMace
-    , IndexedWaza 7 <| Repos.Waza 79 "脳天割り" 3 5 1 Repos.WeaponMace
-    , IndexedWaza 8 <| Repos.Waza 94 "足払い" 0 0 1 Repos.WeaponSpear
-    , IndexedWaza 9 <| Repos.Waza 95 "二段突き" 2 3 2 Repos.WeaponSpear
-    , IndexedWaza 10 <| Repos.Waza 113 "感電衝" 1 2 1 Repos.WeaponShortSword
-    , IndexedWaza 11 <| Repos.Waza 115 "マリオネット" 6 0 1 Repos.WeaponShortSword
-    , IndexedWaza 12 <| Repos.Waza 133 "瞬速の矢" 3 5 1 Repos.WeaponBow
-    , IndexedWaza 13 <| Repos.Waza 134 "でたらめ矢" 2 3 1 Repos.WeaponBow
-    , IndexedWaza 14 <| Repos.Waza 150 "ソバット" 2 6 1 Repos.WeaponMartialSkill
-    , IndexedWaza 15 <| Repos.Waza 151 "カウンター" 0 6 1 Repos.WeaponMartialSkill
-    ]
 
 
 {-| セレクトボックスの項目選択時に対応したメッセージが送信されるか検証する
