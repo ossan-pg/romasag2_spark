@@ -43,6 +43,7 @@ initialModel =
     , weaponType = Repos.WeaponSword
     , wazas = []
     , wazaIndex = Nothing
+    , nrOfShownEnemies = 10
     , allWazaEnemies = []
     }
 
@@ -184,17 +185,12 @@ updateOnSelectWazaTests : List Test
 updateOnSelectWazaTests =
     let
         verifySetWazaEnemiesToModel :
-            IndexedWaza
+            Int
+            -> IndexedWaza
             -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
             -> Expectation
-        verifySetWazaEnemiesToModel toWaza allWazaEnemyTuples =
+        verifySetWazaEnemiesToModel nrOfShownEnemies toWaza allWazaEnemyTuples =
             let
-                -- 指定された敵リストの各件数で update 結果の
-                -- allWazaEnemyTuples の敵リストを切り取る
-                numsOfTake =
-                    allWazaEnemyTuples
-                        |> List.map (Tuple.second >> List.length)
-
                 -- 結果を確認しやすい形式に変換する
                 -- ( "派生元の技",
                 --   [ ( 閃き率, ( "敵名", 敵種族, 敵ランク ) )
@@ -206,12 +202,10 @@ updateOnSelectWazaTests =
                     -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
                 pretty allWazaEnemies_ =
                     allWazaEnemies_
-                        |> List.map2 Tuple.pair numsOfTake
                         |> List.map
-                            (\( nrOfTake, { fromWaza, enemies } ) ->
+                            (\{ fromWaza, enemies } ->
                                 ( fromWaza.name
                                 , enemies
-                                    |> List.take nrOfTake
                                     |> List.map
                                         (\{ sparkRate, enemy } ->
                                             ( sparkRate, ( enemy.name, enemy.enemyType, enemy.rank ) )
@@ -219,14 +213,13 @@ updateOnSelectWazaTests =
                                 )
                             )
             in
-            initialModel
+            { initialModel | nrOfShownEnemies = nrOfShownEnemies }
                 |> update (SelectWaza <| Just toWaza)
                 |> Tuple.first
                 |> (\m -> ( m.wazaIndex, pretty m.allWazaEnemies ))
                 |> Expect.equal ( Just toWaza.index, allWazaEnemyTuples )
     in
     -- 派生元の技と敵一覧を設定
-    -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
     [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
         \_ ->
             -- 技の選択位置、派生元の技と敵のリストを空以外に設定
@@ -239,9 +232,10 @@ updateOnSelectWazaTests =
                 |> (\m -> ( m.wazaIndex, m.allWazaEnemies ))
                 |> Expect.equal ( Nothing, [] )
     , describe "指定された技に対応する派生元の技と敵一覧を Model に設定する"
-        [ test "パリイ" <|
+        [ test "パリイ、表示上限 10件" <|
             \_ ->
-                verifySetWazaEnemiesToModel wazaParry
+                verifySetWazaEnemiesToModel 10
+                    wazaParry
                     [ ( "(通常攻撃：剣)"
                       , [ ( 20.4, ( "バルチャー", Repos.EnemyWinged, 1 ) )
                         , ( 20.4, ( "飛蛇", Repos.EnemySnake, 1 ) )
@@ -253,18 +247,12 @@ updateOnSelectWazaTests =
                         , ( 20.4, ( "スライム", Repos.EnemySlime, 3 ) )
                         , ( 20.4, ( "レインイーター", Repos.EnemyGhost, 4 ) )
                         , ( 20.4, ( "ザ・ドラゴン", Repos.EnemyBoss, 20 ) )
-                        , ( 9.8, ( "砂竜", Repos.EnemySnake, 4 ) )
-                        , ( 9.8, ( "ニクサー", Repos.EnemyAquatic, 4 ) )
-                        , ( 9.8, ( "竜金", Repos.EnemyFish, 5 ) )
-                        , ( 9.8, ( "スプリッツァー", Repos.EnemyPlant, 5 ) )
-                        , ( 9.8, ( "ニクシー", Repos.EnemyAquatic, 5 ) )
-                        , ( 9.8, ( "ガリアンブルー", Repos.EnemyHuman, 5 ) )
                         ]
                       )
                     ]
-        , test "かめごうら割り" <|
+        , test "かめごうら割り、表示上限 15件" <|
             \_ ->
-                verifySetWazaEnemiesToModel
+                verifySetWazaEnemiesToModel 15
                     (IndexedWaza 10 <| Repos.Waza 87 "かめごうら割り" 12 11 1 Repos.WeaponMace)
                     [ ( "骨砕き"
                       , [ ( 20.4, ( "アルビオン", Repos.EnemyFish, 16 ) )
@@ -278,6 +266,10 @@ updateOnSelectWazaTests =
                         , ( 2.4, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
                         , ( 2.4, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
                         , ( 2.4, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
+                        , ( 1.6, ( "ナイトフォーク", Repos.EnemyWinged, 15 ) )
+                        , ( 1.6, ( "ヌエ", Repos.EnemyBeast, 15 ) )
+                        , ( 1.6, ( "首長竜", Repos.EnemyAquatic, 15 ) )
+                        , ( 1.6, ( "リザードロード", Repos.EnemyReptile, 16 ) )
                         ]
                       )
                     , ( "ダブルヒット"
@@ -296,9 +288,6 @@ updateOnSelectWazaTests =
                         , ( 8.6, ( "ディアブロ", Repos.EnemyDemon, 16 ) )
                         , ( 8.6, ( "トウテツ", Repos.EnemyBeast, 16 ) )
                         , ( 8.6, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
-                        , ( 8.6, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
-                        , ( 8.6, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
-                        , ( 8.6, ( "ミスティック", Repos.EnemyHuman, 16 ) )
                         ]
                       )
                     ]
