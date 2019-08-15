@@ -31,6 +31,7 @@ type alias Model =
     , weaponType : Repos.WeaponTypeSymbol
     , wazas : List IndexedWaza
     , wazaIndex : Maybe Int
+    , numOfShownEnemies : Int
     , allWazaEnemies : List WazaEnemies
     }
 
@@ -64,6 +65,7 @@ init _ =
       , weaponType = Repos.WeaponSword -- 初期選択は剣タイプ
       , wazas = []
       , wazaIndex = Nothing
+      , numOfShownEnemies = 10
       , allWazaEnemies = []
       }
     , Cmd.none
@@ -79,6 +81,7 @@ type Msg
     | SelectChara (Maybe IndexedChara)
     | SelectWeaponType Repos.WeaponTypeSymbol
     | SelectWaza (Maybe IndexedWaza)
+    | SelectNumOfShownEnemies Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -157,7 +160,8 @@ update msg model =
                         toWazaEnemies : Repos.FromWaza -> WazaEnemies
                         toWazaEnemies { fromWaza, sparkLevel } =
                             WazaEnemies fromWaza <|
-                                Repos.findEnemiesForSpark sparkLevel
+                                List.take model.numOfShownEnemies <|
+                                    Repos.findEnemiesForSpark sparkLevel
 
                         allWazaEnemies_ =
                             Repos.findWazaDerivations waza
@@ -179,6 +183,18 @@ update msg model =
                     , Cmd.none
                     )
 
+        SelectNumOfShownEnemies n ->
+            let
+                wazaIndex_ =
+                    Maybe.withDefault -1 model.wazaIndex
+
+                msg_ =
+                    SelectWaza <| ListEx.getAt wazaIndex_ model.wazas
+            in
+            -- 表示件数を変更した状態で現在の閃き可能な技を再度選択し、
+            -- 敵一覧を更新する
+            update msg_ { model | numOfShownEnemies = n }
+
 
 
 -- VIEW
@@ -190,7 +206,7 @@ view model =
         [ viewCharaClasses model
         , viewCharas model
         , viewWazas model
-        , viewNumsOfShownRecords
+        , viewNumsOfShownEnemies model
         , viewWazaEnemies model
         ]
 
@@ -324,13 +340,45 @@ viewWazas { sparkType, weaponType, wazas } =
         ]
 
 
-viewNumsOfShownRecords : Html Msg
-viewNumsOfShownRecords =
-    section [ Attrs.class "nums-of-shown-records-outer" ]
+viewNumsOfShownEnemies : Model -> Html Msg
+viewNumsOfShownEnemies { numOfShownEnemies } =
+    let
+        nums =
+            [ 10, 15, 20, 30, 40, 50 ]
+
+        defaultNum =
+            10
+
+        toMsg : Int -> Msg
+        toMsg =
+            \value ->
+                nums
+                    |> ListEx.find ((==) value)
+                    |> Maybe.withDefault defaultNum
+                    |> SelectNumOfShownEnemies
+    in
+    section [ Attrs.class "nums-of-shown-enemies-outer" ]
         [ div [] [ text "表示件数" ]
-        , select [ Attrs.class "nums-of-shown-records", Attrs.size 4 ] <|
-            List.map (\n -> option [ Attrs.value n ] [ text n ]) <|
-                List.map String.fromInt [ 5, 10, 20, 30, 40, 50 ]
+        , select
+            [ Attrs.class "nums-of-shown-enemies"
+            , Attrs.size 6
+            , EventsEx.onChange <| toChangeAction defaultNum toMsg
+            ]
+          <|
+            List.map
+                (\num ->
+                    let
+                        strNum =
+                            String.fromInt num
+                    in
+                    option
+                        [ Attrs.selected <| num == numOfShownEnemies
+                        , Attrs.value strNum
+                        ]
+                        [ text strNum ]
+                )
+            <|
+                nums
         ]
 
 
@@ -453,6 +501,16 @@ selectButton checkedWeaponType weaponType weaponName =
             []
         , text weaponName
         ]
+
+
+{-| セレクトボックスの change イベントハンドラを作成する
+-}
+toChangeAction : Int -> (Int -> Msg) -> (String -> Msg)
+toChangeAction defaultOptionValue toMsg =
+    \targetValue ->
+        String.toInt targetValue
+            |> Maybe.withDefault defaultOptionValue
+            |> toMsg
 
 
 

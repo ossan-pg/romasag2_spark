@@ -22,6 +22,7 @@ suite =
                 , updateOnSelectCharaTests
                 , updateOnSelectWeaponTypeTests
                 , updateOnSelectWazaTests
+                , updateOnSelectNumOfShownEnemiesTets
                 ]
         , describe "view" <|
             List.concat
@@ -29,6 +30,7 @@ suite =
                 , viewCharasTests
                 , viewWeaponTypesTests
                 , viewWazasTests
+                , viewNumOfShownEnemiesTests
                 , viewWazaEnemiesTests
                 ]
         ]
@@ -43,6 +45,7 @@ initialModel =
     , weaponType = Repos.WeaponSword
     , wazas = []
     , wazaIndex = Nothing
+    , numOfShownEnemies = 10
     , allWazaEnemies = []
     }
 
@@ -184,17 +187,12 @@ updateOnSelectWazaTests : List Test
 updateOnSelectWazaTests =
     let
         verifySetWazaEnemiesToModel :
-            IndexedWaza
+            Int
+            -> IndexedWaza
             -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
             -> Expectation
-        verifySetWazaEnemiesToModel toWaza allWazaEnemyTuples =
+        verifySetWazaEnemiesToModel numOfShownEnemies toWaza allWazaEnemyTuples =
             let
-                -- 指定された敵リストの各件数で update 結果の
-                -- allWazaEnemyTuples の敵リストを切り取る
-                numsOfTake =
-                    allWazaEnemyTuples
-                        |> List.map (Tuple.second >> List.length)
-
                 -- 結果を確認しやすい形式に変換する
                 -- ( "派生元の技",
                 --   [ ( 閃き率, ( "敵名", 敵種族, 敵ランク ) )
@@ -206,12 +204,10 @@ updateOnSelectWazaTests =
                     -> List ( String, List ( Float, ( String, Repos.EnemyTypeSymbol, Int ) ) )
                 pretty allWazaEnemies_ =
                     allWazaEnemies_
-                        |> List.map2 Tuple.pair numsOfTake
                         |> List.map
-                            (\( nrOfTake, { fromWaza, enemies } ) ->
+                            (\{ fromWaza, enemies } ->
                                 ( fromWaza.name
                                 , enemies
-                                    |> List.take nrOfTake
                                     |> List.map
                                         (\{ sparkRate, enemy } ->
                                             ( sparkRate, ( enemy.name, enemy.enemyType, enemy.rank ) )
@@ -219,14 +215,13 @@ updateOnSelectWazaTests =
                                 )
                             )
             in
-            initialModel
+            { initialModel | numOfShownEnemies = numOfShownEnemies }
                 |> update (SelectWaza <| Just toWaza)
                 |> Tuple.first
                 |> (\m -> ( m.wazaIndex, pretty m.allWazaEnemies ))
                 |> Expect.equal ( Just toWaza.index, allWazaEnemyTuples )
     in
     -- 派生元の技と敵一覧を設定
-    -- 敵一覧は件数が多いため、先頭から数件を検証し、それらが一致すれば OK とする
     [ test "技が指定されていない場合、空の派生元の技と敵のリストを Model に設定する" <|
         \_ ->
             -- 技の選択位置、派生元の技と敵のリストを空以外に設定
@@ -239,9 +234,10 @@ updateOnSelectWazaTests =
                 |> (\m -> ( m.wazaIndex, m.allWazaEnemies ))
                 |> Expect.equal ( Nothing, [] )
     , describe "指定された技に対応する派生元の技と敵一覧を Model に設定する"
-        [ test "パリイ" <|
+        [ test "パリイ、表示上限 10件" <|
             \_ ->
-                verifySetWazaEnemiesToModel wazaParry
+                verifySetWazaEnemiesToModel 10
+                    wazaParry
                     [ ( "(通常攻撃：剣)"
                       , [ ( 20.4, ( "バルチャー", Repos.EnemyWinged, 1 ) )
                         , ( 20.4, ( "飛蛇", Repos.EnemySnake, 1 ) )
@@ -253,18 +249,12 @@ updateOnSelectWazaTests =
                         , ( 20.4, ( "スライム", Repos.EnemySlime, 3 ) )
                         , ( 20.4, ( "レインイーター", Repos.EnemyGhost, 4 ) )
                         , ( 20.4, ( "ザ・ドラゴン", Repos.EnemyBoss, 20 ) )
-                        , ( 9.8, ( "砂竜", Repos.EnemySnake, 4 ) )
-                        , ( 9.8, ( "ニクサー", Repos.EnemyAquatic, 4 ) )
-                        , ( 9.8, ( "竜金", Repos.EnemyFish, 5 ) )
-                        , ( 9.8, ( "スプリッツァー", Repos.EnemyPlant, 5 ) )
-                        , ( 9.8, ( "ニクシー", Repos.EnemyAquatic, 5 ) )
-                        , ( 9.8, ( "ガリアンブルー", Repos.EnemyHuman, 5 ) )
                         ]
                       )
                     ]
-        , test "かめごうら割り" <|
+        , test "かめごうら割り、表示上限 15件" <|
             \_ ->
-                verifySetWazaEnemiesToModel
+                verifySetWazaEnemiesToModel 15
                     (IndexedWaza 10 <| Repos.Waza 87 "かめごうら割り" 12 11 1 Repos.WeaponMace)
                     [ ( "骨砕き"
                       , [ ( 20.4, ( "アルビオン", Repos.EnemyFish, 16 ) )
@@ -278,6 +268,10 @@ updateOnSelectWazaTests =
                         , ( 2.4, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
                         , ( 2.4, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
                         , ( 2.4, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
+                        , ( 1.6, ( "ナイトフォーク", Repos.EnemyWinged, 15 ) )
+                        , ( 1.6, ( "ヌエ", Repos.EnemyBeast, 15 ) )
+                        , ( 1.6, ( "首長竜", Repos.EnemyAquatic, 15 ) )
+                        , ( 1.6, ( "リザードロード", Repos.EnemyReptile, 16 ) )
                         ]
                       )
                     , ( "ダブルヒット"
@@ -296,12 +290,30 @@ updateOnSelectWazaTests =
                         , ( 8.6, ( "ディアブロ", Repos.EnemyDemon, 16 ) )
                         , ( 8.6, ( "トウテツ", Repos.EnemyBeast, 16 ) )
                         , ( 8.6, ( "カイザーアント", Repos.EnemyInsect, 16 ) )
-                        , ( 8.6, ( "ヴリトラ", Repos.EnemySnake, 16 ) )
-                        , ( 8.6, ( "ベインサーペント", Repos.EnemyAquatic, 16 ) )
-                        , ( 8.6, ( "ミスティック", Repos.EnemyHuman, 16 ) )
                         ]
                       )
                     ]
+        ]
+    ]
+
+
+updateOnSelectNumOfShownEnemiesTets : List Test
+updateOnSelectNumOfShownEnemiesTets =
+    [ describe "指定された表示件数を Model に設定する"
+        [ test "10" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 15 }
+                    |> update (SelectNumOfShownEnemies 10)
+                    |> Tuple.first
+                    |> .numOfShownEnemies
+                    |> Expect.equal 10
+        , test "40" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 15 }
+                    |> update (SelectNumOfShownEnemies 40)
+                    |> Tuple.first
+                    |> .numOfShownEnemies
+                    |> Expect.equal 40
         ]
     ]
 
@@ -635,6 +647,70 @@ viewWazasTests =
                 in
                 verifySendMsgFromSelectBox "17" (SelectWaza <| Just wazaDoubleCut) model <|
                     Query.find [ tag "select", classes [ "wazas" ] ]
+        ]
+    ]
+
+
+viewNumOfShownEnemiesTests : List Test
+viewNumOfShownEnemiesTests =
+    -- 敵の表示件数一覧
+    [ describe "敵の表示件数一覧に対し、Model に設定されている敵の表示件数と同じ値の項目を選択状態にする"
+        [ test "10" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 10 }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ tag "select", classes [ "nums-of-shown-enemies" ] ]
+                    |> Query.contains
+                        [ H.option [ Attrs.selected True, Attrs.value "10" ] [ H.text "10" ]
+                        , H.option [ Attrs.selected False, Attrs.value "15" ] [ H.text "15" ]
+                        , H.option [ Attrs.selected False, Attrs.value "20" ] [ H.text "20" ]
+                        , H.option [ Attrs.selected False, Attrs.value "30" ] [ H.text "30" ]
+                        , H.option [ Attrs.selected False, Attrs.value "40" ] [ H.text "40" ]
+                        , H.option [ Attrs.selected False, Attrs.value "50" ] [ H.text "50" ]
+                        ]
+        , test "20" <|
+            \_ ->
+                { initialModel | numOfShownEnemies = 20 }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ tag "select", classes [ "nums-of-shown-enemies" ] ]
+                    |> Query.contains
+                        [ H.option [ Attrs.selected False, Attrs.value "10" ] [ H.text "10" ]
+                        , H.option [ Attrs.selected False, Attrs.value "15" ] [ H.text "15" ]
+                        , H.option [ Attrs.selected True, Attrs.value "20" ] [ H.text "20" ]
+                        , H.option [ Attrs.selected False, Attrs.value "30" ] [ H.text "30" ]
+                        , H.option [ Attrs.selected False, Attrs.value "40" ] [ H.text "40" ]
+                        , H.option [ Attrs.selected False, Attrs.value "50" ] [ H.text "50" ]
+                        ]
+        ]
+
+    -- 敵の表示件数選択
+    , describe "表示件数が選択された場合、その値を SelectNumOfShownEnemies に設定して送信する"
+        [ test "10" <|
+            \_ ->
+                let
+                    msg_ =
+                        SelectNumOfShownEnemies 10
+
+                    model =
+                        { initialModel | numOfShownEnemies = 15 }
+                in
+                verifySendMsgFromSelectBox "10" msg_ model <|
+                    Query.find
+                        [ tag "select", classes [ "nums-of-shown-enemies" ] ]
+        , test "30" <|
+            \_ ->
+                let
+                    msg_ =
+                        SelectNumOfShownEnemies 30
+
+                    model =
+                        { initialModel | numOfShownEnemies = 15 }
+                in
+                verifySendMsgFromSelectBox "30" msg_ model <|
+                    Query.find
+                        [ tag "select", classes [ "nums-of-shown-enemies" ] ]
         ]
     ]
 
