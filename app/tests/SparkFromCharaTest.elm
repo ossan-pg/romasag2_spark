@@ -869,6 +869,77 @@ viewWazaEnemiesTests =
                             ]
                         ]
                     ]
+    , test "ボス系の敵のランクを '-' で表示する" <|
+        \_ ->
+            let
+                allWazaEnemiesWithBoss =
+                    [ WazaEnemies wazaParry.waza
+                        [ Repos.EnemyWithSparkRate
+                            (Repos.Enemy 255 "リザードロード" 40 Repos.EnemyReptile 16)
+                            9.8
+                        , Repos.EnemyWithSparkRate
+                            (Repos.Enemy 500 "ミミック" 9 Repos.EnemyBoss 20)
+                            9.8
+                        , Repos.EnemyWithSparkRate
+                            (Repos.Enemy 400 "巨人" 25 Repos.EnemyGiant 30)
+                            9.8
+                        , Repos.EnemyWithSparkRate
+                            (Repos.Enemy 300 "火竜" 33 Repos.EnemyDragon 40)
+                            9.8
+                        , Repos.EnemyWithSparkRate
+                            (Repos.Enemy 600 "クジンシー0" 6 Repos.EnemyBoss 50)
+                            9.8
+                        ]
+                    ]
+            in
+            { initialModel | allWazaEnemies = allWazaEnemiesWithBoss }
+                |> view
+                |> Query.fromHtml
+                |> Query.find [ tag "table", classes [ "waza-enemies" ] ]
+                |> Query.contains
+                    [ H.tr []
+                        [ H.th [ Attrs.class "number" ] [ H.text "#" ]
+                        , H.th [ Attrs.class "spark-rate" ] [ H.text "閃き率" ]
+                        , H.th [ Attrs.class "enemy-name" ] [ H.text "モンスター" ]
+                        , H.th [ Attrs.class "enemy-type" ] [ H.text "種族" ]
+                        , H.th [ Attrs.class "enemy-rank" ] [ H.text "ランク" ]
+                        ]
+                    , H.tr []
+                        [ H.td [ Attrs.class "number" ] [ H.text "1" ]
+                        , H.td [ Attrs.class "spark-rate" ] [ H.text "9.8" ]
+                        , H.td [ Attrs.class "enemy-name" ] [ H.text "リザードロード" ]
+                        , H.td [ Attrs.class "enemy-type" ] [ H.text "爬虫類" ]
+                        , H.td [ Attrs.class "enemy-rank" ] [ H.text "16" ]
+                        ]
+                    , H.tr []
+                        [ H.td [ Attrs.class "number" ] [ H.text "2" ]
+                        , H.td [ Attrs.class "spark-rate" ] [ H.text "9.8" ]
+                        , H.td [ Attrs.class "enemy-name" ] [ H.text "ミミック" ]
+                        , H.td [ Attrs.class "enemy-type" ] [ H.text "ボス" ]
+                        , H.td [ Attrs.class "enemy-rank" ] [ H.text "-" ]
+                        ]
+                    , H.tr []
+                        [ H.td [ Attrs.class "number" ] [ H.text "3" ]
+                        , H.td [ Attrs.class "spark-rate" ] [ H.text "9.8" ]
+                        , H.td [ Attrs.class "enemy-name" ] [ H.text "巨人" ]
+                        , H.td [ Attrs.class "enemy-type" ] [ H.text "巨人" ]
+                        , H.td [ Attrs.class "enemy-rank" ] [ H.text "-" ]
+                        ]
+                    , H.tr []
+                        [ H.td [ Attrs.class "number" ] [ H.text "4" ]
+                        , H.td [ Attrs.class "spark-rate" ] [ H.text "9.8" ]
+                        , H.td [ Attrs.class "enemy-name" ] [ H.text "火竜" ]
+                        , H.td [ Attrs.class "enemy-type" ] [ H.text "竜" ]
+                        , H.td [ Attrs.class "enemy-rank" ] [ H.text "-" ]
+                        ]
+                    , H.tr []
+                        [ H.td [ Attrs.class "number" ] [ H.text "5" ]
+                        , H.td [ Attrs.class "spark-rate" ] [ H.text "9.8" ]
+                        , H.td [ Attrs.class "enemy-name" ] [ H.text "クジンシー0" ]
+                        , H.td [ Attrs.class "enemy-type" ] [ H.text "ボス" ]
+                        , H.td [ Attrs.class "enemy-rank" ] [ H.text "-" ]
+                        ]
+                    ]
     ]
 
 
