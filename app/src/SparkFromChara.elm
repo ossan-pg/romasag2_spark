@@ -403,7 +403,15 @@ viewWazaEnemies { allWazaEnemies } =
                                     , td [ Attrs.class "spark-rate" ] [ text <| String.fromFloat sparkRate ]
                                     , td [ Attrs.class "enemy-name" ] [ text enemy.name ]
                                     , td [ Attrs.class "enemy-type" ] [ text <| Repos.enemyTypeToName enemy.enemyType ]
-                                    , td [ Attrs.class "enemy-rank" ] [ text <| String.fromInt enemy.rank ]
+                                    , td [ Attrs.class "enemy-rank" ]
+                                        [ text <|
+                                            if enemy.rank > 16 then
+                                                -- 16 を超えているランクはソートの都合上設定されたものなので表示上は "-" にする
+                                                "-"
+
+                                            else
+                                                String.fromInt enemy.rank
+                                        ]
                                     ]
                             )
                             enemies
