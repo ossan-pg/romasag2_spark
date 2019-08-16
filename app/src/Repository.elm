@@ -805,7 +805,6 @@ wazaDerivations_ =
     , WazaDerivation_ 0 20 27
     , WazaDerivation_ 0 21 18
     , WazaDerivation_ 0 24 25
-    , WazaDerivation_ 0 25 49
     , WazaDerivation_ 0 27 30
     , WazaDerivation_ 0 28 45
     , WazaDerivation_ 0 29 7
@@ -834,7 +833,6 @@ wazaDerivations_ =
     , WazaDerivation_ 1 58 22
     , WazaDerivation_ 1 59 19
     , WazaDerivation_ 1 60 29
-    , WazaDerivation_ 1 29 12
     , WazaDerivation_ 2 62 11
     , WazaDerivation_ 2 63 6
     , WazaDerivation_ 2 64 19
@@ -861,7 +859,6 @@ wazaDerivations_ =
     , WazaDerivation_ 3 89 10
     , WazaDerivation_ 3 90 12
     , WazaDerivation_ 3 91 13
-    , WazaDerivation_ 3 55 20
     , WazaDerivation_ 3 93 15
     , WazaDerivation_ 4 94 6
     , WazaDerivation_ 4 96 22
