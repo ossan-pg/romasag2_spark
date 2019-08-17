@@ -77,6 +77,14 @@ updateOnSelectCharaClassTests =
                     |> .charas
                     |> Expect.equal specialCharas
         ]
+    , test "更新後のキャラクター一覧で更新前に選択していた位置にキャラクターが存在しない場合、最後のキャラクターを選択状態にする" <|
+        \_ ->
+            { initialModel | charaIndex = Just 5 }
+                -- 「特殊」クラスは 5人 (charaIndex の最大値は 4)
+                |> update (SelectCharaClass <| Just specialCharaClass)
+                |> Tuple.first
+                |> .charaIndex
+                |> Expect.equal (Just 4)
     ]
 
 
@@ -396,35 +404,35 @@ viewCharasTests =
                 |> Query.contains
                     [ H.option [ Attrs.disabled True ] [ H.text "クラス未選択" ]
                     ]
-    , describe "キャラクター一覧に対し、各キャラクターの名前を option の要素に、ID を option の value 属性に設定する"
-        [ test "帝国重装歩兵" <|
+    , describe "キャラクター一覧に対し、各キャラクターの名前を option の要素に、ID を option の value 属性に設定し、charaIndex の位置のキャラクターを選択状態にする"
+        [ test "帝国重装歩兵、ベアを選択" <|
             \_ ->
-                { initialModel | charas = heavyInfantries }
+                { initialModel | charas = heavyInfantries, charaIndex = Just 0 }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ tag "select", classes [ "charas" ] ]
                     |> Query.contains
-                        [ H.option [ Attrs.value "0" ] [ H.text "ベア" ]
-                        , H.option [ Attrs.value "1" ] [ H.text "バイソン" ]
-                        , H.option [ Attrs.value "2" ] [ H.text "ウォーラス" ]
-                        , H.option [ Attrs.value "3" ] [ H.text "スネイル" ]
-                        , H.option [ Attrs.value "4" ] [ H.text "ヘッジホッグ" ]
-                        , H.option [ Attrs.value "5" ] [ H.text "トータス" ]
-                        , H.option [ Attrs.value "6" ] [ H.text "ライノ" ]
-                        , H.option [ Attrs.value "7" ] [ H.text "フェルディナント" ]
+                        [ H.option [ Attrs.value "0", Attrs.selected True ] [ H.text "ベア" ]
+                        , H.option [ Attrs.value "1", Attrs.selected False ] [ H.text "バイソン" ]
+                        , H.option [ Attrs.value "2", Attrs.selected False ] [ H.text "ウォーラス" ]
+                        , H.option [ Attrs.value "3", Attrs.selected False ] [ H.text "スネイル" ]
+                        , H.option [ Attrs.value "4", Attrs.selected False ] [ H.text "ヘッジホッグ" ]
+                        , H.option [ Attrs.value "5", Attrs.selected False ] [ H.text "トータス" ]
+                        , H.option [ Attrs.value "6", Attrs.selected False ] [ H.text "ライノ" ]
+                        , H.option [ Attrs.value "7", Attrs.selected False ] [ H.text "フェルディナント" ]
                         ]
-        , test "特殊" <|
+        , test "特殊、最終皇帝(女)を選択" <|
             \_ ->
-                { initialModel | charas = specialCharas }
+                { initialModel | charas = specialCharas, charaIndex = Just 4 }
                     |> view
                     |> Query.fromHtml
                     |> Query.find [ tag "select", classes [ "charas" ] ]
                     |> Query.contains
-                        [ H.option [ Attrs.value "300" ] [ H.text "レオン" ]
-                        , H.option [ Attrs.value "301" ] [ H.text "ジェラール" ]
-                        , H.option [ Attrs.value "302" ] [ H.text "コッペリア" ]
-                        , H.option [ Attrs.value "303" ] [ H.text "最終皇帝(男)" ]
-                        , H.option [ Attrs.value "304" ] [ H.text "最終皇帝(女)" ]
+                        [ H.option [ Attrs.value "300", Attrs.selected False ] [ H.text "レオン" ]
+                        , H.option [ Attrs.value "301", Attrs.selected False ] [ H.text "ジェラール" ]
+                        , H.option [ Attrs.value "302", Attrs.selected False ] [ H.text "コッペリア" ]
+                        , H.option [ Attrs.value "303", Attrs.selected False ] [ H.text "最終皇帝(男)" ]
+                        , H.option [ Attrs.value "304", Attrs.selected True ] [ H.text "最終皇帝(女)" ]
                         ]
         ]
 
