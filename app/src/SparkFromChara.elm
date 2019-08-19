@@ -97,6 +97,10 @@ update msg model =
 
                         charaIndex_ =
                             Maybe.withDefault -1 model.charaIndex
+                                -- model.charaIndex が更新後のキャラクター一覧の
+                                -- 最後のキャラクターより後ろを指している場合、
+                                -- 最後のキャラクターを指すようにする
+                                |> min (List.length newCharas - 1)
 
                         -- キャラクター一覧で選択中のキャラクターと
                         -- 同じ位置のキャラクターを選択している状態にする
@@ -120,6 +124,10 @@ update msg model =
 
                         wazaIndex_ =
                             Maybe.withDefault -1 model.wazaIndex
+                                -- model.wazaIndex が更新後の閃き可能な技一覧の
+                                -- 最後の技より後ろを指している場合、
+                                -- 最後の技を指すようにする
+                                |> min (List.length newWazas - 1)
 
                         -- 閃き可能な技一覧で選択中の技と
                         -- 同じ位置の技を選択している状態にする
@@ -225,7 +233,7 @@ viewCharaClasses { charaClasses } =
 
 
 viewCharas : Model -> Html Msg
-viewCharas { charas } =
+viewCharas { charas, charaIndex } =
     section [ Attrs.class "charas-outer" ]
         [ div [] [ text "キャラクター" ]
         , select [ Attrs.class "charas", Attrs.size 8, EventsEx.onChange <| toSelectCharaAction charas ] <|
@@ -241,9 +249,13 @@ viewCharas { charas } =
             else
                 charas
                     |> List.map .chara
-                    |> List.map
-                        (\{ id, name } ->
-                            option [ Attrs.value <| String.fromInt id ] [ text name ]
+                    |> List.indexedMap
+                        (\index { id, name } ->
+                            option
+                                [ Attrs.value <| String.fromInt id
+                                , Attrs.selected <| Just index == charaIndex
+                                ]
+                                [ text name ]
                         )
         ]
 
@@ -298,7 +310,7 @@ sparkTypeToDisplayName symbol =
 
 
 viewWazas : Model -> Html Msg
-viewWazas { sparkType, weaponType, wazas } =
+viewWazas { sparkType, weaponType, wazas, wazaIndex } =
     section [ Attrs.class "wazas-outer" ]
         [ div []
             [ text <|
@@ -333,9 +345,13 @@ viewWazas { sparkType, weaponType, wazas } =
             else
                 wazas
                     |> List.map .waza
-                    |> List.map
-                        (\{ id, name } ->
-                            option [ Attrs.value <| String.fromInt id ] [ text name ]
+                    |> List.indexedMap
+                        (\index { id, name } ->
+                            option
+                                [ Attrs.value <| String.fromInt id
+                                , Attrs.selected <| Just index == wazaIndex
+                                ]
+                                [ text name ]
                         )
         ]
 
