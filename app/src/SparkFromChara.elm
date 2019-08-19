@@ -124,6 +124,10 @@ update msg model =
 
                         wazaIndex_ =
                             Maybe.withDefault -1 model.wazaIndex
+                                -- model.wazaIndex が更新後の閃き可能な技一覧の
+                                -- 最後の技より後ろを指している場合、
+                                -- 最後の技を指すようにする
+                                |> min (List.length newWazas - 1)
 
                         -- 閃き可能な技一覧で選択中の技と
                         -- 同じ位置の技を選択している状態にする
@@ -306,7 +310,7 @@ sparkTypeToDisplayName symbol =
 
 
 viewWazas : Model -> Html Msg
-viewWazas { sparkType, weaponType, wazas } =
+viewWazas { sparkType, weaponType, wazas, wazaIndex } =
     section [ Attrs.class "wazas-outer" ]
         [ div []
             [ text <|
@@ -341,9 +345,13 @@ viewWazas { sparkType, weaponType, wazas } =
             else
                 wazas
                     |> List.map .waza
-                    |> List.map
-                        (\{ id, name } ->
-                            option [ Attrs.value <| String.fromInt id ] [ text name ]
+                    |> List.indexedMap
+                        (\index { id, name } ->
+                            option
+                                [ Attrs.value <| String.fromInt id
+                                , Attrs.selected <| Just index == wazaIndex
+                                ]
+                                [ text name ]
                         )
         ]
 

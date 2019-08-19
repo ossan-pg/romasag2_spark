@@ -146,6 +146,21 @@ updateOnSelectCharaTests =
                           ]
                         )
         ]
+    , test "更新後の閃き可能な技一覧で更新前に選択していた位置に技が存在しない場合、最後の技を選択状態にする" <|
+        \_ ->
+            -- キャラクター一覧でスネイル、武器タイプで小剣を選択していて、
+            -- 閃き可能な技一覧で百花繚乱 (8番目の技) を選択している状態。
+            -- 他の帝国重装歩兵が小剣で閃き可能なのは 7個なので、この状態で
+            -- キャラクターを変更すると閃き可能な技一覧の選択していた位置に
+            -- 技が存在しない状態になる。
+            { initialModel
+                | weaponType = Repos.WeaponShortSword
+                , wazaIndex = Just 7
+            }
+                |> update (SelectChara <| Just charaAsBear)
+                |> Tuple.first
+                |> .wazaIndex
+                |> Expect.equal (Just 6)
     ]
 
 
@@ -542,24 +557,6 @@ viewWeaponTypesTests =
 
 viewWazasTests : List Test
 viewWazasTests =
-    let
-        -- 指定された閃き可能な技がセレクトボックスに設定されるか検証する
-        verifySetWazasToSelectBox : List IndexedWaza -> List ( String, String ) -> Expectation
-        verifySetWazasToSelectBox wazas valueAndTexts =
-            let
-                options =
-                    List.map
-                        (\( value_, text_ ) ->
-                            H.option [ Attrs.value value_ ] [ H.text text_ ]
-                        )
-                        valueAndTexts
-            in
-            { initialModel | wazas = wazas }
-                |> view
-                |> Query.fromHtml
-                |> Query.find [ tag "select", classes [ "wazas" ] ]
-                |> Query.contains options
-    in
     -- 閃きタイプ表示
     [ describe "「閃き可能な技」の右側にキャラクターの閃きタイプを表示する"
         [ test "閃きタイプの指定なし" <|
@@ -598,32 +595,47 @@ viewWazasTests =
                 |> Query.contains
                     [ H.option [ Attrs.disabled True ] [ H.text "キャラクター未選択" ]
                     ]
-    , describe "閃き可能な技一覧に対し、指定された閃き可能な技の名前を option の要素に、ID を option の value 属性に設定する"
-        [ test "剣" <|
+    , describe "閃き可能な技一覧に対し、指定された閃き可能な技の名前を option の要素に、ID を option の value 属性に設定し、wazaIndex の位置の技を選択状態にする"
+        [ test "剣、パリイを選択" <|
             \_ ->
-                verifySetWazasToSelectBox
-                    [ wazaParry, wazaDoubleCut ]
-                    [ ( "16", "パリイ" ), ( "17", "二段斬り" ) ]
-        , test "大剣" <|
+                { initialModel
+                    | wazas = [ wazaParry, wazaDoubleCut ]
+                    , wazaIndex = Just 0
+                }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ tag "select", classes [ "wazas" ] ]
+                    |> Query.contains
+                        [ H.option [ Attrs.value "16", Attrs.selected True ] [ H.text "パリイ" ]
+                        , H.option [ Attrs.value "17", Attrs.selected False ] [ H.text "二段斬り" ]
+                        ]
+        , test "大剣、切り落としを選択" <|
             \_ ->
-                verifySetWazasToSelectBox
-                    [ IndexedWaza 0 <|
-                        Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
-                    , IndexedWaza 1 <|
-                        Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
-                    , IndexedWaza 2 <|
-                        Repos.Waza 44 "ディフレクト" 0 0 1 Repos.WeaponGreatSword
-                    , IndexedWaza 3 <|
-                        Repos.Waza 45 "切り落とし" 5 6 1 Repos.WeaponGreatSword
-                    , IndexedWaza 4 <|
-                        Repos.Waza 46 "ツバメ返し" 9 5 2 Repos.WeaponGreatSword
-                    ]
-                    [ ( "42", "巻き打ち" )
-                    , ( "43", "強撃" )
-                    , ( "44", "ディフレクト" )
-                    , ( "45", "切り落とし" )
-                    , ( "46", "ツバメ返し" )
-                    ]
+                { initialModel
+                    | wazas =
+                        [ IndexedWaza 0 <|
+                            Repos.Waza 42 "巻き打ち" 1 4 1 Repos.WeaponGreatSword
+                        , IndexedWaza 1 <|
+                            Repos.Waza 43 "強撃" 3 6 1 Repos.WeaponGreatSword
+                        , IndexedWaza 2 <|
+                            Repos.Waza 44 "ディフレクト" 0 0 1 Repos.WeaponGreatSword
+                        , IndexedWaza 3 <|
+                            Repos.Waza 45 "切り落とし" 5 6 1 Repos.WeaponGreatSword
+                        , IndexedWaza 4 <|
+                            Repos.Waza 46 "ツバメ返し" 9 5 2 Repos.WeaponGreatSword
+                        ]
+                    , wazaIndex = Just 3
+                }
+                    |> view
+                    |> Query.fromHtml
+                    |> Query.find [ tag "select", classes [ "wazas" ] ]
+                    |> Query.contains
+                        [ H.option [ Attrs.value "42", Attrs.selected False ] [ H.text "巻き打ち" ]
+                        , H.option [ Attrs.value "43", Attrs.selected False ] [ H.text "強撃" ]
+                        , H.option [ Attrs.value "44", Attrs.selected False ] [ H.text "ディフレクト" ]
+                        , H.option [ Attrs.value "45", Attrs.selected True ] [ H.text "切り落とし" ]
+                        , H.option [ Attrs.value "46", Attrs.selected False ] [ H.text "ツバメ返し" ]
+                        ]
         ]
 
     -- 閃き可能な技選択
