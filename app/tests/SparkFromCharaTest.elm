@@ -419,7 +419,7 @@ viewCharasTests =
                 |> Query.contains
                     [ H.option [ Attrs.disabled True ] [ H.text "クラス未選択" ]
                     ]
-    , describe "キャラクター一覧に対し、各キャラクターの名前を option の要素に、ID を option の value 属性に設定し、charaIndex の位置のキャラクターを選択状態にする"
+    , describe "キャラクター一覧に対し、各キャラクターの名前と閃きタイプを option の要素に、ID を option の value 属性に設定し、charaIndex の位置のキャラクターを選択状態にする"
         [ test "帝国重装歩兵、ベアを選択" <|
             \_ ->
                 { initialModel | charas = heavyInfantries, charaIndex = Just 0 }
@@ -427,14 +427,14 @@ viewCharasTests =
                     |> Query.fromHtml
                     |> Query.find [ tag "select", classes [ "charas" ] ]
                     |> Query.contains
-                        [ H.option [ Attrs.value "0", Attrs.selected True ] [ H.text "ベア" ]
-                        , H.option [ Attrs.value "1", Attrs.selected False ] [ H.text "バイソン" ]
-                        , H.option [ Attrs.value "2", Attrs.selected False ] [ H.text "ウォーラス" ]
-                        , H.option [ Attrs.value "3", Attrs.selected False ] [ H.text "スネイル" ]
-                        , H.option [ Attrs.value "4", Attrs.selected False ] [ H.text "ヘッジホッグ" ]
-                        , H.option [ Attrs.value "5", Attrs.selected False ] [ H.text "トータス" ]
-                        , H.option [ Attrs.value "6", Attrs.selected False ] [ H.text "ライノ" ]
-                        , H.option [ Attrs.value "7", Attrs.selected False ] [ H.text "フェルディナント" ]
+                        [ H.option [ Attrs.value "0", Attrs.selected True ] [ H.text "ベア (汎用)" ]
+                        , H.option [ Attrs.value "1", Attrs.selected False ] [ H.text "バイソン (汎用)" ]
+                        , H.option [ Attrs.value "2", Attrs.selected False ] [ H.text "ウォーラス (汎用)" ]
+                        , H.option [ Attrs.value "3", Attrs.selected False ] [ H.text "スネイル (剣2)" ]
+                        , H.option [ Attrs.value "4", Attrs.selected False ] [ H.text "ヘッジホッグ (汎用)" ]
+                        , H.option [ Attrs.value "5", Attrs.selected False ] [ H.text "トータス (汎用)" ]
+                        , H.option [ Attrs.value "6", Attrs.selected False ] [ H.text "ライノ (汎用)" ]
+                        , H.option [ Attrs.value "7", Attrs.selected False ] [ H.text "フェルディナント (汎用)" ]
                         ]
         , test "特殊、最終皇帝(女)を選択" <|
             \_ ->
@@ -443,11 +443,11 @@ viewCharasTests =
                     |> Query.fromHtml
                     |> Query.find [ tag "select", classes [ "charas" ] ]
                     |> Query.contains
-                        [ H.option [ Attrs.value "300", Attrs.selected False ] [ H.text "レオン" ]
-                        , H.option [ Attrs.value "301", Attrs.selected False ] [ H.text "ジェラール" ]
-                        , H.option [ Attrs.value "302", Attrs.selected False ] [ H.text "コッペリア" ]
-                        , H.option [ Attrs.value "303", Attrs.selected False ] [ H.text "最終皇帝(男)" ]
-                        , H.option [ Attrs.value "304", Attrs.selected True ] [ H.text "最終皇帝(女)" ]
+                        [ H.option [ Attrs.value "300", Attrs.selected False ] [ H.text "レオン (なし)" ]
+                        , H.option [ Attrs.value "301", Attrs.selected False ] [ H.text "ジェラール (術)" ]
+                        , H.option [ Attrs.value "302", Attrs.selected False ] [ H.text "コッペリア (なし)" ]
+                        , H.option [ Attrs.value "303", Attrs.selected False ] [ H.text "最終皇帝(男) (剣2)" ]
+                        , H.option [ Attrs.value "304", Attrs.selected True ] [ H.text "最終皇帝(女) (剣2)" ]
                         ]
         ]
 
@@ -557,36 +557,8 @@ viewWeaponTypesTests =
 
 viewWazasTests : List Test
 viewWazasTests =
-    -- 閃きタイプ表示
-    [ describe "「閃き可能な技」の右側にキャラクターの閃きタイプを表示する"
-        [ test "閃きタイプの指定なし" <|
-            \_ ->
-                { initialModel | sparkType = Nothing }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ classes [ "wazas-outer" ] ]
-                    |> Query.find [ tag "div", containing [ text "閃き可能な技" ] ]
-                    |> Query.has [ text "閃き可能な技" ]
-        , test "剣1" <|
-            \_ ->
-                { initialModel | sparkType = Just Repos.SparkSword1 }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ classes [ "wazas-outer" ] ]
-                    |> Query.find [ tag "div", containing [ text "閃き可能な技" ] ]
-                    |> Query.has [ text "閃き可能な技【剣1】" ]
-        , test "汎用" <|
-            \_ ->
-                { initialModel | sparkType = Just Repos.SparkGeneral }
-                    |> view
-                    |> Query.fromHtml
-                    |> Query.find [ classes [ "wazas-outer" ] ]
-                    |> Query.find [ tag "div", containing [ text "閃き可能な技" ] ]
-                    |> Query.has [ text "閃き可能な技【汎用】" ]
-        ]
-
     -- 閃き可能な技一覧
-    , test "Model に閃き可能な技が設定されていない場合、セレクトボックスの 1項目目に「キャラクター未選択」を Disabld 状態で表示する" <|
+    [ test "Model に閃き可能な技が設定されていない場合、セレクトボックスの 1項目目に「キャラクター未選択」を Disabld 状態で表示する" <|
         \_ ->
             { initialModel | wazas = [] }
                 |> view

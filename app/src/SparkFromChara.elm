@@ -250,12 +250,17 @@ viewCharas { charas, charaIndex } =
                 charas
                     |> List.map .chara
                     |> List.indexedMap
-                        (\index { id, name } ->
+                        (\index { id, name, sparkType } ->
                             option
                                 [ Attrs.value <| String.fromInt id
                                 , Attrs.selected <| Just index == charaIndex
                                 ]
-                                [ text name ]
+                                [ text <|
+                                    name
+                                        ++ " ("
+                                        ++ sparkTypeToDisplayName sparkType
+                                        ++ ")"
+                                ]
                         )
         ]
 
@@ -312,17 +317,7 @@ sparkTypeToDisplayName symbol =
 viewWazas : Model -> Html Msg
 viewWazas { sparkType, weaponType, wazas, wazaIndex } =
     section [ Attrs.class "wazas-outer" ]
-        [ div []
-            [ text <|
-                case sparkType of
-                    Just sparkType_ ->
-                        "閃き可能な技【"
-                            ++ sparkTypeToDisplayName sparkType_
-                            ++ "】"
-
-                    Nothing ->
-                        "閃き可能な技"
-            ]
+        [ div [] [ text "閃き可能な技" ]
         , div [ Attrs.class "weapon-type-filter" ]
             [ div []
                 [ selectButton weaponType Repos.WeaponSword "剣"
