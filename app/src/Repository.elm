@@ -868,7 +868,6 @@ wazaDerivations_ =
     , WazaDerivation_ 4 101 20
     , WazaDerivation_ 4 102 27
     , WazaDerivation_ 4 103 48
-    , WazaDerivation_ 4 104 51
     , WazaDerivation_ 4 105 40
     , WazaDerivation_ 4 106 17
     , WazaDerivation_ 4 107 24
