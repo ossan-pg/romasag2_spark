@@ -233,6 +233,10 @@ viewCharaClasses { charaClasses } =
             charaClasses
                 |> ListEx.find (.id >> (==) id_)
                 |> SelectCharaClass
+
+        toOption : Repos.CharaClass -> Html Msg
+        toOption { id, name } =
+            option [ Attrs.value <| String.fromInt id ] [ text name ]
     in
     section [ Attrs.class "chara-classes-outer" ]
         [ div [] [ text "クラス" ]
@@ -242,11 +246,7 @@ viewCharaClasses { charaClasses } =
             , EventsEx.onChange <| toChangeAction defaultId toMsg
             ]
           <|
-            List.map
-                (\{ id, name } ->
-                    option [ Attrs.value <| String.fromInt id ] [ text name ]
-                )
-                charaClasses
+            List.map toOption charaClasses
         ]
 
 
@@ -264,6 +264,19 @@ viewCharas { charas, charaIndex } =
             charas
                 |> ListEx.find (.chara >> .id >> (==) id_)
                 |> SelectChara
+
+        toOption : Int -> Repos.Chara -> Html Msg
+        toOption index { id, name, sparkType } =
+            option
+                [ Attrs.value <| String.fromInt id
+                , Attrs.selected <| Just index == charaIndex
+                ]
+                [ text <|
+                    name
+                        ++ " ("
+                        ++ sparkTypeToDisplayName sparkType
+                        ++ ")"
+                ]
     in
     section [ Attrs.class "charas-outer" ]
         [ div [] [ text "キャラクター" ]
@@ -285,19 +298,7 @@ viewCharas { charas, charaIndex } =
             else
                 charas
                     |> List.map .chara
-                    |> List.indexedMap
-                        (\index { id, name, sparkType } ->
-                            option
-                                [ Attrs.value <| String.fromInt id
-                                , Attrs.selected <| Just index == charaIndex
-                                ]
-                                [ text <|
-                                    name
-                                        ++ " ("
-                                        ++ sparkTypeToDisplayName sparkType
-                                        ++ ")"
-                                ]
-                        )
+                    |> List.indexedMap toOption
         ]
 
 
@@ -364,6 +365,14 @@ viewWazas { sparkType, weaponType, wazas, wazaIndex } =
             wazas
                 |> ListEx.find (.waza >> .id >> (==) id_)
                 |> SelectWaza
+
+        toOption : Int -> Repos.Waza -> Html Msg
+        toOption index { id, name } =
+            option
+                [ Attrs.value <| String.fromInt id
+                , Attrs.selected <| Just index == wazaIndex
+                ]
+                [ text name ]
     in
     section [ Attrs.class "wazas-outer" ]
         [ div [] [ text "閃き可能な技" ]
@@ -395,14 +404,7 @@ viewWazas { sparkType, weaponType, wazas, wazaIndex } =
             else
                 wazas
                     |> List.map .waza
-                    |> List.indexedMap
-                        (\index { id, name } ->
-                            option
-                                [ Attrs.value <| String.fromInt id
-                                , Attrs.selected <| Just index == wazaIndex
-                                ]
-                                [ text name ]
-                        )
+                    |> List.indexedMap toOption
         ]
 
 
@@ -421,6 +423,18 @@ viewNumsOfShownEnemies { numOfShownEnemies } =
                 |> ListEx.find ((==) value)
                 |> Maybe.withDefault defaultNum
                 |> SelectNumOfShownEnemies
+
+        toOption : Int -> Html Msg
+        toOption num =
+            let
+                strNum =
+                    String.fromInt num
+            in
+            option
+                [ Attrs.selected <| num == numOfShownEnemies
+                , Attrs.value strNum
+                ]
+                [ text strNum ]
     in
     section [ Attrs.class "nums-of-shown-enemies-outer" ]
         [ div [] [ text "表示件数" ]
@@ -430,29 +444,17 @@ viewNumsOfShownEnemies { numOfShownEnemies } =
             , EventsEx.onChange <| toChangeAction defaultNum toMsg
             ]
           <|
-            List.map
-                (\num ->
-                    let
-                        strNum =
-                            String.fromInt num
-                    in
-                    option
-                        [ Attrs.selected <| num == numOfShownEnemies
-                        , Attrs.value strNum
-                        ]
-                        [ text strNum ]
-                )
-            <|
-                nums
+            List.map toOption nums
         ]
 
 
 viewWazaEnemies : Model -> Html Msg
 viewWazaEnemies { allWazaEnemies } =
-    section [ Attrs.class "waza-enemies-outer" ] <|
-        List.concatMap
-            (\{ fromWaza, enemies } ->
-                [ section [] [ text <| "派生元：" ++ fromWaza.name ]
+    let
+        toSubSection : WazaEnemies -> Html Msg
+        toSubSection { fromWaza, enemies } =
+            section []
+                [ text <| "派生元：" ++ fromWaza.name
                 , table [ Attrs.class "waza-enemies" ] <|
                     tr []
                         [ th [ Attrs.class "number" ] [ text "#" ]
@@ -461,28 +463,33 @@ viewWazaEnemies { allWazaEnemies } =
                         , th [ Attrs.class "enemy-type" ] [ text "種族" ]
                         , th [ Attrs.class "enemy-rank" ] [ text "ランク" ]
                         ]
-                        :: List.indexedMap
-                            (\index { sparkRate, enemy } ->
-                                tr []
-                                    [ td [ Attrs.class "number" ] [ text <| String.fromInt <| index + 1 ]
-                                    , td [ Attrs.class "spark-rate" ] [ text <| String.fromFloat sparkRate ]
-                                    , td [ Attrs.class "enemy-name" ] [ text enemy.name ]
-                                    , td [ Attrs.class "enemy-type" ] [ text <| Repos.enemyTypeToName enemy.enemyType ]
-                                    , td [ Attrs.class "enemy-rank" ]
-                                        [ text <|
-                                            if enemy.rank > 16 then
-                                                -- 16 を超えているランクはソートの都合上設定されたものなので表示上は "-" にする
-                                                "-"
-
-                                            else
-                                                String.fromInt enemy.rank
-                                        ]
-                                    ]
-                            )
-                            enemies
+                        :: List.indexedMap toTableRecord enemies
                 ]
-            )
-            allWazaEnemies
+
+        toTableRecord : Int -> Repos.EnemyWithSparkRate -> Html Msg
+        toTableRecord index { sparkRate, enemy } =
+            tr []
+                [ td [ Attrs.class "number" ]
+                    [ text <| String.fromInt <| index + 1 ]
+                , td [ Attrs.class "spark-rate" ]
+                    [ text <| String.fromFloat sparkRate ]
+                , td [ Attrs.class "enemy-name" ]
+                    [ text enemy.name ]
+                , td [ Attrs.class "enemy-type" ]
+                    [ text <| Repos.enemyTypeToName enemy.enemyType ]
+                , td [ Attrs.class "enemy-rank" ]
+                    [ text <|
+                        if enemy.rank > 16 then
+                            -- 16 を超えているランクはソートの都合上設定されたものなので表示上は "-" にする
+                            "-"
+
+                        else
+                            String.fromInt enemy.rank
+                    ]
+                ]
+    in
+    section [ Attrs.class "waza-enemies-outer" ] <|
+        List.map toSubSection allWazaEnemies
 
 
 {-| 閃き可能な技一覧の武器タイプを選択するボタンを作成する
