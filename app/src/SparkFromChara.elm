@@ -221,9 +221,27 @@ view model =
 
 viewCharaClasses : Model -> Html Msg
 viewCharaClasses { charaClasses } =
+    let
+        -- 変換失敗の場合は -1 (該当クラスなし)
+        -- targetValue は charaClassess の各 id を変換したものなので
+        -- この値が参照されることはないはず (変換に失敗しない)
+        defaultId =
+            -1
+
+        toMsg : Int -> Msg
+        toMsg id_ =
+            charaClasses
+                |> ListEx.find (.id >> (==) id_)
+                |> SelectCharaClass
+    in
     section [ Attrs.class "chara-classes-outer" ]
         [ div [] [ text "クラス" ]
-        , select [ Attrs.class "chara-classes", Attrs.size 8, EventsEx.onChange <| toSelectCharaClassAction charaClasses ] <|
+        , select
+            [ Attrs.class "chara-classes"
+            , Attrs.size 8
+            , EventsEx.onChange <| toChangeAction defaultId toMsg
+            ]
+          <|
             List.map
                 (\{ id, name } ->
                     option [ Attrs.value <| String.fromInt id ] [ text name ]
@@ -234,9 +252,27 @@ viewCharaClasses { charaClasses } =
 
 viewCharas : Model -> Html Msg
 viewCharas { charas, charaIndex } =
+    let
+        -- 変換失敗の場合は -1 (該当キャラなし)
+        -- targetValue は charas の各 id を変換したものなので
+        -- この値が参照されることはないはず (変換に失敗しない)
+        defaultId =
+            -1
+
+        toMsg : Int -> Msg
+        toMsg id_ =
+            charas
+                |> ListEx.find (.chara >> .id >> (==) id_)
+                |> SelectChara
+    in
     section [ Attrs.class "charas-outer" ]
         [ div [] [ text "キャラクター" ]
-        , select [ Attrs.class "charas", Attrs.size 8, EventsEx.onChange <| toSelectCharaAction charas ] <|
+        , select
+            [ Attrs.class "charas"
+            , Attrs.size 8
+            , EventsEx.onChange <| toChangeAction defaultId toMsg
+            ]
+          <|
             if List.isEmpty charas then
                 -- キャラクターのリストが空＝クラス未選択の状態。
                 -- option がなかったり文字列が半角文字や全角空白で
@@ -316,6 +352,19 @@ sparkTypeToDisplayName symbol =
 
 viewWazas : Model -> Html Msg
 viewWazas { sparkType, weaponType, wazas, wazaIndex } =
+    let
+        -- 変換失敗の場合は -1 (該当技なし)
+        -- targetValue は wazas の各 id を変換したものなので
+        -- この値が参照されることはないはず (変換に失敗しない)
+        defaultId =
+            -1
+
+        toMsg : Int -> Msg
+        toMsg id_ =
+            wazas
+                |> ListEx.find (.waza >> .id >> (==) id_)
+                |> SelectWaza
+    in
     section [ Attrs.class "wazas-outer" ]
         [ div [] [ text "閃き可能な技" ]
         , div [ Attrs.class "weapon-type-filter" ]
@@ -332,9 +381,15 @@ viewWazas { sparkType, weaponType, wazas, wazaIndex } =
                 , selectButton weaponType Repos.WeaponMartialSkill "体術"
                 ]
             ]
-        , select [ Attrs.class "wazas", Attrs.size 8, EventsEx.onChange <| toSelectWazaAction wazas ] <|
+        , select
+            [ Attrs.class "wazas"
+            , Attrs.size 8
+            , EventsEx.onChange <| toChangeAction defaultId toMsg
+            ]
+          <|
             if List.isEmpty wazas then
-                [ option [ Attrs.disabled True ] [ text "キャラクター未選択" ]
+                [ option [ Attrs.disabled True ]
+                    [ text "キャラクター未選択" ]
                 ]
 
             else
@@ -361,12 +416,11 @@ viewNumsOfShownEnemies { numOfShownEnemies } =
             10
 
         toMsg : Int -> Msg
-        toMsg =
-            \value ->
-                nums
-                    |> ListEx.find ((==) value)
-                    |> Maybe.withDefault defaultNum
-                    |> SelectNumOfShownEnemies
+        toMsg value =
+            nums
+                |> ListEx.find ((==) value)
+                |> Maybe.withDefault defaultNum
+                |> SelectNumOfShownEnemies
     in
     section [ Attrs.class "nums-of-shown-enemies-outer" ]
         [ div [] [ text "表示件数" ]
@@ -429,81 +483,6 @@ viewWazaEnemies { allWazaEnemies } =
                 ]
             )
             allWazaEnemies
-
-
-{-| クラス一覧用の change イベントハンドラを作成する
--}
-toSelectCharaClassAction : List Repos.CharaClass -> (String -> Msg)
-toSelectCharaClassAction charaClasses =
-    \targetValue ->
-        let
-            -- 変換失敗の場合は -1 (該当クラスなし)
-            -- targetValue は charaClassess の各 id を変換したものなので
-            -- この値が参照されることはないはず (変換に失敗しない)
-            defaultId =
-                -1
-
-            id_ =
-                case String.toInt targetValue of
-                    Just n ->
-                        n
-
-                    Nothing ->
-                        defaultId
-        in
-        charaClasses
-            |> ListEx.find (.id >> (==) id_)
-            |> SelectCharaClass
-
-
-{-| キャラクター一覧用の change イベントハンドラを作成する
--}
-toSelectCharaAction : List IndexedChara -> (String -> Msg)
-toSelectCharaAction charas =
-    \targetValue ->
-        let
-            -- 変換失敗の場合は -1 (該当キャラなし)
-            -- targetValue は charas の各 id を変換したものなので
-            -- この値が参照されることはないはず (変換に失敗しない)
-            defaultId =
-                0
-
-            id_ =
-                case String.toInt targetValue of
-                    Just n ->
-                        n
-
-                    Nothing ->
-                        defaultId
-        in
-        charas
-            |> ListEx.find (.chara >> .id >> (==) id_)
-            |> SelectChara
-
-
-{-| 閃き可能な技一覧用の change イベントハンドラを作成する
--}
-toSelectWazaAction : List IndexedWaza -> (String -> Msg)
-toSelectWazaAction wazas =
-    \targetValue ->
-        let
-            -- 変換失敗の場合は -1 (該当キャラなし)
-            -- targetValue は wazas の各 id を変換したものなので
-            -- この値が参照されることはないはず (変換に失敗しない)
-            defaultId =
-                -1
-
-            id_ =
-                case String.toInt targetValue of
-                    Just n ->
-                        n
-
-                    Nothing ->
-                        defaultId
-        in
-        wazas
-            |> ListEx.find (.waza >> .id >> (==) id_)
-            |> SelectWaza
 
 
 {-| 閃き可能な技一覧の武器タイプを選択するボタンを作成する
