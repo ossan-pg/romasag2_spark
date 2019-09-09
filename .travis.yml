@@ -1,0 +1,16 @@
+language: elm
+branches:
+  only:
+    - dev
+script:
+  - cd app/
+  - elm-format --validate ./ && elm-test && elm make ./src/Main.elm --optimize --output=../public/index.html
+after_success:
+  - cd -
+deploy:
+  provider: firebase
+  skip_cleanup: true
+  token:
+    secure: $FIREBASE_TOKEN
+  on:
+    branch: dev
