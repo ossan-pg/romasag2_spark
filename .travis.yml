@@ -1,0 +1,19 @@
+language: elm
+branches:
+  only:
+    - dev
+install:
+  - npm install -g sass@1.22.10
+script:
+  - cd app/
+  - elm-format --validate ./ && elm-test && elm make ./src/SparkFromChara.elm --optimize --output=../public/js/spark_from_chara.js
+  - sass --no-source-map --style=expanded ./sass:../public/css
+after_success:
+  - cd -
+deploy:
+  provider: firebase
+  skip_cleanup: true
+  token:
+    secure: $FIREBASE_TOKEN
+  on:
+    branch: dev
